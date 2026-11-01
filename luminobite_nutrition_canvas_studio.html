@@ -1,0 +1,2547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuminoBite Studio — Nutrition Canvas & Living BI</title>
+
+    <!-- Tipografías oficiales de LuminoBite -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&family=Open+Sans:wght@400;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Open Sans', 'sans-serif'],
+                        montserrat: ['Montserrat', 'sans-serif'],
+                        roboto: ['Roboto', 'sans-serif'],
+                    },
+                    colors: {
+                        lumino: {
+                            bg: '#F9F8F3',
+                            dark: '#0D1B2A',
+                            teal: '#146779',
+                            pink: '#F73282',
+                            burgundy: '#780030',
+                            olive: '#786F14',
+                            beige: '#CCCAB5'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- React, ReactDOM, Babel y html2canvas para exportación -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: #F9F8F3;
+            color: #0D1B2A;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Cuadrícula técnica milimétrica y de puntos */
+        .canvas-grid-dots {
+            background-color: #F9F8F3;
+            background-image: 
+                radial-gradient(rgba(20, 103, 121, 0.22) 1.25px, transparent 1.25px),
+                radial-gradient(rgba(204, 202, 181, 0.35) 1px, transparent 1px);
+            background-size: 24px 24px, 120px 120px;
+            background-position: 0 0, 0 0;
+        }
+
+        .canvas-grid-lines {
+            background-color: #F9F8F3;
+            background-size: 20px 20px, 100px 100px;
+            background-image:
+                linear-gradient(to right, rgba(20, 103, 121, 0.06) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(20, 103, 121, 0.06) 1px, transparent 1px),
+                linear-gradient(to right, rgba(20, 103, 121, 0.16) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(20, 103, 121, 0.16) 1px, transparent 1px);
+        }
+
+        .canvas-clean {
+            background-color: #F9F8F3;
+        }
+
+        /* Animaciones de pulso y filtrado vivo */
+        @keyframes pulseGlowPink {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(247, 50, 130, 0.55), 0 15px 30px -5px rgba(13, 27, 42, 0.15); }
+            50% { box-shadow: 0 0 0 10px rgba(247, 50, 130, 0), 0 20px 35px -5px rgba(247, 50, 130, 0.28); }
+        }
+
+        .ingredient-match-glow {
+            animation: pulseGlowPink 2s infinite;
+            outline: 3px solid #F73282 !important;
+        }
+
+        /* Estilo de barras personalizadas de rango */
+        input[type="range"].lumino-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 999px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"].lumino-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0D1B2A;
+            border: 3px solid #FFFFFF;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            cursor: grab;
+            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+
+        input[type="range"].lumino-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.18);
+            background: #F73282;
+        }
+
+        /* Scrollbars sutiles */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(13, 27, 42, 0.2);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(20, 103, 121, 0.5);
+        }
+
+        /* Ocultar controles durante la exportación */
+        .exporting-mode .no-export {
+            display: none !important;
+        }
+        .exporting-mode .canvas-item-wrapper {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+        // ============================================================================
+        // 1. BASE DE DATOS COMPLETA DE LAS 5 BARRAS DE PROTEÍNA (DATOS OFICIALES)
+        // ============================================================================
+        const PROTEIN_BARS_DATA = [
+            {
+                id: 'quest',
+                name: 'Quest Bar',
+                flavor: 'Chocolate Chip Cookie Dough',
+                brandColor: '#1E40AF',
+                accentColor: '#60A5FA',
+                servingGrams: 60,
+                calories: 190,
+                protein: 21,
+                totalFat: 9,
+                satFat: 3,
+                transFat: 0,
+                cholesterol: 5,
+                sodium: 190,
+                totalCarbs: 22,
+                fiber: 12,
+                totalSugars: 1,
+                addedSugars: 0,
+                polyols: 6,
+                polyolType: 'Eritritol',
+                netCarbs: 4,
+                vitD: 0,
+                calcium: 120,
+                iron: 0.6,
+                potassium: 150,
+                ingredientsES: 'Mezcla de proteínas (aislado de proteína de leche, aislado de proteína de suero de leche), fibra de maíz soluble, almendras, agua, trozos con sabor a chocolate sin azúcar (licor de chocolate, eritritol, manteca de cacao, glucósidos de esteviol, lecitina de girasol), eritritol, sabores naturales, manteca de cacao. Contiene menos del 2% de: aceite de coco, sal marina, caseinato de sodio, lecitina de girasol, goma xantana, bicarbonato de sodio, sucralosa.',
+                containsVerbatim: 'CONTAINS: MILK, ALMONDS, SOY (FROM LECITHIN IN SOME LOTS).',
+                tracesVerbatim: 'PROCESSED IN A FACILITY THAT ALSO PROCESSES EGGS, PEANUTS, WHEAT, AND OTHER TREE NUTS.',
+                certifications: ['Certified Gluten-Free (GFCO)', 'Kosher Dairy'],
+                tags: ['milk', 'whey', 'almond', 'soy', 'erythritol', 'fiber', 'gluten_free', 'high_protein', 'cocoa']
+            },
+            {
+                id: 'barebells',
+                name: 'Barebells',
+                flavor: 'Cookies & Cream',
+                brandColor: '#0F2942',
+                accentColor: '#38BDF8',
+                servingGrams: 55,
+                calories: 200,
+                protein: 20,
+                totalFat: 7,
+                satFat: 3.5,
+                transFat: 0,
+                cholesterol: 10,
+                sodium: 105,
+                totalCarbs: 20,
+                fiber: 3,
+                totalSugars: 1,
+                addedSugars: 0,
+                polyols: 5,
+                polyolType: 'Maltitol / Glicerol',
+                netCarbs: 12,
+                vitD: 0.2,
+                calcium: 140,
+                iron: 0.5,
+                potassium: 130,
+                ingredientsES: 'Mezcla de proteínas (proteínas de leche, colágeno bovino hidrolizado, aislado de proteína de soya), humectante (glicerol), edulcorante (maltitol), polidextrosa, manteca de cacao, agua, leche entera en polvo, aceite de girasol, masa de cacao, cacao en polvo reducido en grasa, almidón de tapioca, aromas naturales, emulgente (lecitina de soya), edulcorante (sucralosa).',
+                containsVerbatim: 'CONTAINS: MILK, SOYBEANS.',
+                tracesVerbatim: 'MAY CONTAIN TRACES OF GLUTEN, WHEAT, EGGS, PEANUTS, SESAME, AND TREE NUTS. EXCESSIVE CONSUMPTION MAY HAVE A LAXATIVE EFFECT.',
+                certifications: ['No Added Sugar', 'GMO-Free'],
+                tags: ['milk', 'whey', 'collagen', 'soy', 'cocoa', 'maltitol', 'high_protein']
+            },
+            {
+                id: 'rxbar',
+                name: 'RXBAR',
+                flavor: 'Chocolate Sea Salt',
+                brandColor: '#451A03',
+                accentColor: '#D97706',
+                servingGrams: 52,
+                calories: 200,
+                protein: 12,
+                totalFat: 8,
+                satFat: 2,
+                transFat: 0,
+                cholesterol: 0,
+                sodium: 190,
+                totalCarbs: 23,
+                fiber: 5,
+                totalSugars: 14,
+                addedSugars: 0,
+                polyols: 0,
+                polyolType: 'Ninguno (0g)',
+                netCarbs: 18,
+                vitD: 0,
+                calcium: 50,
+                iron: 1.75,
+                potassium: 450,
+                ingredientsES: 'Dátiles, claras de huevo deshidratadas, almendras, anacardos (cashews), cacao 100%, sabores naturales, sal marina.',
+                containsVerbatim: 'CONTAINS: EGGS, ALMONDS, CASHEWS.',
+                tracesVerbatim: 'MANUFACTURED IN A FACILITY THAT ALSO PROCESSES PEANUTS, OTHER TREE NUTS, MILK, SOY, AND WHEAT. MAY CONTAIN HARD SHELL OR PIT FRAGMENTS.',
+                certifications: ['Whole30 Approved', 'Gluten-Free', 'Kosher Pareve'],
+                tags: ['egg', 'dates', 'almond', 'cashew', 'cocoa', 'sea_salt', 'gluten_free', 'fiber']
+            },
+            {
+                id: 'pureprotein',
+                name: 'Pure Protein',
+                flavor: 'Chocolate Peanut Butter',
+                brandColor: '#991B1B',
+                accentColor: '#FBBF24',
+                servingGrams: 50,
+                calories: 200,
+                protein: 20,
+                totalFat: 7,
+                satFat: 3,
+                transFat: 0,
+                cholesterol: 10,
+                sodium: 200,
+                totalCarbs: 17,
+                fiber: 1,
+                totalSugars: 2,
+                addedSugars: 1,
+                polyols: 6,
+                polyolType: 'Maltitol',
+                netCarbs: 10,
+                vitD: 0,
+                calcium: 150,
+                iron: 1.4,
+                potassium: 150,
+                ingredientsES: 'Mezcla de proteínas (aislado de proteína de leche, aislado de proteína de suero de leche, concentrado de proteína de suero), cobertura sabor chocolate (maltitol, aceite de semilla de palma fraccionado, concentrado de proteína de suero, cacao, carbonato de calcio, sabores naturales, lecitina de soya, sucralosa), colágeno hidrolizado, glicerina, harina de maní, agua, aislamiento de proteína de soya, cacahuates, mantequilla de almendras, lecitina de soya, sal, sucralosa, color achiote y cúrcuma.',
+                containsVerbatim: 'CONTAINS: MILK, SOY, PEANUT, ALMOND.',
+                tracesVerbatim: 'PRODUCED IN A FACILITY THAT ALSO PROCESSES OTHER TREE NUTS, EGG, WHEAT, AND SESAME.',
+                certifications: ['Gluten-Free'],
+                tags: ['milk', 'whey', 'collagen', 'peanut', 'almond', 'soy', 'maltitol', 'gluten_free', 'high_protein', 'cocoa']
+            },
+            {
+                id: 'grenade',
+                name: 'Grenade Carb Killa',
+                flavor: 'Choc Chip Salted Caramel',
+                brandColor: '#18181B',
+                accentColor: '#EA580C',
+                servingGrams: 60,
+                calories: 226,
+                protein: 20,
+                totalFat: 9.5,
+                satFat: 6,
+                transFat: 0.1,
+                cholesterol: 5,
+                sodium: 140,
+                totalCarbs: 20,
+                fiber: 1.8,
+                totalSugars: 1.4,
+                addedSugars: 0,
+                polyols: 16,
+                polyolType: 'Maltitol / Xilitol',
+                netCarbs: 2.2,
+                vitD: 0,
+                calcium: 175,
+                iron: 0.4,
+                potassium: 125,
+                ingredientsES: 'Chocolate con leche con edulcorante (25%) (maltitol, manteca de cacao, leche entera en polvo, masa de cacao, lecitina de soya, aromas), mezcla de proteínas (caseinato de calcio [leche], aislado de proteína de leche, aislado de proteína de suero [leche]), colágeno bovino hidrolizado, humectante (glicerol), polidextrosa, agua, trozos de chocolate con edulcorante (maltitol, masa de cacao, lecitina de soya), grasa de palma, cacao reducido en grasa, sal marina (0.4%), aromas, sucralosa.',
+                containsVerbatim: 'CONTAINS: MILK, SOY.',
+                tracesVerbatim: 'MAY ALSO CONTAIN CEREALS CONTAINING GLUTEN (WHEAT), EGGS, NUTS, PEANUTS, AND SESAME. EXCESSIVE CONSUMPTION MAY PRODUCE LAXATIVE EFFECTS.',
+                certifications: ['Informed-Choice Trusted by Sport'],
+                tags: ['milk', 'whey', 'collagen', 'soy', 'cocoa', 'maltitol', 'sea_salt', 'high_protein']
+            }
+        ];
+
+        // ============================================================================
+        // 2. ILUSTRACIONES VECTORIALES DE EMPAQUES DE BARRAS (100% SELF-CONTAINED SVG)
+        // ============================================================================
+        const BarWrapperIllustration = ({ barId, customImage }) => {
+            if (customImage) {
+                return (
+                    <div className="w-full h-28 rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center relative border border-slate-200">
+                        <img src={customImage} alt={barId} className="w-full h-full object-cover" />
+                    </div>
+                );
+            }
+
+            switch (barId) {
+                case 'quest':
+                    return (
+                        <svg viewBox="0 0 320 115" className="w-full h-28 drop-shadow-md select-none">
+                            <defs>
+                                <linearGradient id="questGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#1E3A8A" />
+                                    <stop offset="55%" stopColor="#2563EB" />
+                                    <stop offset="100%" stopColor="#1D4ED8" />
+                                </linearGradient>
+                                <linearGradient id="foilEdge" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stopColor="#94A3B8" />
+                                    <stop offset="50%" stopColor="#F8FAFC" />
+                                    <stop offset="100%" stopColor="#64748B" />
+                                </linearGradient>
+                            </defs>
+                            {/* Crimp Foil Left & Right */}
+                            <polygon points="8,14 22,18 22,97 8,101 12,85 8,70 12,55 8,40 12,25" fill="url(#foilEdge)" />
+                            <polygon points="312,14 298,18 298,97 312,101 308,85 312,70 308,55 312,40 308,25" fill="url(#foilEdge)" />
+                            {/* Main Wrapper Body */}
+                            <rect x="20" y="12" width="280" height="91" rx="10" fill="url(#questGrad)" stroke="#93C5FD" strokeWidth="1.5" />
+                            {/* Glossy Highlight */}
+                            <path d="M25,20 Q160,8 295,20 L295,35 Q160,25 25,35 Z" fill="rgba(255,255,255,0.14)" />
+                            {/* Cookie Dough Swirl Accent */}
+                            <path d="M185,12 L290,12 Q300,12 300,22 L300,93 Q300,103 290,103 L160,103 Z" fill="#FDE68A" opacity="0.92" />
+                            {/* Cookie Dough Illustration */}
+                            <circle cx="235" cy="58" r="30" fill="#D97706" opacity="0.25" />
+                            <circle cx="232" cy="56" r="25" fill="#F59E0B" />
+                            <circle cx="222" cy="48" r="4.5" fill="#3E2723" />
+                            <circle cx="240" cy="52" r="5" fill="#3E2723" />
+                            <circle cx="228" cy="66" r="4" fill="#3E2723" />
+                            <circle cx="244" cy="67" r="3.5" fill="#3E2723" />
+                            {/* Brand Typography */}
+                            <text x="36" y="48" fill="#FFFFFF" fontFamily="Montserrat" fontWeight="900" fontSize="25" letterSpacing="1">QUEST</text>
+                            <text x="36" y="66" fill="#BFDBFE" fontFamily="Montserrat" fontWeight="700" fontSize="9.5" letterSpacing="0.8">CHOCOLATE CHIP</text>
+                            <text x="36" y="79" fill="#FDE68A" fontFamily="Montserrat" fontWeight="800" fontSize="10.5" letterSpacing="0.6">COOKIE DOUGH</text>
+                            {/* Macro Badges on Wrapper */}
+                            <rect x="36" y="85" width="48" height="13" rx="3" fill="#0D1B2A" opacity="0.7" />
+                            <text x="60" y="94.5" fill="#FFFFFF" fontFamily="Roboto" fontWeight="700" fontSize="8" textAnchor="middle">21g PROT</text>
+                            <rect x="88" y="85" width="54" height="13" rx="3" fill="#146779" />
+                            <text x="115" y="94.5" fill="#FFFFFF" fontFamily="Roboto" fontWeight="700" fontSize="8" textAnchor="middle">4g NET CARB</text>
+                        </svg>
+                    );
+                case 'barebells':
+                    return (
+                        <svg viewBox="0 0 320 115" className="w-full h-28 drop-shadow-md select-none">
+                            <defs>
+                                <pattern id="bbStripes" width="20" height="20" patternTransform="rotate(35 0 0)" patternUnits="userSpaceOnUse">
+                                    <rect width="10" height="20" fill="#0F172A" />
+                                    <rect x="10" width="10" height="20" fill="#1E3A8A" />
+                                </pattern>
+                            </defs>
+                            <polygon points="8,14 22,18 22,97 8,101 12,85 8,70 12,55 8,40 12,25" fill="#CBD5E1" />
+                            <polygon points="312,14 298,18 298,97 312,101 308,85 312,70 308,55 312,40 308,25" fill="#CBD5E1" />
+                            <rect x="20" y="12" width="280" height="91" rx="10" fill="url(#bbStripes)" stroke="#38BDF8" strokeWidth="1.5" />
+                            {/* Center Cream Band */}
+                            <rect x="32" y="22" width="256" height="71" rx="6" fill="#F8FAFC" />
+                            <rect x="36" y="26" width="248" height="63" rx="4" fill="#0F172A" />
+                            {/* Cookies & Cream Visual */}
+                            <circle cx="242" cy="57" r="22" fill="#FFFFFF" />
+                            <circle cx="238" cy="57" r="19" fill="#1E293B" stroke="#94A3B8" strokeWidth="2" strokeDasharray="4 2" />
+                            <circle cx="238" cy="57" r="5" fill="#F8FAFC" />
+                            {/* Brand Text */}
+                            <text x="50" y="51" fill="#FFFFFF" fontFamily="Montserrat" fontWeight="900" fontSize="21" letterSpacing="1.5">BAREBELLS</text>
+                            <text x="50" y="67" fill="#38BDF8" fontFamily="Montserrat" fontWeight="800" fontSize="10.5" letterSpacing="1.2">COOKIES & CREAM</text>
+                            <text x="50" y="81" fill="#94A3B8" fontFamily="Open Sans" fontWeight="700" fontSize="8">20g PROTEIN • NO ADDED SUGAR</text>
+                        </svg>
+                    );
+                case 'rxbar':
+                    return (
+                        <svg viewBox="0 0 320 115" className="w-full h-28 drop-shadow-md select-none">
+                            <polygon points="8,14 22,18 22,97 8,101 12,85 8,70 12,55 8,40 12,25" fill="#78350F" />
+                            <polygon points="312,14 298,18 298,97 312,101 308,85 312,70 308,55 312,40 308,25" fill="#78350F" />
+                            <rect x="20" y="12" width="280" height="91" rx="8" fill="#451A03" stroke="#D97706" strokeWidth="1.5" />
+                            {/* Minimalist RX Manifesto Grid */}
+                            <rect x="34" y="20" width="135" height="75" fill="none" stroke="#FDE68A" strokeWidth="1.5" />
+                            <line x1="34" y1="39" x2="169" y2="39" stroke="#FDE68A" strokeWidth="1.2" />
+                            <line x1="34" y1="58" x2="169" y2="58" stroke="#FDE68A" strokeWidth="1.2" />
+                            <line x1="34" y1="76" x2="169" y2="76" stroke="#FDE68A" strokeWidth="1.2" />
+                            <text x="42" y="33" fill="#FEF3C7" fontFamily="Montserrat" fontWeight="800" fontSize="10">3 EGG WHITES</text>
+                            <text x="42" y="52" fill="#FEF3C7" fontFamily="Montserrat" fontWeight="800" fontSize="10">6 ALMONDS</text>
+                            <text x="42" y="71" fill="#FEF3C7" fontFamily="Montserrat" fontWeight="800" fontSize="10">4 CASHEWS</text>
+                            <text x="42" y="90" fill="#F59E0B" fontFamily="Montserrat" fontWeight="900" fontSize="10">2 DATES • NO B.S.</text>
+                            {/* Right Side Title */}
+                            <text x="184" y="45" fill="#FFFFFF" fontFamily="Montserrat" fontWeight="900" fontSize="24" letterSpacing="1">RXBAR</text>
+                            <rect x="184" y="53" width="100" height="16" rx="2" fill="#78350F" />
+                            <text x="189" y="64" fill="#FDE68A" fontFamily="Montserrat" fontWeight="700" fontSize="8.5" letterSpacing="0.5">CHOCOLATE SEA SALT</text>
+                            <text x="184" y="86" fill="#D97706" fontFamily="Roboto" fontWeight="900" fontSize="13">12g PROTEIN</text>
+                        </svg>
+                    );
+                case 'pureprotein':
+                    return (
+                        <svg viewBox="0 0 320 115" className="w-full h-28 drop-shadow-md select-none">
+                            <defs>
+                                <linearGradient id="ppGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stopColor="#7F1D1D" />
+                                    <stop offset="50%" stopColor="#DC2626" />
+                                    <stop offset="100%" stopColor="#991B1B" />
+                                </linearGradient>
+                            </defs>
+                            <polygon points="8,14 22,18 22,97 8,101 12,85 8,70 12,55 8,40 12,25" fill="#E2E8F0" />
+                            <polygon points="312,14 298,18 298,97 312,101 308,85 312,70 308,55 312,40 308,25" fill="#E2E8F0" />
+                            <rect x="20" y="12" width="280" height="91" rx="10" fill="url(#ppGrad)" stroke="#FBBF24" strokeWidth="1.5" />
+                            {/* Gold Swooshes */}
+                            <path d="M180,12 C210,45 190,80 230,103 L300,103 L300,12 Z" fill="#D97706" />
+                            <circle cx="246" cy="58" r="24" fill="#78350F" stroke="#FDE68A" strokeWidth="2" />
+                            <path d="M232,58 Q246,40 260,58 Q246,76 232,58 Z" fill="#F59E0B" />
+                            {/* Brand Text */}
+                            <text x="36" y="44" fill="#FFFFFF" fontFamily="Montserrat" fontWeight="900" fontSize="19" fontStyle="italic">PURE PROTEIN</text>
+                            <text x="36" y="63" fill="#FDE68A" fontFamily="Montserrat" fontWeight="800" fontSize="10.5">CHOCOLATE PEANUT BUTTER</text>
+                            <rect x="36" y="72" width="128" height="18" rx="4" fill="#0D1B2A" opacity="0.8" />
+                            <text x="100" y="84" fill="#FFFFFF" fontFamily="Roboto" fontWeight="700" fontSize="9" textAnchor="middle">20g PROT • 2g SUGAR • 50g</text>
+                        </svg>
+                    );
+                case 'grenade':
+                default:
+                    return (
+                        <svg viewBox="0 0 320 115" className="w-full h-28 drop-shadow-md select-none">
+                            <polygon points="8,14 22,18 22,97 8,101 12,85 8,70 12,55 8,40 12,25" fill="#27272A" />
+                            <polygon points="312,14 298,18 298,97 312,101 308,85 312,70 308,55 312,40 308,25" fill="#27272A" />
+                            <rect x="20" y="12" width="280" height="91" rx="10" fill="#18181B" stroke="#EA580C" strokeWidth="1.5" />
+                            {/* Tactical Diagonal Stripe */}
+                            <polygon points="165,12 220,12 185,103 130,103" fill="#EA580C" opacity="0.88" />
+                            {/* Salted Caramel & Chocolate Chunk Illustration */}
+                            <circle cx="248" cy="58" r="24" fill="#431407" stroke="#F97316" strokeWidth="2" />
+                            <path d="M233,52 Q248,68 263,48" stroke="#FBBF24" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+                            <path d="M235,64 Q250,48 262,65" stroke="#F59E0B" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                            {/* Brand Text */}
+                            <rect x="34" y="22" width="76" height="15" rx="2" fill="#EA580C" />
+                            <text x="72" y="33" fill="#FFFFFF" fontFamily="Montserrat" fontWeight="900" fontSize="9.5" textAnchor="middle" letterSpacing="1">GRENADE</text>
+                            <text x="34" y="56" fill="#FFFFFF" fontFamily="Montserrat" fontWeight="900" fontSize="20" letterSpacing="0.5">CARB KILLA</text>
+                            <text x="34" y="72" fill="#FB923C" fontFamily="Montserrat" fontWeight="700" fontSize="9.5">CHOC CHIP SALTED CARAMEL</text>
+                            <text x="34" y="90" fill="#A1A1AA" fontFamily="Roboto" fontWeight="700" fontSize="9">20g PROTEIN • 1.4g SUGAR</text>
+                        </svg>
+                    );
+            }
+        };
+
+        // ============================================================================
+        // 3. BIBLIOTECA DE ICONOS KAWAII / LINDOS DE INGREDIENTES (CON FILTRO ACTIVO)
+        // ============================================================================
+        const CUTE_STICKERS_LIBRARY = [
+            {
+                id: 'sticker_cow',
+                tag: 'milk',
+                label: 'Vaquita Láctea',
+                sub: 'Leche / Whey',
+                bg: '#EFF6FF',
+                border: '#93C5FD',
+                renderSvg: () => (
+                    <svg viewBox="0 0 90 90" className="w-full h-full">
+                        <circle cx="45" cy="45" r="40" fill="#DBEAFE" />
+                        {/* Horns & Ears */}
+                        <ellipse cx="22" cy="28" rx="8" ry="5" transform="rotate(-25 22 28)" fill="#FDE68A" stroke="#0D1B2A" strokeWidth="2.2" />
+                        <ellipse cx="68" cy="28" rx="8" ry="5" transform="rotate(25 68 28)" fill="#FDE68A" stroke="#0D1B2A" strokeWidth="2.2" />
+                        <ellipse cx="16" cy="38" rx="7" ry="4" transform="rotate(-15 16 38)" fill="#F472B6" stroke="#0D1B2A" strokeWidth="2" />
+                        <ellipse cx="74" cy="38" rx="7" ry="4" transform="rotate(15 74 38)" fill="#F472B6" stroke="#0D1B2A" strokeWidth="2" />
+                        {/* Head */}
+                        <rect x="22" y="24" width="46" height="44" rx="20" fill="#FFFFFF" stroke="#0D1B2A" strokeWidth="2.5" />
+                        {/* Cow Spots */}
+                        <path d="M26,28 Q38,26 35,38 Q26,42 23,34 Z" fill="#0D1B2A" />
+                        <circle cx="60" cy="34" r="5" fill="#0D1B2A" />
+                        {/* Eyes with Sparkles */}
+                        <circle cx="34" cy="44" r="4" fill="#0D1B2A" />
+                        <circle cx="32.8" cy="42.5" r="1.4" fill="#FFFFFF" />
+                        <circle cx="56" cy="44" r="4" fill="#0D1B2A" />
+                        <circle cx="54.8" cy="42.5" r="1.4" fill="#FFFFFF" />
+                        {/* Snout */}
+                        <ellipse cx="45" cy="57" rx="16" ry="10" fill="#FBCFE8" stroke="#0D1B2A" strokeWidth="2.2" />
+                        <circle cx="39" cy="56" r="2" fill="#0D1B2A" />
+                        <circle cx="51" cy="56" r="2" fill="#0D1B2A" />
+                        <path d="M41,61 Q45,65 49,61" stroke="#0D1B2A" strokeWidth="2" fill="none" strokeLinecap="round" />
+                    </svg>
+                )
+            },
+            {
+                id: 'sticker_soy',
+                tag: 'soy',
+                label: 'Vaina de Soya',
+                sub: 'Lecitina / Aislado',
+                bg: '#ECFDF5',
+                border: '#6EE7B7',
+                renderSvg: () => (
+                    <svg viewBox="0 0 90 90" className="w-full h-full">
+                        <circle cx="45" cy="45" r="40" fill="#D1FAE5" />
+                        {/* Pod Body */}
+                        <path d="M18,56 Q22,20 68,22 Q74,56 38,68 Q20,70 18,56 Z" fill="#34D399" stroke="#0D1B2A" strokeWidth="2.5" />
+                        {/* 3 Cute Peas Inside */}
+                        <circle cx="33" cy="51" r="10" fill="#A7F3D0" stroke="#0D1B2A" strokeWidth="2" />
+                        <circle cx="46" cy="43" r="10" fill="#A7F3D0" stroke="#0D1B2A" strokeWidth="2" />
+                        <circle cx="58" cy="34" r="9" fill="#A7F3D0" stroke="#0D1B2A" strokeWidth="2" />
+                        {/* Little Faces */}
+                        <circle cx="30" cy="50" r="1.6" fill="#0D1B2A" />
+                        <circle cx="36" cy="50" r="1.6" fill="#0D1B2A" />
+                        <path d="M31,53 Q33,55 35,53" stroke="#0D1B2A" strokeWidth="1.5" fill="none" />
+                        <circle cx="43" cy="42" r="1.6" fill="#0D1B2A" />
+                        <circle cx="49" cy="42" r="1.6" fill="#0D1B2A" />
+                        <path d="M44,45 Q46,47 48,45" stroke="#0D1B2A" strokeWidth="1.5" fill="none" />
+                        <ellipse cx="28" cy="52" rx="2" ry="1" fill="#F472B6" />
+                        <ellipse cx="38" cy="52" rx="2" ry="1" fill="#F472B6" />
+                    </svg>
+                )
+            },
+            {
+                id: 'sticker_almond',
+                tag: 'almond',
+                label: 'Almendra Feliz',
+                sub: 'Nueces de Árbol',
+                bg: '#FEF3C7',
+                border: '#FCD34D',
+                renderSvg: () => (
+                    <svg viewBox="0 0 90 90" className="w-full h-full">
+                        <circle cx="45" cy="45" r="40" fill="#FDE68A" />
+                        <path d="M45,15 C65,30 68,56 45,74 C22,56 25,30 45,15 Z" fill="#B45309" stroke="#0D1B2A" strokeWidth="2.5" />
+                        <path d="M45,21 C54,32 56,50 45,65" stroke="#D97706" strokeWidth="2" fill="none" strokeLinecap="round" />
+                        {/* Kawaii Face */}
+                        <circle cx="38" cy="46" r="3" fill="#0D1B2A" />
+                        <circle cx="37" cy="45" r="1" fill="#FFF" />
+                        <circle cx="52" cy="46" r="3" fill="#0D1B2A" />
+                        <circle cx="51" cy="45" r="1" fill="#FFF" />
+                        <ellipse cx="34" cy="50" rx="3" ry="1.8" fill="#F472B6" />
+                        <ellipse cx="56" cy="50" rx="3" ry="1.8" fill="#F472B6" />
+                        <path d="M42,51 Q45,55 48,51" stroke="#0D1B2A" strokeWidth="2" fill="none" strokeLinecap="round" />
+                    </svg>
+                )
+            },
+            {
+                id: 'sticker_peanut',
+                tag: 'peanut',
+                label: 'Cacahuate / Maní',
+                sub: 'Alérgeno Mayor',
+                bg: '#FFEDD5',
+                border: '#FDBA74',
+                renderSvg: () => (
+                    <svg viewBox="0 0 90 90" className="w-full h-full">
+                        <circle cx="45" cy="45" r="40" fill="#FED7AA" />
+                        <path d="M35,20 C24,20 22,35 30,44 C21,53 23,71 38,72 C45,72 52,72 56,70 C68,65 66,51 57,44 C65,36 63,20 50,20 Z" fill="#F59E0B" stroke="#0D1B2A" strokeWidth="2.5" />
+                        <circle cx="39" cy="34" r="2.8" fill="#0D1B2A" />
+                        <circle cx="50" cy="34" r="2.8" fill="#0D1B2A" />
+                        <ellipse cx="35" cy="38" rx="2.8" ry="1.5" fill="#F43F5E" />
+                        <ellipse cx="54" cy="38" rx="2.8" ry="1.5" fill="#F43F5E" />
+                        <path d="M42,38 Q44.5,42 47,38" stroke="#0D1B2A" strokeWidth="2" fill="none" strokeLinecap="round" />
+                        <path d="M35,56 L53,56 M38,62 L50,62" stroke="#B45309" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                )
+            },
+            {
+                id: 'sticker_egg',
+                tag: 'egg',
+                label: 'Clarita de Huevo',
+                sub: 'Proteína Clara',
+                bg: '#FEF9C3',
+                border: '#FDE047',
+                renderSvg: () => (
+                    <svg viewBox="0 0 90 90" className="w-full h-full">
+                        <circle cx="45" cy="45" r="40" fill="#FEF08A" />
+                        <path d="M22,46 C18,30 34,18 50,22 C66,25 74,40 68,56 C63,70 44,74 30,66 C20,60 24,54 22,46 Z" fill="#FFFFFF" stroke="#0D1B2A" strokeWidth="2.5" />
+                        <circle cx="46" cy="47" r="14" fill="#FACC15" stroke="#0D1B2A" strokeWidth="2.2" />
+                        <circle cx="41" cy="45" r="2.2" fill="#0D1B2A" />
+                        <circle cx="51" cy="45" r="2.2" fill="#0D1B2A" />
+                        <ellipse cx="38" cy="48" rx="2.5" ry="1.4" fill="#FB7185" />
+                        <ellipse cx="54" cy="48" rx="2.5" ry="1.4" fill="#FB7185" />
+                        <path d="M44,49 Q46,52 48,49" stroke="#0D1B2A" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+                    </svg>
+                )
+            },
+            {
+                id: 'sticker_collagen',
+                tag: 'collagen',
+                label: 'Colágeno Bovino',
+                sub: 'Péptidos Hidrolizados',
+                bg: '#FCE7F3',
+                border: '#F9A8D4',
+                renderSvg: () => (
+                    <svg viewBox="0 0 90 90" className="w-full h-full">
+                        <circle cx="45" cy="45" r="40" fill="#FBCFE8" />
+                        <path d="M26,34 C20,28 28,20 34,26 L56,48 C62,42 70,50 64,56 C70,62 62,70 56,64 L34,42 C28,48 20,40 26,34 Z" fill="#FFFFFF" stroke="#0D1B2A" strokeWidth="2.5" />
+                        <circle cx="42" cy="44" r="2.3" fill="#0D1B2A" />
+                        <circle cx="49" cy="44" r="2.3" fill="#0D1B2A" />
+                        <path d="M44,48 Q45.5,50 47,48" stroke="#0D1B2A" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+                        {/* Sparkles */}
+                        <path d="M64,24 L66,29 L71,31 L66,33 L64,38 L62,33 L57,31 L62,29 Z" fill="#F73282" />
+                    </svg>
+                )
+            },
+            {
+                id: 'sticker_polyol',
+                tag: 'maltitol',
+                label: 'Matraz Polioles',
+                sub: 'Maltitol / Eritritol',
+                bg: '#F3E8FF',
+                border: '#C084FC',
+                renderSvg: () => (
+                    <svg viewBox="0 0 90 90" className="w-full h-full">
+                        <circle cx="45" cy="45" r="40" fill="#E9D5FF" />
+                        <path d="M37,22 L53,22 M40,22 L40,36 L24,64 C22,68 25,72 30,72 L60,72 C65,72 68,68 66,64 L50,36 L50,22" fill="#FFFFFF" stroke="#0D1B2A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M29,56 L61,56 L65,64 C66,67 64,69 60,69 L30,69 C26,69 24,67 25,64 Z" fill="#A855F7" />
+                        <circle cx="40" cy="61" r="2.2" fill="#FFFFFF" />
+                        <circle cx="50" cy="61" r="2.2" fill="#FFFFFF" />
+                        <path d="M43,65 Q45,67 47,65" stroke="#FFFFFF" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+                        <circle cx="46" cy="30" r="3" fill="#C084FC" />
+                        <circle cx="42" cy="16" r="2.5" fill="#F73282" />
+                    </svg>
+                )
+            },
+            {
+                id: 'sticker_dates',
+                tag: 'dates',
+                label: 'Dátil Natural',
+                sub: 'Dulzor Real',
+                bg: '#F5F5F4',
+                border: '#D6D3D1',
+                renderSvg: () => (
+                    <svg viewBox="0 0 90 90" className="w-full h-full">
+                        <circle cx="45" cy="45" r="40" fill="#E7E5E4" />
+                        <ellipse cx="45" cy="46" rx="22" ry="15" transform="rotate(-20 45 46)" fill="#78350F" stroke="#0D1B2A" strokeWidth="2.5" />
+                        <circle cx="39" cy="44" r="2.5" fill="#FFFFFF" />
+                        <circle cx="50" cy="41" r="2.5" fill="#FFFFFF" />
+                        <ellipse cx="35" cy="48" rx="2.5" ry="1.4" fill="#FB7185" />
+                        <ellipse cx="54" cy="43" rx="2.5" ry="1.4" fill="#FB7185" />
+                        <path d="M43,47 Q46,50 48,46" stroke="#FDE68A" strokeWidth="2" fill="none" strokeLinecap="round" />
+                    </svg>
+                )
+            },
+            {
+                id: 'sticker_cocoa',
+                tag: 'cocoa',
+                label: 'Cacao Real',
+                sub: '100% Chocolate',
+                bg: '#FEF2F2',
+                border: '#FCA5A5',
+                renderSvg: () => (
+                    <svg viewBox="0 0 90 90" className="w-full h-full">
+                        <circle cx="45" cy="45" r="40" fill="#FEE2E2" />
+                        <rect x="27" y="22" width="36" height="46" rx="6" fill="#451A03" stroke="#0D1B2A" strokeWidth="2.5" />
+                        <line x1="27" y1="38" x2="63" y2="38" stroke="#78350F" strokeWidth="2" />
+                        <line x1="45" y1="22" x2="45" y2="38" stroke="#78350F" strokeWidth="2" />
+                        <path d="M25,44 L65,44 L63,68 L27,68 Z" fill="#F73282" stroke="#0D1B2A" strokeWidth="2.2" />
+                        <circle cx="39" cy="55" r="2.3" fill="#FFFFFF" />
+                        <circle cx="51" cy="55" r="2.3" fill="#FFFFFF" />
+                        <path d="M42,60 Q45,63 48,60" stroke="#FFFFFF" strokeWidth="2" fill="none" strokeLinecap="round" />
+                    </svg>
+                )
+            },
+            {
+                id: 'sticker_fiber',
+                tag: 'fiber',
+                label: 'Hoja Prebiótica',
+                sub: 'Alta Fibra',
+                bg: '#ECFCCB',
+                border: '#BEF264',
+                renderSvg: () => (
+                    <svg viewBox="0 0 90 90" className="w-full h-full">
+                        <circle cx="45" cy="45" r="40" fill="#D9F99D" />
+                        <path d="M26,64 C22,36 42,20 66,22 C66,46 52,66 26,64 Z" fill="#65A30D" stroke="#0D1B2A" strokeWidth="2.5" />
+                        <path d="M24,66 Q44,46 58,30" stroke="#ECFCCB" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+                        <circle cx="40" cy="44" r="2.4" fill="#0D1B2A" />
+                        <circle cx="51" cy="44" r="2.4" fill="#0D1B2A" />
+                        <path d="M43,49 Q45.5,52 48,49" stroke="#0D1B2A" strokeWidth="2" fill="none" strokeLinecap="round" />
+                    </svg>
+                )
+            },
+            {
+                id: 'sticker_gf',
+                tag: 'gluten_free',
+                label: 'Escudo Sin Gluten',
+                sub: 'Certificado GF',
+                bg: '#F0FDFA',
+                border: '#5EEAD4',
+                renderSvg: () => (
+                    <svg viewBox="0 0 90 90" className="w-full h-full">
+                        <circle cx="45" cy="45" r="40" fill="#CCFBF1" />
+                        <path d="M45,18 L67,27 L67,46 C67,60 56,69 45,74 C34,69 23,60 23,46 L23,27 Z" fill="#146779" stroke="#0D1B2A" strokeWidth="2.5" />
+                        <text x="45" y="45" fill="#FFFFFF" fontFamily="Montserrat" fontWeight="900" fontSize="14" textAnchor="middle">GF</text>
+                        <path d="M38,54 L43,59 L54,48" stroke="#5EEAD4" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                )
+            },
+            {
+                id: 'sticker_protein',
+                tag: 'high_protein',
+                label: 'Power Proteína',
+                sub: '≥ 20g Proteína',
+                bg: '#FFE4E6',
+                border: '#FDA4AF',
+                renderSvg: () => (
+                    <svg viewBox="0 0 90 90" className="w-full h-full">
+                        <circle cx="45" cy="45" r="40" fill="#FECDD3" />
+                        <rect x="16" y="37" width="10" height="16" rx="3" fill="#0D1B2A" />
+                        <rect x="64" y="37" width="10" height="16" rx="3" fill="#0D1B2A" />
+                        <rect x="23" y="32" width="8" height="26" rx="3" fill="#F73282" stroke="#0D1B2A" strokeWidth="2" />
+                        <rect x="59" y="32" width="8" height="26" rx="3" fill="#F73282" stroke="#0D1B2A" strokeWidth="2" />
+                        <rect x="31" y="41" width="28" height="8" fill="#CBD5E1" stroke="#0D1B2A" strokeWidth="2" />
+                        <text x="45" y="25" fill="#780030" fontFamily="Montserrat" fontWeight="900" fontSize="10" textAnchor="middle">20g+ PRO</text>
+                    </svg>
+                )
+            }
+        ];
+
+        // ============================================================================
+        // 4. ESTADO INICIAL DE LOS ELEMENTOS EN EL LIENZO (CANVAS ITEMS)
+        // ============================================================================
+        const createDefaultCanvasItems = () => [
+            // Banner de Título Editable en el Canvas
+            {
+                uid: 'header_banner_1',
+                type: 'title_banner',
+                x: 40,
+                y: 24,
+                w: 710,
+                h: 92,
+                z: 2,
+                title: 'BENCHMARK NUTRIMENTAL: TOP 5 BARRAS DE PROTEÍNA',
+                subtitle: 'Arrastra cualquier tarjeta, mueve las gráficas-filtro o haz clic en los iconos lindos para iluminar ingredientes.'
+            },
+            // WIDGET FILTRO VIVO 1: Escultor de Macronutrientes y Límites
+            {
+                uid: 'widget_macro_sculptor',
+                type: 'macro_sculptor',
+                x: 40,
+                y: 132,
+                w: 390,
+                h: 410,
+                z: 10
+            },
+            // WIDGET FILTRO VIVO 2: Matriz Interactiva 2D (Zona de Selección)
+            {
+                uid: 'widget_scatter_filter',
+                type: 'scatter_matrix',
+                x: 40,
+                y: 558,
+                w: 390,
+                h: 350,
+                z: 10
+            },
+            // 5 Tarjetas de las Barras de Proteína
+            {
+                uid: 'card_quest',
+                type: 'bar_card',
+                barId: 'quest',
+                x: 455,
+                y: 132,
+                w: 310,
+                h: 365,
+                z: 5
+            },
+            {
+                uid: 'card_barebells',
+                type: 'bar_card',
+                barId: 'barebells',
+                x: 785,
+                y: 132,
+                w: 310,
+                h: 365,
+                z: 5
+            },
+            {
+                uid: 'card_rxbar',
+                type: 'bar_card',
+                barId: 'rxbar',
+                x: 1115,
+                y: 132,
+                w: 310,
+                h: 365,
+                z: 5
+            },
+            {
+                uid: 'card_pureprotein',
+                type: 'bar_card',
+                barId: 'pureprotein',
+                x: 455,
+                y: 518,
+                w: 310,
+                h: 365,
+                z: 5
+            },
+            {
+                uid: 'card_grenade',
+                type: 'bar_card',
+                barId: 'grenade',
+                x: 785,
+                y: 518,
+                w: 310,
+                h: 365,
+                z: 5
+            },
+            // WIDGET 3: Desglose de Carbohidratos, Polioles y Grasas Saturadas/Trans
+            {
+                uid: 'widget_lipids_polyols',
+                type: 'lipid_polyol_chart',
+                x: 1115,
+                y: 518,
+                w: 380,
+                h: 390,
+                z: 8
+            },
+            // Stickers Lindos Iniciales colocados en el lienzo
+            {
+                uid: 'sticker_init_cow',
+                type: 'cute_sticker',
+                stickerId: 'sticker_cow',
+                x: 765,
+                y: 26,
+                w: 115,
+                h: 100,
+                z: 20
+            },
+            {
+                uid: 'sticker_init_polyol',
+                type: 'cute_sticker',
+                stickerId: 'sticker_polyol',
+                x: 892,
+                y: 26,
+                w: 115,
+                h: 100,
+                z: 20
+            },
+            {
+                uid: 'sticker_init_egg',
+                type: 'cute_sticker',
+                stickerId: 'sticker_egg',
+                x: 1020,
+                y: 26,
+                w: 115,
+                h: 100,
+                z: 20
+            },
+            {
+                uid: 'note_callout_1',
+                type: 'callout_badge',
+                x: 1155,
+                y: 32,
+                w: 270,
+                h: 82,
+                z: 18,
+                badgeColor: '#780030',
+                title: '¡ALERTA DE POLIOLES!',
+                text: 'Grenade contiene 16g de Maltitol por barra (60g). Usa el filtro o el matraz para comparar.'
+            }
+        ];
+
+        // ============================================================================
+        // 5. COMPONENTE DE TARJETA DE BARRA DE PROTEÍNA (FRENTE VISUAL + REVERSO FDA)
+        // ============================================================================
+        const BarProductCard = ({ bar, isMatchedByFilter, isPulsedBySticker, activeStickerTag, onUploadImage, customImage }) => {
+            const [flipped, setFlipped] = useState(false);
+            const fileInputRef = useRef(null);
+
+            const handleFileChange = (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    onUploadImage(bar.id, ev.target.result);
+                };
+                reader.readAsDataURL(file);
+            };
+
+            return (
+                <div 
+                    className={`w-full h-full rounded-2xl bg-white border transition-all duration-300 flex flex-col justify-between overflow-hidden relative ${
+                        isPulsedBySticker ? 'ingredient-match-glow' : 'shadow-lg border-slate-200/90'
+                    } ${!isMatchedByFilter ? 'opacity-25 grayscale scale-[0.97]' : 'opacity-100'}`}
+                >
+                    {/* Cinta Superior de Color de Marca */}
+                    <div 
+                        className="h-2 w-full shrink-0"
+                        style={{ background: `linear-gradient(90deg, ${bar.brandColor}, ${bar.accentColor})` }}
+                    />
+
+                    {/* Encabezado de la Tarjeta */}
+                    <div className="px-4 pt-2.5 pb-1 flex items-start justify-between gap-2 shrink-0">
+                        <div>
+                            <div className="flex items-center gap-1.5">
+                                <span className="font-montserrat font-black text-base tracking-tight text-lumino-dark">
+                                    {bar.name}
+                                </span>
+                                <span className="font-roboto font-bold text-[11px] px-2 py-0.5 rounded-full bg-lumino-bg text-lumino-teal border border-lumino-beige">
+                                    {bar.servingGrams}g
+                                </span>
+                            </div>
+                            <p className="text-[11px] font-semibold text-slate-500 leading-tight">{bar.flavor}</p>
+                        </div>
+
+                        <div className="flex items-center gap-1 no-export">
+                            <input 
+                                ref={fileInputRef}
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                onChange={handleFileChange}
+                            />
+                            <button
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                                title="Cambiar foto del empaque"
+                                className="p-1.5 rounded-lg bg-slate-100 hover:bg-lumino-teal hover:text-white text-slate-600 transition text-[10px] font-bold"
+                            >
+                                📷
+                            </button>
+                            <button
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onClick={(e) => { e.stopPropagation(); setFlipped(!flipped); }}
+                                className={`px-2.5 py-1 rounded-lg text-[10px] font-montserrat font-bold uppercase tracking-wider transition ${
+                                    flipped 
+                                        ? 'bg-lumino-pink text-white shadow-sm' 
+                                        : 'bg-lumino-dark text-white hover:bg-lumino-teal'
+                                }`}
+                            >
+                                {flipped ? 'Ver Frente' : 'Etiqueta FDA'}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* CONTENIDO: FRENTE VISUAL vs REVERSO ETIQUETA NUTRIMENTAL COMPLETA */}
+                    {!flipped ? (
+                        <div className="px-4 pb-3 flex-1 flex flex-col justify-between">
+                            {/* Ilustración del Empaque */}
+                            <div className="my-1 relative group">
+                                <BarWrapperIllustration barId={bar.id} customImage={customImage} />
+                                {isPulsedBySticker && (
+                                    <div className="absolute -top-1 -right-1 bg-lumino-pink text-white text-[10px] font-montserrat font-black px-2 py-0.5 rounded-full shadow">
+                                        ✓ CONTIENE {activeStickerTag?.toUpperCase()}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* KPIs Principales (Calorías, Proteína, Carbos Netos, Fibra, Polioles) */}
+                            <div className="grid grid-cols-4 gap-1.5 my-1.5">
+                                <div className="bg-lumino-bg rounded-xl p-2 text-center border border-slate-200/70">
+                                    <div className="text-[9px] font-bold uppercase text-slate-400">Calorías</div>
+                                    <div className="font-roboto font-black text-sm text-lumino-dark">{bar.calories}</div>
+                                    <div className="text-[8px] text-slate-400">kcal</div>
+                                </div>
+                                <div className="bg-teal-50/80 rounded-xl p-2 text-center border border-teal-200">
+                                    <div className="text-[9px] font-bold uppercase text-lumino-teal">Proteína</div>
+                                    <div className="font-roboto font-black text-sm text-lumino-teal">{bar.protein}g</div>
+                                    <div className="text-[8px] text-teal-600">{Math.round((bar.protein*4/bar.calories)*100)}% kcal</div>
+                                </div>
+                                <div className="bg-pink-50/70 rounded-xl p-2 text-center border border-pink-200">
+                                    <div className="text-[9px] font-bold uppercase text-lumino-pink">Net Carbs</div>
+                                    <div className="font-roboto font-black text-sm text-lumino-pink">{bar.netCarbs}g</div>
+                                    <div className="text-[8px] text-pink-600">Tot: {bar.totalCarbs}g</div>
+                                </div>
+                                <div className="bg-amber-50/80 rounded-xl p-2 text-center border border-amber-200">
+                                    <div className="text-[9px] font-bold uppercase text-amber-800">Polioles</div>
+                                    <div className="font-roboto font-black text-sm text-amber-900">{bar.polyols}g</div>
+                                    <div className="text-[8px] text-amber-700 truncate">{bar.polyolType.split(' ')[0]}</div>
+                                </div>
+                            </div>
+
+                            {/* Barra de Desglose de Grasas, Colesterol, Sodio y Fibra */}
+                            <div className="bg-slate-50 rounded-xl px-2.5 py-2 border border-slate-200/80 text-[10px] space-y-1">
+                                <div className="flex justify-between items-center font-roboto">
+                                    <span className="text-slate-500 font-semibold">Grasa Total: <strong className="text-lumino-dark">{bar.totalFat}g</strong></span>
+                                    <span className="text-slate-500">Sat: <strong className={bar.satFat >= 4 ? 'text-lumino-pink' : 'text-lumino-dark'}>{bar.satFat}g</strong></span>
+                                    <span className="text-slate-500">Trans: <strong className={bar.transFat > 0 ? 'text-red-600' : 'text-lumino-dark'}>{bar.transFat}g</strong></span>
+                                </div>
+                                <div className="flex justify-between items-center font-roboto border-t border-slate-200/70 pt-1">
+                                    <span className="text-slate-500">Fibra: <strong className="text-emerald-700">{bar.fiber}g</strong></span>
+                                    <span className="text-slate-500">Colest: <strong>{bar.cholesterol}mg</strong></span>
+                                    <span className="text-slate-500">Sodio: <strong>{bar.sodium}mg</strong></span>
+                                </div>
+                            </div>
+
+                            {/* Declaración resumida CONTAINS */}
+                            <div className="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-between gap-1">
+                                <span className="text-[9px] font-montserrat font-extrabold text-lumino-burgundy bg-rose-50 px-2 py-0.5 rounded border border-rose-200 truncate w-full">
+                                    ⚠️ {bar.containsVerbatim}
+                                </span>
+                            </div>
+                        </div>
+                    ) : (
+                        /* REVERSO: ETIQUETA NUTRIMENTAL COMPLETA + INGREDIENTES + TRAZAS EN PLANTA */
+                        <div 
+                            className="px-4 pb-3 flex-1 overflow-y-auto space-y-2 text-[10px] leading-snug"
+                            onMouseDown={(e) => e.stopPropagation()}
+                        >
+                            <div className="border-2 border-lumino-dark p-2 rounded bg-white font-roboto">
+                                <div className="font-montserrat font-black text-xs border-b-4 border-lumino-dark pb-0.5 flex justify-between">
+                                    <span>NUTRITION FACTS</span>
+                                    <span>Porción: {bar.servingGrams}g</span>
+                                </div>
+                                <div className="flex justify-between font-black text-xs py-1 border-b-2 border-lumino-dark">
+                                    <span>Calorías</span>
+                                    <span>{bar.calories} kcal</span>
+                                </div>
+                                <div className="divide-y divide-slate-200 text-[10px]">
+                                    <div className="py-0.5 flex justify-between"><span><strong>Grasa Total</strong> {bar.totalFat}g</span><span>Sat: <strong>{bar.satFat}g</strong> | Trans: <strong>{bar.transFat}g</strong></span></div>
+                                    <div className="py-0.5 flex justify-between"><span><strong>Colesterol</strong> {bar.cholesterol}mg</span><span><strong>Sodio</strong> {bar.sodium}mg</span></div>
+                                    <div className="py-0.5 flex justify-between"><span><strong>Carbohidratos Tot.</strong> {bar.totalCarbs}g</span><span><strong>Net Carbs: {bar.netCarbs}g</strong></span></div>
+                                    <div className="py-0.5 pl-2 flex justify-between text-slate-600"><span>Fibra Dietética: {bar.fiber}g</span><span>Azúcares: {bar.totalSugars}g (Añad: {bar.addedSugars}g)</span></div>
+                                    <div className="py-0.5 pl-2 flex justify-between text-slate-600"><span>Alcoholes de Azúcar (Polioles):</span><strong>{bar.polyols}g ({bar.polyolType})</strong></div>
+                                    <div className="py-0.5 flex justify-between font-bold text-lumino-teal"><span>Proteína</span><span>{bar.protein}g</span></div>
+                                    <div className="py-0.5 text-[9px] text-slate-500 flex justify-between pt-1">
+                                        <span>Vit D: {bar.vitD}mcg</span>
+                                        <span>Calcio: {bar.calcium}mg</span>
+                                        <span>Hierro: {bar.iron}mg</span>
+                                        <span>Potasio: {bar.potassium}mg</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-slate-50 p-2 rounded border border-slate-200">
+                                <div className="font-montserrat font-bold text-[9px] uppercase text-lumino-teal mb-0.5">Ingredientes Completos:</div>
+                                <p className="text-[9.5px] text-slate-600 leading-tight">{bar.ingredientsES}</p>
+                            </div>
+
+                            <div className="bg-rose-50 p-2 rounded border border-rose-200 space-y-1">
+                                <div className="font-montserrat font-extrabold text-[9.5px] text-lumino-burgundy">{bar.containsVerbatim}</div>
+                                <div className="font-roboto text-[9px] text-rose-900">{bar.tracesVerbatim}</div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // ============================================================================
+        // 6. WIDGETS DE GRÁFICAS-FILTRO VIVAS (ZERO TRADITIONAL EXCEL FILTERS)
+        // ============================================================================
+
+        // WIDGET 1: Escultor Visual de Macronutrientes (Barras Interactivas Directas)
+        const MacroSculptorWidget = ({ filters, setFilters, resetFilters, matchingCount, totalCount }) => {
+            return (
+                <div className="w-full h-full bg-white rounded-2xl border border-slate-200 shadow-xl p-4 flex flex-col justify-between">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                        <div className="flex items-center gap-2">
+                            <span className="w-3 h-3 rounded-full bg-lumino-pink animate-ping" />
+                            <div>
+                                <h3 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-dark">
+                                    Escultor Gráfico de Macros (Filtro Vivo)
+                                </h3>
+                                <p className="text-[10px] text-slate-400">Desliza sobre las barras para filtrar el lienzo en tiempo real</p>
+                            </div>
+                        </div>
+                        <span className="font-roboto font-black text-xs px-2.5 py-1 rounded-full bg-lumino-dark text-white">
+                            {matchingCount}/{totalCount} Activas
+                        </span>
+                    </div>
+
+                    <div 
+                        className="flex-1 flex flex-col justify-around py-2 space-y-2"
+                        onMouseDown={(e) => e.stopPropagation()}
+                    >
+                        {/* 1. Proteína Mínima */}
+                        <div className="bg-lumino-bg/80 p-2.5 rounded-xl border border-slate-200/70">
+                            <div className="flex justify-between text-xs font-bold mb-1">
+                                <span className="text-lumino-teal font-montserrat">💪 Proteína Mínima</span>
+                                <span className="font-roboto font-black text-lumino-teal">≥ {filters.minProtein} g</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="10"
+                                max="21"
+                                step="1"
+                                value={filters.minProtein}
+                                onChange={(e) => setFilters(prev => ({ ...prev, minProtein: Number(e.target.value) }))}
+                                className="lumino-slider"
+                                style={{ background: `linear-gradient(90deg, #CBD5E1 ${((filters.minProtein-10)/11)*100}%, #146779 ${((filters.minProtein-10)/11)*100}%)` }}
+                            />
+                            <div className="flex justify-between text-[9px] text-slate-400 mt-0.5 font-roboto">
+                                <span>10g (RXBAR: 12g)</span>
+                                <span>20g (Estándar)</span>
+                                <span>21g (Quest)</span>
+                            </div>
+                        </div>
+
+                        {/* 2. Tope de Carbohidratos Netos */}
+                        <div className="bg-lumino-bg/80 p-2.5 rounded-xl border border-slate-200/70">
+                            <div className="flex justify-between text-xs font-bold mb-1">
+                                <span className="text-lumino-pink font-montserrat">🔥 Máximo Carbos Netos</span>
+                                <span className="font-roboto font-black text-lumino-pink">≤ {filters.maxNetCarbs} g</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="2"
+                                max="20"
+                                step="1"
+                                value={filters.maxNetCarbs}
+                                onChange={(e) => setFilters(prev => ({ ...prev, maxNetCarbs: Number(e.target.value) }))}
+                                className="lumino-slider"
+                                style={{ background: `linear-gradient(90deg, #F73282 ${((filters.maxNetCarbs-2)/18)*100}%, #E2E8F0 ${((filters.maxNetCarbs-2)/18)*100}%)` }}
+                            />
+                            <div className="flex justify-between text-[9px] text-slate-400 mt-0.5 font-roboto">
+                                <span>2.2g (Keto/Grenade)</span>
+                                <span>10g (Pure)</span>
+                                <span>18g (RXBAR)</span>
+                            </div>
+                        </div>
+
+                        {/* 3. Límite de Alcoholes de Azúcar (Polioles) */}
+                        <div className="bg-lumino-bg/80 p-2.5 rounded-xl border border-slate-200/70">
+                            <div className="flex justify-between text-xs font-bold mb-1">
+                                <span className="text-purple-800 font-montserrat">🧪 Máximo Polioles (Maltitol/Eritritol)</span>
+                                <span className="font-roboto font-black text-purple-800">≤ {filters.maxPolyols} g</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="0"
+                                max="16"
+                                step="1"
+                                value={filters.maxPolyols}
+                                onChange={(e) => setFilters(prev => ({ ...prev, maxPolyols: Number(e.target.value) }))}
+                                className="lumino-slider"
+                                style={{ background: `linear-gradient(90deg, #9333EA ${(filters.maxPolyols/16)*100}%, #E2E8F0 ${(filters.maxPolyols/16)*100}%)` }}
+                            />
+                            <div className="flex justify-between text-[9px] text-slate-400 mt-0.5 font-roboto">
+                                <span>0g (RXBAR)</span>
+                                <span>5-6g (Quest/Barebells)</span>
+                                <span>16g (Grenade)</span>
+                            </div>
+                        </div>
+
+                        {/* 4. Fibra Mínima y Grasa Saturada */}
+                        <div className="grid grid-cols-2 gap-2">
+                            <div className="bg-lumino-bg/80 p-2 rounded-xl border border-slate-200/70">
+                                <div className="flex justify-between text-[11px] font-bold mb-1">
+                                    <span className="text-emerald-800">🌿 Fibra Mín.</span>
+                                    <span className="font-roboto font-black text-emerald-700">≥ {filters.minFiber}g</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="12"
+                                    step="1"
+                                    value={filters.minFiber}
+                                    onChange={(e) => setFilters(prev => ({ ...prev, minFiber: Number(e.target.value) }))}
+                                    className="lumino-slider"
+                                    style={{ background: '#10B981' }}
+                                />
+                            </div>
+                            <div className="bg-lumino-bg/80 p-2 rounded-xl border border-slate-200/70">
+                                <div className="flex justify-between text-[11px] font-bold mb-1">
+                                    <span className="text-lumino-burgundy">🥓 Grasa Sat.</span>
+                                    <span className="font-roboto font-black text-lumino-burgundy">≤ {filters.maxSatFat}g</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="2"
+                                    max="6"
+                                    step="0.5"
+                                    value={filters.maxSatFat}
+                                    onChange={(e) => setFilters(prev => ({ ...prev, maxSatFat: Number(e.target.value) }))}
+                                    className="lumino-slider"
+                                    style={{ background: '#780030' }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between no-export" onMouseDown={(e) => e.stopPropagation()}>
+                        <button
+                            onClick={() => setFilters(prev => ({ ...prev, hideUnmatched: !prev.hideUnmatched }))}
+                            className={`text-[10px] font-montserrat font-bold px-2.5 py-1 rounded-lg border transition ${
+                                filters.hideUnmatched 
+                                    ? 'bg-lumino-dark text-white border-lumino-dark' 
+                                    : 'bg-slate-100 text-slate-600 border-slate-200'
+                            }`}
+                        >
+                            {filters.hideUnmatched ? 'Modo: Ocultar descartadas' : 'Modo: Atenuar descartadas'}
+                        </button>
+                        <button
+                            onClick={resetFilters}
+                            className="text-[10px] font-montserrat font-bold text-lumino-pink hover:underline"
+                        >
+                            Restablecer Filtros
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // WIDGET 2: Matriz de Burbujas 2D con "Zona Objetivo" Arrastrable
+        const ScatterMatrixWidget = ({ bars, filters, setFilters, activeStickerTag }) => {
+            const svgRef = useRef(null);
+            const [draggingZone, setDraggingZone] = useState(false);
+
+            // Eje X: Net Carbs (0 a 20g) -> 40 a 330 px
+            // Eje Y: Proteína (10 a 23g) -> 220 a 30 px
+            const mapX = (netCarbs) => 45 + (netCarbs / 20) * 285;
+            const mapY = (protein) => 225 - ((protein - 10) / 13) * 190;
+
+            const handleSvgClickOrDrag = (e) => {
+                if (!svgRef.current) return;
+                const rect = svgRef.current.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const clickY = e.clientY - rect.top;
+
+                const carbVal = Math.max(3, Math.min(20, Math.round(((clickX - 45) / 285) * 20)));
+                const protVal = Math.max(10, Math.min(21, Math.round(10 + ((225 - clickY) / 190) * 13)));
+
+                setFilters(prev => ({
+                    ...prev,
+                    maxNetCarbs: carbVal,
+                    minProtein: protVal
+                }));
+            };
+
+            const zoneRightX = mapX(filters.maxNetCarbs);
+            const zoneBottomY = mapY(filters.minProtein);
+
+            return (
+                <div className="w-full h-full bg-white rounded-2xl border border-slate-200 shadow-xl p-4 flex flex-col justify-between">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <div>
+                            <h3 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-dark">
+                                Mapa 2D: Proteína vs. Carbos Netos
+                            </h3>
+                            <p className="text-[10px] text-slate-400">Haz clic o arrastra dentro de la gráfica para mover la Zona Meta (Verde)</p>
+                        </div>
+                        <span className="text-[10px] font-roboto font-bold px-2 py-0.5 rounded bg-teal-50 text-lumino-teal border border-teal-200">
+                            Tamaño = Fibra
+                        </span>
+                    </div>
+
+                    <div 
+                        className="flex-1 flex items-center justify-center relative"
+                        onMouseDown={(e) => e.stopPropagation()}
+                    >
+                        <svg 
+                            ref={svgRef}
+                            viewBox="0 0 355 255" 
+                            className="w-full h-full cursor-crosshair select-none"
+                            onMouseDown={(e) => { setDraggingZone(true); handleSvgClickOrDrag(e); }}
+                            onMouseMove={(e) => { if (draggingZone) handleSvgClickOrDrag(e); }}
+                            onMouseUp={() => setDraggingZone(false)}
+                            onMouseLeave={() => setDraggingZone(false)}
+                        >
+                            {/* Cuadrícula de Fondo */}
+                            <rect x="45" y="25" width="285" height="200" fill="#F8FAFC" rx="6" stroke="#E2E8F0" />
+                            
+                            {/* Zona Objetivo Activa (Target Zone Filter) */}
+                            <rect
+                                x="45"
+                                y="25"
+                                width={Math.max(10, zoneRightX - 45)}
+                                height={Math.max(10, zoneBottomY - 25)}
+                                fill="rgba(20, 103, 121, 0.13)"
+                                stroke="#146779"
+                                strokeWidth="2"
+                                strokeDasharray="5 3"
+                            />
+                            <text x={Math.max(55, zoneRightX - 8)} y={Math.max(40, zoneBottomY - 6)} fill="#146779" fontFamily="Montserrat" fontWeight="800" fontSize="8.5" textAnchor="end">
+                                ZONA FILTRO ACTIVA (≥{filters.minProtein}g Pro | ≤{filters.maxNetCarbs}g NetCarb)
+                            </text>
+
+                            {/* Líneas Guía */}
+                            {[5, 10, 15, 20].map(c => (
+                                <g key={c}>
+                                    <line x1={mapX(c)} y1="25" x2={mapX(c)} y2="225" stroke="#E2E8F0" strokeDasharray="2 2" />
+                                    <text x={mapX(c)} y="240" fontSize="8.5" fill="#64748B" textAnchor="middle" fontFamily="Roboto">{c}g</text>
+                                </g>
+                            ))}
+                            {[12, 16, 20].map(p => (
+                                <g key={p}>
+                                    <line x1="45" y1={mapY(p)} x2="330" y2={mapY(p)} stroke="#E2E8F0" strokeDasharray="2 2" />
+                                    <text x="38" y={mapY(p)+3} fontSize="8.5" fill="#64748B" textAnchor="end" fontFamily="Roboto">{p}g</text>
+                                </g>
+                            ))}
+
+                            {/* Etiquetas de Ejes */}
+                            <text x="190" y="252" fontSize="9" fontWeight="700" fill="#0D1B2A" textAnchor="middle" fontFamily="Montserrat">
+                                CARBOHIDRATOS NETOS (g) →
+                            </text>
+                            <text x="12" y="125" fontSize="9" fontWeight="700" fill="#0D1B2A" textAnchor="middle" fontFamily="Montserrat" transform="rotate(-90 12 125)">
+                                PROTEÍNA (g) →
+                            </text>
+
+                            {/* Burbujas de las 5 Barras */}
+                            {bars.map(b => {
+                                const cx = mapX(b.netCarbs);
+                                const cy = mapY(b.protein);
+                                const r = 9 + (b.fiber * 1.1);
+                                const inZone = b.protein >= filters.minProtein && b.netCarbs <= filters.maxNetCarbs && b.polyols <= filters.maxPolyols && b.fiber >= filters.minFiber && b.satFat <= filters.maxSatFat;
+                                const isStickerMatch = activeStickerTag && b.tags.includes(activeStickerTag);
+
+                                return (
+                                    <g key={b.id}>
+                                        <circle
+                                            cx={cx}
+                                            cy={cy}
+                                            r={r}
+                                            fill={inZone ? b.brandColor : '#CBD5E1'}
+                                            fillOpacity={inZone ? 0.88 : 0.45}
+                                            stroke={isStickerMatch ? '#F73282' : '#FFFFFF'}
+                                            strokeWidth={isStickerMatch ? 3.5 : 2}
+                                        />
+                                        <text
+                                            x={cx}
+                                            y={cy - r - 4}
+                                            fontSize="9"
+                                            fontWeight="800"
+                                            fill={inZone ? '#0D1B2A' : '#94A3B8'}
+                                            textAnchor="middle"
+                                            fontFamily="Montserrat"
+                                        >
+                                            {b.name.split(' ')[0]}
+                                        </text>
+                                    </g>
+                                );
+                            })}
+                        </svg>
+                    </div>
+                </div>
+            );
+        };
+
+        // WIDGET 3: Radiografía de Carbohidratos (Azúcar vs Fibra vs Polioles) y Perfil Lipídico/Sodio
+        const LipidPolyolWidget = ({ bars, onSelectHighlightBar, highlightedBarId }) => {
+            const [mode, setMode] = useState('carbs'); // 'carbs' | 'lipids' | 'allergens'
+
+            return (
+                <div className="w-full h-full bg-white rounded-2xl border border-slate-200 shadow-xl p-4 flex flex-col justify-between">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                        <div>
+                            <h3 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-dark">
+                                Radiografía Química de Etiqueta
+                            </h3>
+                            <p className="text-[10px] text-slate-400">Haz clic en una barra para resaltarla en el lienzo</p>
+                        </div>
+                        <div className="flex bg-slate-100 p-0.5 rounded-lg no-export" onMouseDown={(e) => e.stopPropagation()}>
+                            <button
+                                onClick={() => setMode('carbs')}
+                                className={`px-2 py-1 rounded-md text-[9.5px] font-montserrat font-bold transition ${mode === 'carbs' ? 'bg-lumino-teal text-white' : 'text-slate-600'}`}
+                            >
+                                Carbos/Polioles
+                            </button>
+                            <button
+                                onClick={() => setMode('lipids')}
+                                className={`px-2 py-1 rounded-md text-[9.5px] font-montserrat font-bold transition ${mode === 'lipids' ? 'bg-lumino-burgundy text-white' : 'text-slate-600'}`}
+                            >
+                                Grasas/Sodio
+                            </button>
+                            <button
+                                onClick={() => setMode('allergens')}
+                                className={`px-2 py-1 rounded-md text-[9.5px] font-montserrat font-bold transition ${mode === 'allergens' ? 'bg-lumino-dark text-white' : 'text-slate-600'}`}
+                            >
+                                Trazas
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 flex flex-col justify-around py-2" onMouseDown={(e) => e.stopPropagation()}>
+                        {mode === 'carbs' && (
+                            <div className="space-y-2.5">
+                                <div className="flex items-center gap-3 text-[9.5px] font-bold justify-center">
+                                    <span className="flex items-center gap-1"><i className="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"/> Fibra</span>
+                                    <span className="flex items-center gap-1"><i className="w-2.5 h-2.5 rounded-sm bg-purple-500 inline-block"/> Polioles</span>
+                                    <span className="flex items-center gap-1"><i className="w-2.5 h-2.5 rounded-sm bg-lumino-pink inline-block"/> Azúcar/Almidón Neto</span>
+                                </div>
+                                {bars.map(b => {
+                                    const maxScale = 25;
+                                    const fiberW = (b.fiber / maxScale) * 100;
+                                    const polyolW = (b.polyols / maxScale) * 100;
+                                    const netW = (b.netCarbs / maxScale) * 100;
+                                    const isSelected = highlightedBarId === b.id;
+
+                                    return (
+                                        <div 
+                                            key={b.id}
+                                            onClick={() => onSelectHighlightBar(isSelected ? null : b.id)}
+                                            className={`p-2 rounded-xl border cursor-pointer transition ${isSelected ? 'bg-pink-50/60 border-lumino-pink' : 'bg-slate-50 border-slate-200/60 hover:bg-slate-100'}`}
+                                        >
+                                            <div className="flex justify-between text-[10.5px] font-bold mb-1">
+                                                <span className="font-montserrat text-lumino-dark">{b.name}</span>
+                                                <span className="font-roboto text-slate-500">
+                                                    Tot: <strong>{b.totalCarbs}g</strong> (Fib: {b.fiber}g | Pol: {b.polyols}g | Net: {b.netCarbs}g)
+                                                </span>
+                                            </div>
+                                            <div className="w-full h-3.5 bg-slate-200 rounded-full overflow-hidden flex">
+                                                <div style={{ width: `${fiberW}%` }} className="bg-emerald-500 h-full" title={`Fibra: ${b.fiber}g`} />
+                                                <div style={{ width: `${polyolW}%` }} className="bg-purple-500 h-full" title={`Polioles: ${b.polyols}g`} />
+                                                <div style={{ width: `${netW}%` }} className="bg-lumino-pink h-full" title={`Carbos Netos: ${b.netCarbs}g`} />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {mode === 'lipids' && (
+                            <div className="space-y-2">
+                                <div className="text-[9.5px] text-center text-slate-500 font-semibold">
+                                    Comparativa de Grasa Saturada, Grasa Trans, Colesterol y Sodio
+                                </div>
+                                {bars.map(b => (
+                                    <div key={b.id} className="p-2 rounded-xl bg-slate-50 border border-slate-200/70 flex items-center justify-between text-[10px]">
+                                        <div className="font-montserrat font-bold text-lumino-dark w-28 truncate">{b.name}</div>
+                                        <div className="flex gap-2 font-roboto">
+                                            <span className="px-2 py-0.5 rounded bg-rose-100 text-lumino-burgundy font-bold">
+                                                Sat: {b.satFat}g
+                                            </span>
+                                            <span className={`px-2 py-0.5 rounded font-bold ${b.transFat > 0 ? 'bg-red-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                                                Trans: {b.transFat}g
+                                            </span>
+                                            <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-bold">
+                                                Na: {b.sodium}mg
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {mode === 'allergens' && (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-[9.5px] text-center border-collapse">
+                                    <thead>
+                                        <tr className="border-b border-slate-200 text-slate-500 font-montserrat">
+                                            <th className="text-left py-1">Barra</th>
+                                            <th>Leche</th>
+                                            <th>Soya</th>
+                                            <th>Nueces</th>
+                                            <th>Maní</th>
+                                            <th>Huevo</th>
+                                            <th>Gluten</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 font-bold">
+                                        <tr className="py-1">
+                                            <td className="text-left py-1.5 font-montserrat">Quest</td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800">SÍ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800">SÍ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800">ALM</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">TRZ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">TRZ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">GF</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td className="text-left py-1.5 font-montserrat">Barebells</td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800">SÍ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800">SÍ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">TRZ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">TRZ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">TRZ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">TRZ</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td className="text-left py-1.5 font-montserrat">RXBAR</td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">TRZ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">TRZ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800">SÍ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">TRZ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800">SÍ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">GF</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td className="text-left py-1.5 font-montserrat">Pure Prot.</td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800">SÍ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800">SÍ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800">ALM</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800">SÍ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">TRZ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">GF</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td className="text-left py-1.5 font-montserrat">Grenade</td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800">SÍ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800">SÍ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">TRZ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">TRZ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">TRZ</span></td>
+                                            <td><span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">TRZ</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // WIDGET 4: Radar Comparador Multi-Barra (Añadible desde la barra lateral)
+        const RadarComparisonWidget = ({ bars }) => {
+            const axes = [
+                { label: 'Proteína', key: 'protein', max: 22 },
+                { label: 'Fibra', key: 'fiber', max: 12 },
+                { label: 'Bajos NetCarbs', key: 'netCarbs', max: 20, invert: true },
+                { label: 'Potasio', key: 'potassium', max: 450 },
+                { label: 'Calcio', key: 'calcium', max: 180 }
+            ];
+
+            const center = 110;
+            const radius = 75;
+
+            const getPoint = (axisIdx, value, max, invert) => {
+                const angle = (Math.PI * 2 * axisIdx) / axes.length - Math.PI / 2;
+                const norm = invert ? Math.max(0.1, 1 - value / max) : Math.min(1, value / max);
+                const r = norm * radius;
+                return `${center + r * Math.cos(angle)},${center + r * Math.sin(angle)}`;
+            };
+
+            return (
+                <div className="w-full h-full bg-white rounded-2xl border border-slate-200 shadow-xl p-4 flex flex-col justify-between">
+                    <div className="border-b border-slate-100 pb-2 flex justify-between items-center">
+                        <div>
+                            <h3 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-dark">
+                                Radar Nutricional 360°
+                            </h3>
+                            <p className="text-[10px] text-slate-400">Comparativa de densidad nutricional</p>
+                        </div>
+                    </div>
+                    <div className="flex-1 flex items-center justify-center">
+                        <svg viewBox="0 0 220 220" className="w-48 h-48">
+                            {[0.33, 0.66, 1].map((lvl, idx) => (
+                                <polygon
+                                    key={idx}
+                                    points={axes.map((_, i) => {
+                                        const angle = (Math.PI * 2 * i) / axes.length - Math.PI / 2;
+                                        return `${center + radius * lvl * Math.cos(angle)},${center + radius * lvl * Math.sin(angle)}`;
+                                    }).join(' ')}
+                                    fill="none"
+                                    stroke="#E2E8F0"
+                                    strokeWidth="1"
+                                />
+                            ))}
+                            {axes.map((ax, i) => {
+                                const angle = (Math.PI * 2 * i) / axes.length - Math.PI / 2;
+                                const x = center + (radius + 18) * Math.cos(angle);
+                                const y = center + (radius + 18) * Math.sin(angle);
+                                return (
+                                    <text key={ax.label} x={x} y={y} fontSize="7.5" fontFamily="Montserrat" fontWeight="700" fill="#0D1B2A" textAnchor="middle">
+                                        {ax.label}
+                                    </text>
+                                );
+                            })}
+                            {bars.slice(0, 3).map((b, idx) => (
+                                <polygon
+                                    key={b.id}
+                                    points={axes.map((ax, i) => getPoint(i, b[ax.key], ax.max, ax.invert)).join(' ')}
+                                    fill={ idx === 0 ? 'rgba(20,103,121,0.22)' : idx === 1 ? 'rgba(247,50,130,0.2)' : 'rgba(217,119,6,0.2)' }
+                                    stroke={ idx === 0 ? '#146779' : idx === 1 ? '#F73282' : '#D97706' }
+                                    strokeWidth="2"
+                                />
+                            ))}
+                        </svg>
+                    </div>
+                    <div className="flex justify-center gap-3 text-[9px] font-bold">
+                        <span className="text-lumino-teal">● Quest</span>
+                        <span className="text-lumino-pink">● Barebells</span>
+                        <span className="text-amber-600">● RXBAR</span>
+                    </div>
+                </div>
+            );
+        };
+
+        // ============================================================================
+        // 7. APLICACIÓN PRINCIPAL: LUMINOBITE NUTRITION CANVAS STUDIO
+        // ============================================================================
+        const App = () => {
+            const [items, setItems] = useState(createDefaultCanvasItems);
+            const [selectedUid, setSelectedUid] = useState(null);
+            const [activeSidebarTab, setActiveSidebarTab] = useState('stickers'); // 'stickers' | 'bars' | 'charts' | 'annotations'
+            const [gridStyle, setGridStyle] = useState('dots'); // 'dots' | 'lines' | 'clean'
+            const [snapToGrid, setSnapToGrid] = useState(true);
+            const [zoom, setZoom] = useState(0.92);
+            const [presentationMode, setPresentationMode] = useState(false);
+            const [isExporting, setIsExporting] = useState(false);
+            const [exportNotice, setExportNotice] = useState(null);
+
+            // Imágenes personalizadas subidas por el usuario para cualquier barra
+            const [customBarImages, setCustomBarImages] = useState({});
+
+            // Estado de los Filtros Gráficos Vivos
+            const [filters, setFilters] = useState({
+                minProtein: 10,
+                maxNetCarbs: 20,
+                maxPolyols: 16,
+                minFiber: 0,
+                maxSatFat: 6,
+                hideUnmatched: false
+            });
+
+            // Filtro por Ingrediente / Sticker Lindo seleccionado
+            const [activeStickerTag, setActiveStickerTag] = useState(null);
+            const [highlightedBarId, setHighlightedBarId] = useState(null);
+
+            // Referencias para Drag & Resize en el Canvas
+            const canvasRef = useRef(null);
+            const dragState = useRef(null);
+
+            const resetFilters = () => {
+                setFilters({
+                    minProtein: 10,
+                    maxNetCarbs: 20,
+                    maxPolyols: 16,
+                    minFiber: 0,
+                    maxSatFat: 6,
+                    hideUnmatched: false
+                });
+                setActiveStickerTag(null);
+                setHighlightedBarId(null);
+            };
+
+            // Evaluación de qué barras cumplen los filtros gráficos vivos
+            const checkBarMatches = useCallback((bar) => {
+                return (
+                    bar.protein >= filters.minProtein &&
+                    bar.netCarbs <= filters.maxNetCarbs &&
+                    bar.polyols <= filters.maxPolyols &&
+                    bar.fiber >= filters.minFiber &&
+                    bar.satFat <= filters.maxSatFat
+                );
+            }, [filters]);
+
+            const matchingBarsCount = useMemo(() => {
+                return PROTEIN_BARS_DATA.filter(checkBarMatches).length;
+            }, [checkBarMatches]);
+
+            // Iniciar Arrastre o Redimensionamiento de un elemento del lienzo
+            const startInteraction = (e, uid, mode = 'move') => {
+                e.stopPropagation();
+                const targetItem = items.find(i => i.uid === uid);
+                if (!targetItem) return;
+
+                // Traer al frente al seleccionar
+                const maxZ = items.reduce((m, it) => Math.max(m, it.z || 1), 1);
+                setSelectedUid(uid);
+                setItems(prev => prev.map(it => it.uid === uid ? { ...it, z: maxZ + 1 } : it));
+
+                dragState.current = {
+                    uid,
+                    mode, // 'move' o 'resize'
+                    startX: e.clientX,
+                    startY: e.clientY,
+                    origX: targetItem.x,
+                    origY: targetItem.y,
+                    origW: targetItem.w,
+                    origH: targetItem.h
+                };
+            };
+
+            useEffect(() => {
+                const handleMouseMove = (e) => {
+                    if (!dragState.current) return;
+                    const { uid, mode, startX, startY, origX, origY, origW, origH } = dragState.current;
+                    const dx = (e.clientX - startX) / zoom;
+                    const dy = (e.clientY - startY) / zoom;
+
+                    setItems(prev => prev.map(item => {
+                        if (item.uid !== uid) return item;
+                        if (mode === 'move') {
+                            let nx = origX + dx;
+                            let ny = origY + dy;
+                            if (snapToGrid) {
+                                nx = Math.round(nx / 12) * 12;
+                                ny = Math.round(ny / 12) * 12;
+                            }
+                            return { ...item, x: Math.max(8, nx), y: Math.max(8, ny) };
+                        } else {
+                            let nw = Math.max(95, origW + dx);
+                            let nh = Math.max(70, origH + dy);
+                            if (snapToGrid) {
+                                nw = Math.round(nw / 12) * 12;
+                                nh = Math.round(nh / 12) * 12;
+                            }
+                            return { ...item, w: nw, h: nh };
+                        }
+                    }));
+                };
+
+                const handleMouseUp = () => {
+                    dragState.current = null;
+                };
+
+                window.addEventListener('mousemove', handleMouseMove);
+                window.addEventListener('mouseup', handleMouseUp);
+                return () => {
+                    window.removeEventListener('mousemove', handleMouseMove);
+                    window.removeEventListener('mouseup', handleMouseUp);
+                };
+            }, [zoom, snapToGrid]);
+
+            // Funciones para agregar nuevos elementos desde la Barra Lateral Izquierda (Canva Drawer)
+            const spawnSticker = (stickerObj, customX = null, customY = null) => {
+                const maxZ = items.reduce((m, it) => Math.max(m, it.z || 1), 1);
+                const newUid = `sticker_${stickerObj.id}_${Date.now()}`;
+                setItems(prev => [
+                    ...prev,
+                    {
+                        uid: newUid,
+                        type: 'cute_sticker',
+                        stickerId: stickerObj.id,
+                        x: customX ?? (380 + Math.round(Math.random() * 240)),
+                        y: customY ?? (180 + Math.round(Math.random() * 220)),
+                        w: 120,
+                        h: 105,
+                        z: maxZ + 1
+                    }
+                ]);
+                setSelectedUid(newUid);
+                setActiveStickerTag(stickerObj.tag);
+            };
+
+            const spawnBarCard = (barId) => {
+                const maxZ = items.reduce((m, it) => Math.max(m, it.z || 1), 1);
+                const newUid = `card_${barId}_${Date.now()}`;
+                setItems(prev => [
+                    ...prev,
+                    {
+                        uid: newUid,
+                        type: 'bar_card',
+                        barId,
+                        x: 460 + Math.round(Math.random() * 140),
+                        y: 160 + Math.round(Math.random() * 140),
+                        w: 310,
+                        h: 365,
+                        z: maxZ + 1
+                    }
+                ]);
+                setSelectedUid(newUid);
+            };
+
+            const spawnWidget = (widgetType, w = 360, h = 340) => {
+                const maxZ = items.reduce((m, it) => Math.max(m, it.z || 1), 1);
+                const newUid = `widget_${widgetType}_${Date.now()}`;
+                setItems(prev => [
+                    ...prev,
+                    {
+                        uid: newUid,
+                        type: widgetType,
+                        x: 420 + Math.round(Math.random() * 160),
+                        y: 190 + Math.round(Math.random() * 120),
+                        w,
+                        h,
+                        z: maxZ + 1
+                    }
+                ]);
+                setSelectedUid(newUid);
+            };
+
+            const spawnCallout = (preset) => {
+                const maxZ = items.reduce((m, it) => Math.max(m, it.z || 1), 1);
+                const newUid = `callout_${Date.now()}`;
+                setItems(prev => [
+                    ...prev,
+                    {
+                        uid: newUid,
+                        type: 'callout_badge',
+                        x: 500 + Math.round(Math.random() * 150),
+                        y: 140 + Math.round(Math.random() * 150),
+                        w: 270,
+                        h: 88,
+                        z: maxZ + 1,
+                        badgeColor: preset.color,
+                        title: preset.title,
+                        text: preset.text
+                    }
+                ]);
+                setSelectedUid(newUid);
+            };
+
+            const deleteSelectedItem = () => {
+                if (!selectedUid) return;
+                setItems(prev => prev.filter(i => i.uid !== selectedUid));
+                setSelectedUid(null);
+            };
+
+            const duplicateSelectedItem = () => {
+                if (!selectedUid) return;
+                const orig = items.find(i => i.uid === selectedUid);
+                if (!orig) return;
+                const maxZ = items.reduce((m, it) => Math.max(m, it.z || 1), 1);
+                const copy = {
+                    ...orig,
+                    uid: `${orig.uid}_copy_${Date.now()}`,
+                    x: orig.x + 28,
+                    y: orig.y + 28,
+                    z: maxZ + 1
+                };
+                setItems(prev => [...prev, copy]);
+                setSelectedUid(copy.uid);
+            };
+
+            // Plantillas de Auto-Acomodo Inteligente (Presets de Diseño)
+            const applyLayoutPreset = (presetName) => {
+                if (presetName === 'default') {
+                    setItems(createDefaultCanvasItems());
+                    resetFilters();
+                } else if (presetName === 'allergen_focus') {
+                    resetFilters();
+                    setActiveStickerTag('milk');
+                    setItems([
+                        {
+                            uid: 'header_allergen',
+                            type: 'title_banner',
+                            x: 40,
+                            y: 24,
+                            w: 880,
+                            h: 88,
+                            z: 2,
+                            title: 'MAPA INTERACTIVO DE ALÉRGENOS Y TRAZAS EN PLANTA',
+                            subtitle: 'Toca cualquier sticker de ingrediente (Leche, Soya, Huevo, Almendra, Maní, Polioles) para auditar las barras.'
+                        },
+                        ...CUTE_STICKERS_LIBRARY.slice(0, 6).map((st, idx) => ({
+                            uid: `st_preset_${st.id}`,
+                            type: 'cute_sticker',
+                            stickerId: st.id,
+                            x: 40 + idx * 135,
+                            y: 126,
+                            w: 122,
+                            h: 104,
+                            z: 15
+                        })),
+                        ...PROTEIN_BARS_DATA.map((b, idx) => ({
+                            uid: `card_preset_${b.id}`,
+                            type: 'bar_card',
+                            barId: b.id,
+                            x: 40 + (idx % 3) * 330,
+                            y: 250 + Math.floor(idx / 3) * 380,
+                            w: 310,
+                            h: 365,
+                            z: 8
+                        })),
+                        {
+                            uid: 'widget_allergen_table',
+                            type: 'lipid_polyol_chart',
+                            x: 1030,
+                            y: 250,
+                            w: 420,
+                            h: 380,
+                            z: 10
+                        },
+                        {
+                            uid: 'widget_radar_1',
+                            type: 'radar_chart',
+                            x: 1030,
+                            y: 645,
+                            w: 420,
+                            h: 350,
+                            z: 10
+                        }
+                    ]);
+                }
+            };
+
+            // Exportar Visualización a Imagen PNG de Alta Resolución
+            const handleExportPNG = async () => {
+                if (!canvasRef.current) return;
+                setIsExporting(true);
+                setSelectedUid(null);
+                setExportNotice('Generando imagen PNG de alta resolución de tu lienzo...');
+
+                setTimeout(async () => {
+                    try {
+                        const canvasEl = canvasRef.current;
+                        const renderedCanvas = await window.html2canvas(canvasEl, {
+                            backgroundColor: '#F9F8F3',
+                            scale: 2,
+                            useCORS: true,
+                            logging: false
+                        });
+                        const dataUrl = renderedCanvas.toDataURL('image/png');
+                        const link = document.createElement('a');
+                        link.download = `LuminoBite_Nutrition_Canvas_${new Date().toISOString().slice(0,10)}.png`;
+                        link.href = dataUrl;
+                        link.click();
+                        setExportNotice('¡Visualización exportada como PNG con éxito!');
+                    } catch (err) {
+                        setExportNotice('Error al exportar PNG. Intenta con la instantánea JSON/HTML.');
+                    } finally {
+                        setIsExporting(false);
+                        setTimeout(() => setExportNotice(null), 3500);
+                    }
+                }, 250);
+            };
+
+            // Exportar configuración interactiva JSON
+            const handleExportJSON = () => {
+                const payload = {
+                    studio: 'LuminoBite Nutrition Canvas Studio',
+                    exportedAt: new Date().toISOString(),
+                    filters,
+                    items
+                };
+                const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'LuminoBite_Dashboard_Layout.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                setExportNotice('¡Archivo de proyecto interactivo (.JSON) descargado!');
+                setTimeout(() => setExportNotice(null), 3000);
+            };
+
+            // Soporte para arrastrar desde la barra lateral al lienzo
+            const handleSidebarDragStart = (e, payload) => {
+                e.dataTransfer.setData('application/luminobite', JSON.stringify(payload));
+            };
+
+            const handleCanvasDrop = (e) => {
+                e.preventDefault();
+                const raw = e.dataTransfer.getData('application/luminobite');
+                if (!raw || !canvasRef.current) return;
+                try {
+                    const data = JSON.parse(raw);
+                    const rect = canvasRef.current.getBoundingClientRect();
+                    const dropX = Math.max(20, Math.round((e.clientX - rect.left) / zoom - 60));
+                    const dropY = Math.max(20, Math.round((e.clientY - rect.top) / zoom - 50));
+
+                    if (data.kind === 'sticker') {
+                        const st = CUTE_STICKERS_LIBRARY.find(s => s.id === data.stickerId);
+                        if (st) spawnSticker(st, dropX, dropY);
+                    } else if (data.kind === 'bar') {
+                        const maxZ = items.reduce((m, it) => Math.max(m, it.z || 1), 1);
+                        setItems(prev => [...prev, {
+                            uid: `card_${data.barId}_${Date.now()}`,
+                            type: 'bar_card',
+                            barId: data.barId,
+                            x: dropX,
+                            y: dropY,
+                            w: 310,
+                            h: 365,
+                            z: maxZ + 1
+                        }]);
+                    } else if (data.kind === 'widget') {
+                        spawnWidget(data.widgetType, 370, 350);
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            };
+
+            return (
+                <div className={`w-screen h-screen flex flex-col select-none ${isExporting ? 'exporting-mode' : ''}`}>
+                    {/* ==================================================================== */}
+                    {/* BARRA SUPERIOR DE ESTUDIO (LUMINOBITE STUDIO HEADER)                 */}
+                    {/* ==================================================================== */}
+                    <header className="h-16 bg-lumino-dark text-white px-5 flex items-center justify-between border-b border-slate-800 shrink-0 z-50">
+                        {/* Identidad de Marca */}
+                        <div className="flex items-center gap-4">
+                            <div className="font-montserrat font-black text-xl tracking-tighter flex items-center gap-2.5">
+                                <div className="w-7 h-7 bg-lumino-pink rounded-full relative overflow-hidden flex items-center justify-center shadow-md">
+                                    <div className="w-3 h-3 bg-white rounded-full" />
+                                </div>
+                                <span>LUMINOBITE</span>
+                                <span className="text-lumino-teal font-extrabold">CANVAS</span>
+                                <span className="text-[10px] font-montserrat uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-slate-800 text-lumino-beige border border-slate-700">
+                                    Food Science BI Studio
+                                </span>
+                            </div>
+
+                            {/* Selector Rápido de Plantillas de Lienzo */}
+                            {!presentationMode && (
+                                <div className="hidden lg:flex items-center gap-1.5 ml-4 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+                                    <button
+                                        onClick={() => applyLayoutPreset('default')}
+                                        className="px-3 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-slate-300 hover:bg-lumino-teal hover:text-white transition"
+                                    >
+                                        Vista General BI
+                                    </button>
+                                    <button
+                                        onClick={() => applyLayoutPreset('allergen_focus')}
+                                        className="px-3 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-slate-300 hover:bg-lumino-pink hover:text-white transition"
+                                    >
+                                        Modo Alérgenos & Stickers
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Controles Centrales del Lienzo (Zoom, Cuadrícula, Filtro Activo) */}
+                        <div className="flex items-center gap-2">
+                            {activeStickerTag && (
+                                <div className="flex items-center gap-2 bg-lumino-pink/20 border border-lumino-pink px-3 py-1 rounded-full">
+                                    <span className="text-xs font-montserrat font-bold text-pink-300">
+                                        ✨ Resaltando Ingrediente: <strong className="text-white uppercase">{activeStickerTag}</strong>
+                                    </span>
+                                    <button 
+                                        onClick={() => setActiveStickerTag(null)}
+                                        className="text-xs bg-lumino-pink text-white rounded-full w-4 h-4 flex items-center justify-center font-bold"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            )}
+
+                            <div className="hidden md:flex items-center bg-slate-900 rounded-xl p-1 border border-slate-800 text-xs">
+                                <button
+                                    onClick={() => setZoom(z => Math.max(0.55, +(z - 0.08).toFixed(2)))}
+                                    className="px-2.5 py-1 hover:bg-slate-800 rounded-lg font-bold"
+                                >
+                                    −
+                                </button>
+                                <span className="px-2.5 font-roboto font-bold text-slate-300">
+                                    {Math.round(zoom * 100)}%
+                                </span>
+                                <button
+                                    onClick={() => setZoom(z => Math.min(1.35, +(z + 0.08).toFixed(2)))}
+                                    className="px-2.5 py-1 hover:bg-slate-800 rounded-lg font-bold"
+                                >
+                                    +
+                                </button>
+                            </div>
+
+                            <button
+                                onClick={() => setGridStyle(g => g === 'dots' ? 'lines' : g === 'lines' ? 'clean' : 'dots')}
+                                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-montserrat font-bold text-slate-200 transition"
+                            >
+                                Cuadrícula: {gridStyle === 'dots' ? 'Puntos' : gridStyle === 'lines' ? 'Milimétrica' : 'Limpia'}
+                            </button>
+                        </div>
+
+                        {/* Acciones de Exportación y Modo Presentación */}
+                        <div className="flex items-center gap-2.5">
+                            <button
+                                onClick={() => setPresentationMode(!presentationMode)}
+                                className={`px-3.5 py-2 rounded-xl font-montserrat font-bold text-xs uppercase tracking-wider border transition ${
+                                    presentationMode
+                                        ? 'bg-amber-400 text-lumino-dark border-amber-300'
+                                        : 'bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700'
+                                }`}
+                            >
+                                {presentationMode ? 'Salir de Presentación' : 'Modo Presentación'}
+                            </button>
+
+                            <button
+                                onClick={handleExportJSON}
+                                className="hidden sm:inline-flex px-3.5 py-2 rounded-xl bg-lumino-teal hover:bg-teal-600 text-white font-montserrat font-bold text-xs uppercase tracking-wider transition shadow"
+                                title="Guardar diseño en formato JSON"
+                            >
+                                Guardar JSON
+                            </button>
+
+                            <button
+                                onClick={handleExportPNG}
+                                disabled={isExporting}
+                                className="px-4 py-2 rounded-xl bg-lumino-pink hover:bg-pink-600 text-white font-montserrat font-extrabold text-xs uppercase tracking-wider transition shadow-lg flex items-center gap-2"
+                            >
+                                <span>📸 Exportar Visualización (PNG)</span>
+                            </button>
+                        </div>
+                    </header>
+
+                    {/* Notificación Flotante de Exportación */}
+                    {exportNotice && (
+                        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[9999] bg-lumino-dark text-white px-5 py-2.5 rounded-full shadow-2xl border border-lumino-pink font-montserrat font-bold text-xs flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-lumino-pink animate-ping" />
+                            <span>{exportNotice}</span>
+                        </div>
+                    )}
+
+                    {/* ==================================================================== */}
+                    {/* CUERPO PRINCIPAL: BARRA LATERAL CANVA + LIENZO INTERACTIVO LIBRE     */}
+                    {/* ==================================================================== */}
+                    <div className="flex-1 flex overflow-hidden relative">
+                        
+                        {/* BARRA LATERAL IZQUIERDA (ESTILO CANVA) */}
+                        {!presentationMode && (
+                            <aside className="w-80 bg-white border-r border-slate-200 flex flex-col shrink-0 z-40 shadow-xl">
+                                {/* Pestañas de Categorías */}
+                                <div className="grid grid-cols-4 border-b border-slate-200 bg-slate-50 p-1.5 gap-1">
+                                    <button
+                                        onClick={() => setActiveSidebarTab('stickers')}
+                                        className={`py-2 rounded-xl flex flex-col items-center gap-1 text-[10px] font-montserrat font-extrabold transition ${
+                                            activeSidebarTab === 'stickers' ? 'bg-lumino-dark text-white shadow' : 'text-slate-600 hover:bg-slate-200/60'
+                                        }`}
+                                    >
+                                        <span className="text-base">🐮</span>
+                                        <span>Iconos</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveSidebarTab('bars')}
+                                        className={`py-2 rounded-xl flex flex-col items-center gap-1 text-[10px] font-montserrat font-extrabold transition ${
+                                            activeSidebarTab === 'bars' ? 'bg-lumino-dark text-white shadow' : 'text-slate-600 hover:bg-slate-200/60'
+                                        }`}
+                                    >
+                                        <span className="text-base">🍫</span>
+                                        <span>Barras</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveSidebarTab('charts')}
+                                        className={`py-2 rounded-xl flex flex-col items-center gap-1 text-[10px] font-montserrat font-extrabold transition ${
+                                            activeSidebarTab === 'charts' ? 'bg-lumino-dark text-white shadow' : 'text-slate-600 hover:bg-slate-200/60'
+                                        }`}
+                                    >
+                                        <span className="text-base">📊</span>
+                                        <span>Gráficas</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveSidebarTab('annotations')}
+                                        className={`py-2 rounded-xl flex flex-col items-center gap-1 text-[10px] font-montserrat font-extrabold transition ${
+                                            activeSidebarTab === 'annotations' ? 'bg-lumino-dark text-white shadow' : 'text-slate-600 hover:bg-slate-200/60'
+                                        }`}
+                                    >
+                                        <span className="text-base">🏷️</span>
+                                        <span>Notas</span>
+                                    </button>
+                                </div>
+
+                                {/* Contenido de la Pestaña Activa */}
+                                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                                    
+                                    {/* PESTAÑA 1: ICONOS LINDOS DE INGREDIENTES (DRAGGABLE & FILTERABLE) */}
+                                    {activeSidebarTab === 'stickers' && (
+                                        <div>
+                                            <div className="mb-3">
+                                                <h4 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-teal">
+                                                    Stickers Lindos de Ingredientes
+                                                </h4>
+                                                <p className="text-[11px] text-slate-500 leading-snug mt-0.5">
+                                                    Arrástralos o haz clic para colocarlos en tu lienzo. ¡Al tocarlos en el lienzo iluminan todas las barras con ese ingrediente!
+                                                </p>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-2.5">
+                                                {CUTE_STICKERS_LIBRARY.map(st => {
+                                                    const isTagActive = activeStickerTag === st.tag;
+                                                    return (
+                                                        <div
+                                                            key={st.id}
+                                                            draggable
+                                                            onDragStart={(e) => handleSidebarDragStart(e, { kind: 'sticker', stickerId: st.id })}
+                                                            onClick={() => spawnSticker(st)}
+                                                            className={`p-2.5 rounded-2xl border-2 cursor-grab active:cursor-grabbing transition-all hover:scale-[1.03] flex flex-col items-center text-center shadow-sm ${
+                                                                isTagActive ? 'border-lumino-pink bg-pink-50/40' : 'border-slate-200/80 bg-lumino-bg/50 hover:border-lumino-teal'
+                                                            }`}
+                                                        >
+                                                            <div className="w-14 h-14 mb-1">
+                                                                {st.renderSvg()}
+                                                            </div>
+                                                            <div className="font-montserrat font-extrabold text-[11px] text-lumino-dark leading-tight">
+                                                                {st.label}
+                                                            </div>
+                                                            <div className="text-[9.5px] text-slate-500 font-semibold">
+                                                                {st.sub}
+                                                            </div>
+                                                            <span className="mt-1 text-[8.5px] font-montserrat font-bold uppercase px-2 py-0.5 rounded-full bg-white border border-slate-200 text-lumino-teal">
+                                                                + Añadir al Lienzo
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* PESTAÑA 2: TARJETAS DE LAS 5 BARRAS DE PROTEÍNA */}
+                                    {activeSidebarTab === 'bars' && (
+                                        <div className="space-y-3">
+                                            <div>
+                                                <h4 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-teal">
+                                                    Tarjetas de Producto (5 Famosas)
+                                                </h4>
+                                                <p className="text-[11px] text-slate-500 leading-snug mt-0.5">
+                                                    Agrega tarjetas adicionales para comparar frente y reverso FDA simultáneamente.
+                                                </p>
+                                            </div>
+                                            {PROTEIN_BARS_DATA.map(bar => (
+                                                <div
+                                                    key={bar.id}
+                                                    draggable
+                                                    onDragStart={(e) => handleSidebarDragStart(e, { kind: 'bar', barId: bar.id })}
+                                                    onClick={() => spawnBarCard(bar.id)}
+                                                    className="p-3 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-teal cursor-pointer transition shadow-sm space-y-2"
+                                                >
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="font-montserrat font-black text-xs text-lumino-dark">{bar.name}</span>
+                                                        <span className="text-[10px] font-roboto font-bold px-2 py-0.5 rounded bg-white border">{bar.servingGrams}g | {bar.calories} kcal</span>
+                                                    </div>
+                                                    <div className="h-16 pointer-events-none">
+                                                        <BarWrapperIllustration barId={bar.id} customImage={customBarImages[bar.id]} />
+                                                    </div>
+                                                    <div className="flex justify-between text-[10px] text-slate-600 font-roboto pt-1">
+                                                        <span>Prot: <strong>{bar.protein}g</strong></span>
+                                                        <span>NetCarb: <strong>{bar.netCarbs}g</strong></span>
+                                                        <span>Polioles: <strong>{bar.polyols}g</strong></span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* PESTAÑA 3: GRÁFICAS-FILTRO VIVAS */}
+                                    {activeSidebarTab === 'charts' && (
+                                        <div className="space-y-3">
+                                            <div>
+                                                <h4 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-teal">
+                                                    Gráficas-Filtro Interactivas
+                                                </h4>
+                                                <p className="text-[11px] text-slate-500 leading-snug mt-0.5">
+                                                    Inserta widgets analíticos vivos que filtran las barras directamente desde el lienzo.
+                                                </p>
+                                            </div>
+
+                                            <div
+                                                onClick={() => spawnWidget('macro_sculptor', 390, 410)}
+                                                className="p-3.5 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-pink cursor-pointer transition space-y-1"
+                                            >
+                                                <div className="font-montserrat font-black text-xs text-lumino-dark">🎛️ Escultor de Macros y Polioles</div>
+                                                <p className="text-[10.5px] text-slate-500">Sliders táctiles de Proteína, Carbos Netos, Fibra, Grasa Saturada y Alcoholes de Azúcar.</p>
+                                            </div>
+
+                                            <div
+                                                onClick={() => spawnWidget('scatter_matrix', 390, 350)}
+                                                className="p-3.5 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-teal cursor-pointer transition space-y-1"
+                                            >
+                                                <div className="font-montserrat font-black text-xs text-lumino-dark">🎯 Matriz 2D con Zona Meta</div>
+                                                <p className="text-[10.5px] text-slate-500">Gráfica de burbujas donde arrastras el cuadrante objetivo para filtrar las barras.</p>
+                                            </div>
+
+                                            <div
+                                                onClick={() => spawnWidget('lipid_polyol_chart', 380, 390)}
+                                                className="p-3.5 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-burgundy cursor-pointer transition space-y-1"
+                                            >
+                                                <div className="font-montserrat font-black text-xs text-lumino-dark">🔬 Radiografía Química y Trazas</div>
+                                                <p className="text-[10.5px] text-slate-500">Compara Fibra vs. Polioles, Grasas Saturadas/Trans y matriz de alérgenos en planta.</p>
+                                            </div>
+
+                                            <div
+                                                onClick={() => spawnWidget('radar_chart', 340, 340)}
+                                                className="p-3.5 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-olive cursor-pointer transition space-y-1"
+                                            >
+                                                <div className="font-montserrat font-black text-xs text-lumino-dark">🕸️ Radar Nutricional 360°</div>
+                                                <p className="text-[10.5px] text-slate-500">Polígono multivariable con Proteína, Fibra, Potasio, Calcio y Eficiencia Keto.</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* PESTAÑA 4: SELLOS, ALERTAS Y TEXTOS EDITABLES */}
+                                    {activeSidebarTab === 'annotations' && (
+                                        <div className="space-y-3">
+                                            <div>
+                                                <h4 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-teal">
+                                                    Sellos Científicos y Notas
+                                                </h4>
+                                                <p className="text-[11px] text-slate-500 leading-snug mt-0.5">
+                                                    Haz clic para añadir bloques de texto editables (doble clic para escribir tu propio análisis).
+                                                </p>
+                                            </div>
+
+                                            {[
+                                                {
+                                                    title: '🏆 GANADOR EN FIBRA PREBIÓTICA',
+                                                    text: 'Quest Bar aporta 12g de fibra de maíz soluble con solo 4g de Carbos Netos.',
+                                                    color: '#146779'
+                                                },
+                                                {
+                                                    title: '⚠️ ALERTA DE EFECTO LAXANTE',
+                                                    text: 'Barebells y Grenade contienen Maltitol. Grenade alcanza 16g de polioles por barra.',
+                                                    color: '#780030'
+                                                },
+                                                {
+                                                    title: '🥚 ETIQUETA LIMPIA (WHOLE FOODS)',
+                                                    text: 'RXBAR usa solo dátiles, claras de huevo, almendras, anacardos y cacao 100%.',
+                                                    color: '#786F14'
+                                                },
+                                                {
+                                                    title: '📝 NOTA PERSONALIZADA DE CLIENTE',
+                                                    text: 'Haz clic sobre este texto en el lienzo para escribir tus propias conclusiones...',
+                                                    color: '#0D1B2A'
+                                                }
+                                            ].map((preset, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    onClick={() => spawnCallout(preset)}
+                                                    className="p-3 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-pink cursor-pointer transition"
+                                                >
+                                                    <div className="font-montserrat font-extrabold text-[11px]" style={{ color: preset.color }}>
+                                                        {preset.title}
+                                                    </div>
+                                                    <p className="text-[10px] text-slate-600 mt-1">{preset.text}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Barra Inferior del Inspector (Acciones sobre el elemento seleccionado) */}
+                                <div className="p-3 bg-slate-100 border-t border-slate-200 flex items-center justify-between">
+                                    <div className="text-[10px] font-montserrat font-bold text-slate-500 truncate">
+                                        {selectedUid ? `Seleccionado: ${selectedUid.split('_')[0].toUpperCase()}` : 'Ningún elemento seleccionado'}
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <button
+                                            onClick={duplicateSelectedItem}
+                                            disabled={!selectedUid}
+                                            className="px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-[10px] font-bold text-lumino-dark disabled:opacity-40 hover:bg-lumino-teal hover:text-white transition"
+                                        >
+                                            Duplicar
+                                        </button>
+                                        <button
+                                            onClick={deleteSelectedItem}
+                                            disabled={!selectedUid}
+                                            className="px-2.5 py-1 rounded-lg bg-rose-600 text-[10px] font-bold text-white disabled:opacity-40 hover:bg-rose-700 transition"
+                                        >
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                </div>
+                            </aside>
+                        )}
+
+                        {/* ==================================================================== */}
+                        {/* ÁREA DEL LIENZO INTERACTIVO (FREEFORM DRAG & DROP WORKSPACE)          */}
+                        {/* ==================================================================== */}
+                        <main 
+                            className="flex-1 overflow-auto relative"
+                            onMouseDown={() => setSelectedUid(null)}
+                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={handleCanvasDrop}
+                        >
+                            <div
+                                ref={canvasRef}
+                                className={`min-w-[1600px] min-h-[1080px] relative transition-colors duration-300 origin-top-left ${
+                                    gridStyle === 'dots' ? 'canvas-grid-dots' : gridStyle === 'lines' ? 'canvas-grid-lines' : 'canvas-clean'
+                                }`}
+                                style={{
+                                    transform: `scale(${zoom})`,
+                                    width: '1600px',
+                                    height: '1080px'
+                                }}
+                            >
+                                {/* Marca de Agua Institucional en el Lienzo */}
+                                <div className="absolute bottom-4 right-6 pointer-events-none flex items-center gap-2 opacity-50">
+                                    <div className="w-4 h-4 rounded-full bg-lumino-dark" />
+                                    <span className="font-montserrat font-black text-xs tracking-widest text-lumino-dark">
+                                        LUMINOBITE STUDIO • DYNAMIC NUTRITION CANVAS
+                                    </span>
+                                </div>
+
+                                {/* RENDERIZADO DE CADA ELEMENTO EN EL LIENZO */}
+                                {items.map(item => {
+                                    const isSelected = selectedUid === item.uid && !presentationMode;
+
+                                    // Si es una tarjeta de barra y el usuario activó "Ocultar descartadas"
+                                    if (item.type === 'bar_card') {
+                                        const barObj = PROTEIN_BARS_DATA.find(b => b.id === item.barId);
+                                        if (barObj && filters.hideUnmatched && !checkBarMatches(barObj)) {
+                                            return null;
+                                        }
+                                    }
+
+                                    return (
+                                        <div
+                                            key={item.uid}
+                                            onMouseDown={(e) => startInteraction(e, item.uid, 'move')}
+                                            style={{
+                                                position: 'absolute',
+                                                left: `${item.x}px`,
+                                                top: `${item.y}px`,
+                                                width: `${item.w}px`,
+                                                height: `${item.h}px`,
+                                                zIndex: item.z || 1
+                                            }}
+                                            className={`canvas-item-wrapper group cursor-move transition-shadow ${
+                                                isSelected ? 'ring-2 ring-lumino-pink ring-offset-2 rounded-2xl' : ''
+                                            }`}
+                                        >
+                                            {/* Barra Flotante de Controles cuando está seleccionado */}
+                                            {isSelected && (
+                                                <div 
+                                                    className="no-export absolute -top-8 left-0 bg-lumino-dark text-white px-2.5 py-1 rounded-lg shadow-lg flex items-center gap-2 text-[10px] font-montserrat font-bold z-50"
+                                                    onMouseDown={(e) => e.stopPropagation()}
+                                                >
+                                                    <span className="text-lumino-beige">✥ Arrastrar</span>
+                                                    <button onClick={duplicateSelectedItem} className="hover:text-lumino-teal">⧉ Clonar</button>
+                                                    <button onClick={deleteSelectedItem} className="hover:text-lumino-pink">✕ Borrar</button>
+                                                </div>
+                                            )}
+
+                                            {/* 1. BANNER DE TÍTULO EDITABLE */}
+                                            {item.type === 'title_banner' && (
+                                                <div className="w-full h-full bg-lumino-dark text-white rounded-2xl px-6 py-3.5 shadow-xl border-l-8 border-lumino-pink flex flex-col justify-center">
+                                                    <div 
+                                                        contentEditable
+                                                        suppressContentEditableWarning
+                                                        onMouseDown={(e) => e.stopPropagation()}
+                                                        className="font-montserrat font-black text-xl md:text-2xl tracking-tight text-white outline-none cursor-text"
+                                                    >
+                                                        {item.title}
+                                                    </div>
+                                                    <div 
+                                                        contentEditable
+                                                        suppressContentEditableWarning
+                                                        onMouseDown={(e) => e.stopPropagation()}
+                                                        className="text-xs text-lumino-beige font-sans mt-1 outline-none cursor-text"
+                                                    >
+                                                        {item.subtitle}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* 2. TARJETA DE BARRA DE PROTEÍNA */}
+                                            {item.type === 'bar_card' && (() => {
+                                                const bar = PROTEIN_BARS_DATA.find(b => b.id === item.barId) || PROTEIN_BARS_DATA[0];
+                                                const matched = checkBarMatches(bar);
+                                                const pulsed = (activeStickerTag && bar.tags.includes(activeStickerTag)) || highlightedBarId === bar.id;
+                                                return (
+                                                    <BarProductCard
+                                                        bar={bar}
+                                                        isMatchedByFilter={matched}
+                                                        isPulsedBySticker={pulsed}
+                                                        activeStickerTag={activeStickerTag}
+                                                        customImage={customBarImages[bar.id]}
+                                                        onUploadImage={(bId, imgData) => setCustomBarImages(prev => ({ ...prev, [bId]: imgData }))}
+                                                    />
+                                                );
+                                            })()}
+
+                                            {/* 3. WIDGET ESCULTOR DE MACROS */}
+                                            {item.type === 'macro_sculptor' && (
+                                                <MacroSculptorWidget
+                                                    filters={filters}
+                                                    setFilters={setFilters}
+                                                    resetFilters={resetFilters}
+                                                    matchingCount={matchingBarsCount}
+                                                    totalCount={PROTEIN_BARS_DATA.length}
+                                                />
+                                            )}
+
+                                            {/* 4. WIDGET MATRIZ 2D SCATTER */}
+                                            {item.type === 'scatter_matrix' && (
+                                                <ScatterMatrixWidget
+                                                    bars={PROTEIN_BARS_DATA}
+                                                    filters={filters}
+                                                    setFilters={setFilters}
+                                                    activeStickerTag={activeStickerTag}
+                                                />
+                                            )}
+
+                                            {/* 5. WIDGET RADIOGRAFÍA DE CARBOS / POLIOLES / GRASAS / ALÉRGENOS */}
+                                            {item.type === 'lipid_polyol_chart' && (
+                                                <LipidPolyolWidget
+                                                    bars={PROTEIN_BARS_DATA}
+                                                    highlightedBarId={highlightedBarId}
+                                                    onSelectHighlightBar={setHighlightedBarId}
+                                                />
+                                            )}
+
+                                            {/* 6. WIDGET RADAR NUTRICIONAL */}
+                                            {item.type === 'radar_chart' && (
+                                                <RadarComparisonWidget bars={PROTEIN_BARS_DATA} />
+                                            )}
+
+                                            {/* 7. STICKER LINDO DE INGREDIENTE (CON FILTRO PULSANTE AL HACER CLIC) */}
+                                            {item.type === 'cute_sticker' && (() => {
+                                                const st = CUTE_STICKERS_LIBRARY.find(s => s.id === item.stickerId) || CUTE_STICKERS_LIBRARY[0];
+                                                const isFilteringThis = activeStickerTag === st.tag;
+                                                return (
+                                                    <div
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setActiveStickerTag(prev => prev === st.tag ? null : st.tag);
+                                                        }}
+                                                        style={{ backgroundColor: st.bg, borderColor: isFilteringThis ? '#F73282' : st.border }}
+                                                        className={`w-full h-full rounded-2xl border-2 p-2 shadow-md flex flex-col items-center justify-center text-center transition-transform hover:scale-105 ${
+                                                            isFilteringThis ? 'ring-4 ring-lumino-pink/40' : ''
+                                                        }`}
+                                                        title="Haz clic para resaltar las barras que contienen este ingrediente"
+                                                    >
+                                                        <div className="w-12 h-12 shrink-0">
+                                                            {st.renderSvg()}
+                                                        </div>
+                                                        <div className="font-montserrat font-black text-[10px] text-lumino-dark leading-tight mt-1">
+                                                            {st.label}
+                                                        </div>
+                                                        <div className="text-[8.5px] font-bold text-lumino-teal uppercase">
+                                                            {isFilteringThis ? '● FILTRO ACTIVO' : st.sub}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })()}
+
+                                            {/* 8. SELLO / NOTA CIENTÍFICA EDITABLE */}
+                                            {item.type === 'callout_badge' && (
+                                                <div 
+                                                    className="w-full h-full rounded-2xl p-3.5 text-white shadow-lg flex flex-col justify-center"
+                                                    style={{ backgroundColor: item.badgeColor || '#780030' }}
+                                                >
+                                                    <div
+                                                        contentEditable
+                                                        suppressContentEditableWarning
+                                                        onMouseDown={(e) => e.stopPropagation()}
+                                                        className="font-montserrat font-black text-xs uppercase tracking-wider outline-none cursor-text"
+                                                    >
+                                                        {item.title}
+                                                    </div>
+                                                    <div
+                                                        contentEditable
+                                                        suppressContentEditableWarning
+                                                        onMouseDown={(e) => e.stopPropagation()}
+                                                        className="text-[11px] text-white/90 leading-snug mt-1 outline-none cursor-text"
+                                                    >
+                                                        {item.text}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* ESQUINA DE REDIMENSIONAMIENTO (RESIZE HANDLE) */}
+                                            {!presentationMode && (
+                                                <div
+                                                    onMouseDown={(e) => startInteraction(e, item.uid, 'resize')}
+                                                    title="Arrastra para redimensionar"
+                                                    className="no-export absolute bottom-1 right-1 w-5 h-5 rounded-md bg-white/90 border border-slate-300 shadow flex items-center justify-center cursor-nwse-resize opacity-0 group-hover:opacity-100 transition"
+                                                >
+                                                    <svg width="10" height="10" viewBox="0 0 10 10" className="text-lumino-dark">
+                                                        <path d="M9 1L1 9M9 5L5 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                                                    </svg>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </main>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
