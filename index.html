@@ -60,16 +60,16 @@
         /* Cuadrícula técnica milimétrica y de puntos */
         .canvas-grid-dots {
             background-color: #F9F8F3;
-            background-image: 
+            background-image:
                 radial-gradient(rgba(20, 103, 121, 0.22) 1.25px, transparent 1.25px),
                 radial-gradient(rgba(204, 202, 181, 0.35) 1px, transparent 1px);
-            background-size: 24px 24px, 120px 120px;
+            background-size: var(--grid-size, 24px) var(--grid-size, 24px), calc(var(--grid-size, 24px) * 5) calc(var(--grid-size, 24px) * 5);
             background-position: 0 0, 0 0;
         }
 
         .canvas-grid-lines {
             background-color: #F9F8F3;
-            background-size: 20px 20px, 100px 100px;
+            background-size: var(--grid-size, 24px) var(--grid-size, 24px), calc(var(--grid-size, 24px) * 5) calc(var(--grid-size, 24px) * 5);
             background-image:
                 linear-gradient(to right, rgba(20, 103, 121, 0.06) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(20, 103, 121, 0.06) 1px, transparent 1px),
@@ -1022,10 +1022,130 @@ className="w-full h-28 rounded-xl overflow-hidden bg-slate-100 flex items-center
             }
         ];
 
+        // GENERADOR DE TEMAS Y PLANTILLAS ALEATORIAS PARA EL LIENZO
+        const generateRandomCanvasTheme = () => {
+            const themes = [
+                {
+                    title: 'ANÁLISIS BIOTECH: TOP PROTEÍNAS & BIO-DENSIDAD',
+                    sub: 'Exploración aleatoria de matrices proteicas de alto rendimiento y aminoácidos.',
+                    bgNote: '#0D1B2A',
+                    accent: '#146779',
+                    metric: 'protein',
+                    chartType: 'bar',
+                    barIds: ['quest', 'barebells', 'rxbar']
+                },
+                {
+                    title: 'MAPA COMPARATIVO: POLIOLES, AZÚCARES & FIBRA',
+                    sub: 'Monitoreo de carbohidratos netos, maltitol y perfil prebiótico.',
+                    bgNote: '#780030',
+                    accent: '#F73282',
+                    metric: 'polyols',
+                    chartType: 'ranking',
+                    barIds: ['grenade', 'barebells', 'quest']
+                },
+                {
+                    title: 'LABORATORIO SENSORIAL & RADAR DE MICRONUTRIENTES',
+                    sub: 'Auditoría integral de calcio, potasio, sodio y grasas saludables.',
+                    bgNote: '#0F2942',
+                    accent: '#38BDF8',
+                    metric: 'fiber',
+                    chartType: 'donut',
+                    barIds: ['rxbar', 'pureprotein', 'barebells']
+                },
+                {
+                    title: 'MATRIZ 2D DE KETO-OPTIMIZACIÓN & NET CARBS',
+                    sub: 'Correlación de alta proteína frente a impacto glucémico controlado.',
+                    bgNote: '#1E293B',
+                    accent: '#10B981',
+                    metric: 'netCarbs',
+                    chartType: 'scatter',
+                    barIds: ['quest', 'pureprotein', 'grenade']
+                }
+            ];
+
+            const theme = themes[Math.floor(Math.random() * themes.length)];
+            const randomStickers = [...CUTE_STICKERS_LIBRARY].sort(() => 0.5 - Math.random()).slice(0, 4);
+
+            return [
+                {
+                    uid: `header_${Date.now()}`,
+                    type: 'title_banner',
+                    x: 40,
+                    y: 24,
+                    w: 780,
+                    h: 92,
+                    z: 2,
+                    bgColor: theme.bgNote,
+                    accentColor: theme.accent,
+                    title: theme.title,
+                    subtitle: theme.sub
+                },
+                ...theme.barIds.map((bId, idx) => ({
+                    uid: `bar_${bId}_${Date.now()}_${idx}`,
+                    type: 'bar_card',
+                    barId: bId,
+                    x: 40 + idx * 335,
+                    y: 135,
+                    w: 315,
+                    h: 365,
+                    z: 5
+                })),
+                {
+                    uid: `chart_custom_${Date.now()}`,
+                    type: 'custom_chart',
+                    x: 40,
+                    y: 520,
+                    w: 520,
+                    h: 360,
+                    z: 8,
+                    config: {
+                        chartType: theme.chartType,
+                        metric: theme.metric,
+                        title: `Gráfica Especial: ${theme.metric.toUpperCase()}`,
+                        primaryColor: theme.accent,
+                        accentColor: '#38BDF8',
+                        showLabels: true,
+                        showGrid: true
+                    }
+                },
+                {
+                    uid: `radar_custom_${Date.now()}`,
+                    type: 'radar_chart',
+                    x: 580,
+                    y: 520,
+                    w: 480,
+                    h: 360,
+                    z: 8
+                },
+                ...randomStickers.map((st, idx) => ({
+                    uid: `st_${st.id}_${Date.now()}_${idx}`,
+                    type: 'cute_sticker',
+                    stickerId: st.id,
+                    x: 840 + (idx % 2) * 125,
+                    y: 24 + Math.floor(idx / 2) * 105,
+                    w: 115,
+                    h: 96,
+                    z: 15
+                })),
+                {
+                    uid: `note_${Date.now()}`,
+                    type: 'callout_badge',
+                    x: 1080,
+                    y: 520,
+                    w: 300,
+                    h: 180,
+                    z: 12,
+                    badgeColor: theme.bgNote,
+                    title: 'DIAGNÓSTICO DEL TEMA ALEATORIO',
+                    text: `Este lienzo fue configurado dinámicamente con enfoque en ${theme.metric.toUpperCase()}. Puedes seleccionar cualquier componente y abrir el Inspector para modificar variables, paletas, dimensiones y tipografías.`
+                }
+            ];
+        };
+
         // ============================================================================
         // 5. COMPONENTE DE TARJETA DE BARRA DE PROTEÍNA (FRENTE VISUAL + REVERSO FDA)
         // ============================================================================
-        const BarProductCard = ({ bar, isMatchedByFilter, isPulsedBySticker, activeStickerTag, onUploadImage, customImage, isSelectedBar, onSelectBar, config = {} }) => {
+        const BarProductCard = ({ bar, isMatchedByFilter, isPulsedBySticker, activeStickerTag, onUploadImage, customImage, isSelectedBar, onSelectBar, onFocusBar, config = {} }) => {
             const [flipped, setFlipped] = useState(false);
             const fileInputRef = useRef(null);
 
@@ -1094,6 +1214,16 @@ className="flex items-center gap-1 no-export">
                             >
                                 📷
                             </button>
+                            {onFocusBar && (
+                                <button
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onClick={(e) => { e.stopPropagation(); onFocusBar(bar.id); }}
+                                    title="Abrir Dashboard Dedicado de esta barra"
+                                    className="px-2.5 py-1 rounded-lg text-[10px] font-montserrat font-bold uppercase tracking-wider bg-lumino-teal text-white hover:bg-teal-700 shadow-sm flex items-center gap-1 transition"
+                                >
+                                    <span>🔍</span> Focus
+                                </button>
+                            )}
                             <button
                                 onMouseDown={(e) => e.stopPropagation()}
                                 onClick={(e) => { e.stopPropagation(); setFlipped(!flipped); }}
@@ -1986,6 +2116,225 @@ className="overflow-x-auto">
         };
 
         // ============================================================================
+        // 6.5. DASHBOARD DEDICADO DE PRODUCTO (CAPA DE ENFOQUE PROFUNDO / FOCUS LAYER)
+        // ============================================================================
+        const FocusedBarDashboard = ({ barId, allBars, onClose, customImage, onUploadImage }) => {
+            const bar = allBars.find(b => b.id === barId) || allBars[0];
+            const otherBars = allBars.filter(b => b.id !== bar.id);
+            const fileInputRef = useRef(null);
+
+            const handleFileChange = (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    if (onUploadImage) onUploadImage(bar.id, ev.target.result);
+                };
+                reader.readAsDataURL(file);
+            };
+
+            // Cálculos comparativos de benchmark
+            const avgProtein = +(allBars.reduce((acc, b) => acc + b.protein, 0) / allBars.length).toFixed(1);
+            const avgCalories = Math.round(allBars.reduce((acc, b) => acc + b.calories, 0) / allBars.length);
+            const avgPolyols = +(allBars.reduce((acc, b) => acc + b.polyols, 0) / allBars.length).toFixed(1);
+
+            return (
+                <div className="w-full h-full bg-slate-900 text-slate-100 overflow-y-auto p-6 md:p-8 animate-fadeIn">
+                    {/* ENCABEZADO DE NAVEGACIÓN Y TÍTULO DEL PRODUCTO */}
+                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={onClose}
+                                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-lumino-teal text-white font-montserrat font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition border border-slate-700 shadow-md"
+                            >
+                                <span>←</span> Volver al Lienzo Global
+                            </button>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: bar.brandColor }} />
+                                    <h1 className="font-montserrat font-black text-2xl md:text-3xl tracking-tight text-white">
+                                        {bar.name}
+                                    </h1>
+                                    <span className="font-roboto font-bold text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-teal-300 border border-teal-500/30">
+                                        {bar.servingGrams}g porción
+                                    </span>
+                                </div>
+                                <p className="text-sm font-semibold text-slate-400 mt-0.5">{bar.flavor}</p>
+                            </div>
+                        </div>
+
+                        {/* SELECTOR RÁPIDO PARA NAVEGAR ENTRE OTRAS BARRAS */}
+                        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                            <span className="text-xs font-montserrat font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                                Cambiar Barra:
+                            </span>
+                            {allBars.map(b => (
+                                <button
+                                    key={b.id}
+                                    onClick={() => onClose(b.id)}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-montserrat font-bold transition whitespace-nowrap border ${b.id === bar.id ? 'bg-teal-500 text-white border-teal-400 shadow-md' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`}
+                                >
+                                    {b.name.replace('Barra ', '')}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* CONTENIDO PRINCIPAL EN REJILLA BI */}
+                    <div className="max-w-7xl mx-auto mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        
+                        {/* COLUMNA 1 (4 COLS): EMPAQUE VISUAL + ACCIONES + SELLO */}
+                        <div className="lg:col-span-4 space-y-5">
+                            <div className="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-xl flex flex-col items-center">
+                                <div className="w-full flex justify-between items-center mb-3">
+                                    <span className="text-[11px] font-montserrat font-black uppercase tracking-wider text-teal-400">
+                                        Render / Empaque Oficial
+                                    </span>
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="text-xs bg-slate-700 hover:bg-lumino-teal text-white px-2.5 py-1 rounded-lg font-bold transition flex items-center gap-1"
+                                    >
+                                        📷 Subir Foto
+                                    </button>
+                                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                                </div>
+
+                                <div className="w-full bg-slate-900/60 rounded-xl p-4 flex items-center justify-center border border-slate-700/60 min-h-[220px]">
+                                    <div className="w-full max-w-[280px]">
+                                        <BarWrapperIllustration barId={bar.id} customImage={customImage} />
+                                    </div>
+                                </div>
+
+                                <div className="w-full mt-4 p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex justify-between items-center text-xs">
+                                    <span className="text-slate-400">Color Primario:</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: bar.brandColor }} />
+                                        <code className="text-slate-300 text-[11px] font-mono">{bar.brandColor}</code>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* SELLO DE CONFLICTO DE ALÉRGENOS & TRAZAS */}
+                            <div className="bg-rose-950/40 rounded-2xl p-5 border border-rose-800/60 shadow-xl space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-rose-400 text-lg">⚠️</span>
+                                    <h3 className="font-montserrat font-black text-sm uppercase tracking-wider text-rose-300">
+                                        Declaración de Alérgenos (FDA)
+                                    </h3>
+                                </div>
+                                <div className="p-3 bg-rose-900/30 rounded-xl border border-rose-700/40 text-xs">
+                                    <div className="font-montserrat font-black text-rose-200 mb-1">CONTIENE:</div>
+                                    <p className="text-rose-300 font-semibold">{bar.containsVerbatim}</p>
+                                </div>
+                                <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-xs">
+                                    <div className="font-montserrat font-bold text-slate-400 mb-1">TRAZAS EN PLANTA:</div>
+                                    <p className="text-slate-300">{bar.tracesVerbatim}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* COLUMNA 2 (8 COLS): MACRONUTRIENTES, COMPARATIVA BENCHMARK Y MATRIZ QUÍMICA */}
+                        <div className="lg:col-span-8 space-y-5">
+                            
+                            {/* SCORECARDS DE MACROS CON BENCHMARK */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+                                <div className="bg-slate-800/90 rounded-2xl p-4 border border-slate-700 shadow-lg">
+                                    <div className="text-[10px] font-montserrat font-bold uppercase tracking-wider text-slate-400">Calorías Totales</div>
+                               <div className="font-roboto font-black text-2xl text-white mt-1">{bar.calories} <span className="text-xs font-normal text-slate-400">kcal</span></div>
+                                    <div className="text-[11px] mt-2 text-slate-400 flex items-center gap-1">
+                                        <span>vs Media ({avgCalories}):</span>
+                                   <span className={`font-bold ${bar.calories <= avgCalories ? 'text-teal-400' : 'text-amber-400'}`}>
+                                    {bar.calories <= avgCalories ? `-${avgCalories - bar.calories}` : `+${bar.calories - avgCalories}`}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="bg-teal-950/40 rounded-2xl p-4 border border-teal-700/60 shadow-lg">
+                                    <div className="text-[10px] font-montserrat font-bold uppercase tracking-wider text-teal-300">Proteína Neta</div>
+                                    <div className="font-roboto font-black text-2xl text-teal-300 mt-1">{bar.protein}g</div>
+                                    <div className="text-[11px] mt-2 text-teal-400 font-semibold">
+                                        {Math.round((bar.protein * 4 / bar.calories) * 100)}% de calorías totales
+                                    </div>
+                                </div>
+
+                                <div className="bg-pink-950/40 rounded-2xl p-4 border border-pink-700/60 shadow-lg">
+                                    <div className="text-[10px] font-montserrat font-bold uppercase tracking-wider text-pink-300">Carbos Netos</div>
+                                    <div className="font-roboto font-black text-2xl text-pink-300 mt-1">{bar.netCarbs}g</div>
+                                    <div className="text-[11px] mt-2 text-slate-400">
+                                        Totales: <strong className="text-white">{bar.totalCarbs}g</strong> | Fibra: <strong className="text-teal-400">{bar.fiber}g</strong>
+                                    </div>
+                                </div>
+
+                                <div className="bg-amber-950/40 rounded-2xl p-4 border border-amber-700/60 shadow-lg">
+                                    <div className="text-[10px] font-montserrat font-bold uppercase tracking-wider text-amber-300">Polioles (Alcoholes)</div>
+                                    <div className="font-roboto font-black text-2xl text-amber-300 mt-1">{bar.polyols}g</div>
+                                    <div className="text-[11px] mt-2 text-amber-400 font-bold truncate">
+                                        {bar.polyolType}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* PERFIL LIPÍDICO Y RADIOGRAFÍA QUÍMICA */}
+                            <div className="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-xl">
+                                <h3 className="font-montserrat font-black text-xs uppercase tracking-wider text-teal-400 mb-4 flex items-center justify-between">
+                                    <span>Radiografía de Perfil Lipídico y Minerales</span>
+                                    <span className="text-[11px] text-slate-400 font-normal">Base: 1 porción ({bar.servingGrams}g)</span>
+                                </h3>
+
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                                    <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-700/50">
+                                        <div className="text-slate-400">Grasa Total / Sat:</div>
+                               <div className="font-roboto font-black text-base text-white mt-1">{bar.totalFat}g <span className="text-xs text-rose-400 font-bold">({bar.satFat}g Sat)</span></div>
+                                        <div className="text-[10px] text-slate-500 mt-1">Trans: {bar.transFat}g</div>
+                                    </div>
+                                    <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-700/50">
+                                        <div className="text-slate-400">Sodio / Colesterol:</div>
+                                        <div className="font-roboto font-black text-base text-white mt-1">{bar.sodium}mg</div>
+                                        <div className="text-[10px] text-slate-500 mt-1">Colesterol: {bar.cholesterol}mg</div>
+                                    </div>
+                                    <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-700/50">
+                                        <div className="text-slate-400">Calcio & Hierro:</div>
+                                        <div className="font-roboto font-black text-base text-white mt-1">{bar.calcium}mg Ca</div>
+                                        <div className="text-[10px] text-slate-500 mt-1">Hierro: {bar.iron}mg | Vit D: {bar.vitD}mcg</div>
+                                    </div>
+                                    <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-700/50">
+                                        <div className="text-slate-400">Potasio:</div>
+                                        <div className="font-roboto font-black text-base text-white mt-1">{bar.potassium}mg</div>
+                                        <div className="text-[10px] text-slate-500 mt-1">Azúcares Añadidos: {bar.addedSugars}g</div>
+                                    </div>
+                                </div>
+
+                                {/* DISTRIBUCIÓN DE MACRONUTRIENTES EN BARRA VISUAL */}
+                                <div className="mt-5 pt-4 border-t border-slate-700/60">
+                                    <div className="flex justify-between text-xs font-montserrat font-bold mb-1.5">
+                                        <span className="text-slate-300">Reparto Calórico de Macronutrientes</span>
+                                        <span className="text-slate-400">Proteína ({Math.round(bar.protein*400/bar.calories)}%) • Grasas ({Math.round(bar.totalFat*900/bar.calories)}%) • Carbos ({Math.round(bar.netCarbs*400/bar.calories)}%)</span>
+                                    </div>
+                                    <div className="w-full h-3 rounded-full bg-slate-900 overflow-hidden flex">
+                                 <div style={{ width: `${(bar.protein * 4 / bar.calories) * 100}%` }} className="h-full bg-lumino-teal" title="Proteína" />
+                                 <div style={{ width: `${(bar.totalFat * 9 / bar.calories) * 100}%` }} className="h-full bg-amber-500" title="Grasas" />
+                                 <div style={{ width: `${(bar.netCarbs * 4 / bar.calories) * 100}%` }} className="h-full bg-lumino-pink" title="Carbohidratos Netos" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* INGREDIENTES COMPLETOS TRADUCIDOS */}
+                            <div className="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-xl">
+                                <h3 className="font-montserrat font-black text-xs uppercase tracking-wider text-teal-400 mb-2">
+                                    Fórmula e Ingredientes Completos (ES)
+                                </h3>
+                                <p className="text-xs text-slate-300 leading-relaxed font-sans bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                                    {bar.ingredientsES}
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            );
+        };
+
+        // ============================================================================
         // 6.6. BARRA LATERAL DERECHA: INSPECTOR DE PROPIEDADES, FUENTES DE DATOS Y COLORES
         // ============================================================================
         const PropertyInspectorSidebar = ({
@@ -1995,11 +2344,12 @@ className="overflow-x-auto">
             allBars,
             allIcons,
             onDelete,
-            onDuplicate
+            onDuplicate,
+            onFocusBar
         }) => {
             if (!selectedItem) {
                 return (
-                    <aside className="w-80 bg-white border-l border-slate-200 flex flex-col shrink-0 z-40 shadow-xl p-5 justify-between">
+                    <aside className="w-84 bg-white border-l border-slate-200 flex flex-col shrink-0 z-40 shadow-xl p-5 justify-between">
                         <div>
                             <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
                                 <div className="flex items-center gap-2">
@@ -2036,14 +2386,14 @@ className="overflow-x-auto">
             const config = selectedItem.config || {};
 
             return (
-                <aside className="w-84 bg-white border-l border-slate-200 flex flex-col shrink-0 z-40 shadow-2xl overflow-y-auto">
+                <aside className="w-88 bg-white border-l border-slate-200 flex flex-col shrink-0 z-40 shadow-2xl overflow-y-auto">
                     {/* Encabezado del Inspector */}
                     <div className="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between shrink-0">
                         <div>
                             <div className="flex items-center gap-1.5">
                                 <span className="w-2.5 h-2.5 rounded-full bg-lumino-pink animate-pulse" />
                                 <h3 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-dark">
-                                    Inspector de Propiedades
+                                    Inspector Universal
                                 </h3>
                             </div>
                             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
@@ -2056,7 +2406,7 @@ className="overflow-x-auto">
                                 title="Clonar elemento"
                                 className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-bold"
                             >
-                                ⧉
+                                📋
                             </button>
                             <button
                                 onClick={onDelete}
@@ -2076,6 +2426,103 @@ className="overflow-x-auto">
                     </div>
 
                     <div className="p-4 space-y-5 text-xs">
+                        {/* PANEL UNIVERSAL DE CAPA, GEOMETRÍA Y ESTILO */}
+                        <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-3">
+                            <div className="flex items-center justify-between">
+                                <span className="font-montserrat font-bold text-[11px] text-slate-700">Geometría & Capa (Layer)</span>
+                                <span className="text-[9px] font-mono bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">Z: {selectedItem.z || 1}</span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2 text-[10px]">
+                                <div>
+                                    <label className="text-slate-500 font-semibold block mb-0.5">Ancho (px)</label>
+                                    <input
+                                        type="number"
+                                        min="80"
+                                        max="1500"
+                                        value={Math.round(selectedItem.w || 200)}
+                                        onChange={(e) => onUpdateProps({ w: Math.max(80, Number(e.target.value)) })}
+                                        className="w-full p-1.5 rounded-lg border border-slate-300 text-xs font-bold text-lumino-dark outline-none focus:border-lumino-teal"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-slate-500 font-semibold block mb-0.5">Alto (px)</label>
+                                    <input
+                                        type="number"
+                                        min="50"
+                                        max="1500"
+                                        value={Math.round(selectedItem.h || 200)}
+                                        onChange={(e) => onUpdateProps({ h: Math.max(50, Number(e.target.value)) })}
+                                        className="w-full p-1.5 rounded-lg border border-slate-300 text-xs font-bold text-lumino-dark outline-none focus:border-lumino-teal"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-slate-500 font-semibold block mb-0.5">Posición X (px)</label>
+                                    <input
+                                        type="number"
+                                        value={Math.round(selectedItem.x || 0)}
+                                        onChange={(e) => onUpdateProps({ x: Number(e.target.value) })}
+                                        className="w-full p-1.5 rounded-lg border border-slate-300 text-xs text-lumino-dark outline-none focus:border-lumino-teal"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-slate-500 font-semibold block mb-0.5">Posición Y (px)</label>
+                                    <input
+                                        type="number"
+                                        value={Math.round(selectedItem.y || 0)}
+                                        onChange={(e) => onUpdateProps({ y: Number(e.target.value) })}
+                                        className="w-full p-1.5 rounded-lg border border-slate-300 text-xs text-lumino-dark outline-none focus:border-lumino-teal"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="pt-2 border-t border-slate-200/80 space-y-2">
+                                <div className="flex items-center justify-between text-[10px]">
+                                    <label className="text-slate-600 font-semibold">Opacidad ({Math.round((config.opacity !== undefined ? config.opacity : 1) * 100)}%)</label>
+                                    <input
+                                        type="range"
+                                        min="0.1"
+                                        max="1"
+                                        step="0.05"
+                                        value={config.opacity !== undefined ? config.opacity : 1}
+                                        onChange={(e) => onUpdateProps({ config: { ...config, opacity: Number(e.target.value) } })}
+                                        className="w-24 lumino-slider"
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between text-[10px]">
+                                    <label className="text-slate-600 font-semibold">Borde Redondeado ({config.borderRadius !== undefined ? config.borderRadius : 16}px)</label>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="36"
+                                        step="2"
+                                        value={config.borderRadius !== undefined ? config.borderRadius : 16}
+                                        onChange={(e) => onUpdateProps({ config: { ...config, borderRadius: Number(e.target.value) } })}
+                                        className="w-24 lumino-slider"
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between text-[10px] pt-1">
+                                    <label className="text-slate-600 font-semibold">Nivel de Capa Z</label>
+                                    <div className="flex items-center gap-1">
+                                        <button
+                                            onClick={() => onUpdateProps({ z: Math.max(1, (selectedItem.z || 1) - 1) })}
+                                            className="px-2 py-0.5 rounded bg-white border border-slate-200 text-xs font-bold hover:bg-slate-100"
+                                            title="Enviar hacia atrás"
+                                        >
+                                            ▼ Atrás
+                                        </button>
+                                        <button
+                                            onClick={() => onUpdateProps({ z: (selectedItem.z || 1) + 1 })}
+                                            className="px-2 py-0.5 rounded bg-white border border-slate-200 text-xs font-bold hover:bg-slate-100"
+                                            title="Traer hacia adelante"
+                                        >
+                                            ▲ Delante
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* 1. EDICIÓN PARA ICONOS / STICKERS CIENTÍFICOS */}
                         {selectedItem.type === 'cute_sticker' && (() => {
                             const currentSticker = allIcons.find(s => s.id === selectedItem.stickerId) || allIcons[0];
@@ -2085,8 +2532,8 @@ className="overflow-x-auto">
                             const bg = config.bg || currentSticker.bg || '#F8FAFC';
                             const border = config.border || currentSticker.border || '#CBD5E1';
                             const textColor = config.textColor || '#0D1B2A';
-                            const label = config.label ?? currentSticker.label;
-                            const sub = config.sub ?? currentSticker.sub;
+                            const label = config.label !== undefined ? config.label : currentSticker.label;
+                            const sub = config.sub !== undefined ? config.sub : currentSticker.sub;
 
                             return (
                                 <div className="space-y-4">
@@ -2095,22 +2542,20 @@ className="overflow-x-auto">
                                             <ScientificIcon iconType={currentIconType} primaryColor={primaryColor} secondaryColor={secondaryColor} />
                                         </div>
                                         <div>
-                                            <div className="font-montserrat font-black text-xs" style={{ color: textColor }}>{label}</div>
-                                            <div className="text-[10px] text-slate-400 font-semibold">{sub}</div>
-                                            <span className="text-[9px] font-bold text-lumino-teal uppercase bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200 mt-1 inline-block">
-                                                Tag: {currentSticker.tag}
+                                            <div className="font-montserrat font-black text-xs text-lumino-dark">{label}</div>
+                                            <div className="text-[10px] text-slate-500">{sub}</div>
+                                            <span className="text-[9px] font-bold text-lumino-teal uppercase bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200 inline-block mt-1">
+                                                Simbolo: {currentIconType}
                                             </span>
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label className="font-montserrat font-bold text-[11px] text-slate-600 block mb-1">
-                                            Símbolo Científico / Icono
-                                        </label>
+                                        <label className="text-[10px] text-slate-500 font-bold block mb-1">Elegir Símbolo Vectorial</label>
                                         <select
                                             value={currentIconType}
                                             onChange={(e) => onUpdateProps({ config: { ...config, iconType: e.target.value } })}
-                                            className="w-full p-2 rounded-xl border border-slate-300 font-roboto font-semibold text-xs bg-white text-lumino-dark focus:ring-2 focus:ring-lumino-teal outline-none"
+                                            className="w-full p-2 rounded-xl border border-slate-300 text-xs font-semibold text-lumino-dark outline-none focus:border-lumino-teal"
                                         >
                                             {allIcons.map(ic => (
                                                 <option key={ic.iconType} value={ic.iconType}>
@@ -2120,65 +2565,72 @@ className="overflow-x-auto">
                                         </select>
                                     </div>
 
-                                    <div className="space-y-2 border-t pt-3">
+                                    <div className="border-t pt-3 space-y-2">
                                         <div className="font-montserrat font-bold text-[11px] text-slate-700">
-                                            Paleta Cromática del Elemento
+                                            Paleta de Colores del Icono
                                         </div>
                                         <div className="grid grid-cols-2 gap-2">
                                             <div>
-                                                <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Vector Principal</label>
+                                                <label className="text-[10px] text-slate-500 block mb-0.5">Color Primario</label>
                                                 <div className="flex items-center gap-2">
                                                     <input 
                                                         type="color" 
                                                         value={primaryColor}
                                                         onChange={(e) => onUpdateProps({ config: { ...config, primaryColor: e.target.value } })}
                                                         className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
-                
                                                     <span className="text-[10px] font-mono text-slate-500">{primaryColor}</span>
                                                 </div>
                                             </div>
                                             <div>
-                                                <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Vector Acento</label>
+                                                <label className="text-[10px] text-slate-500 block mb-0.5">Color Secundario</label>
                                                 <div className="flex items-center gap-2">
                                                     <input 
                                                         type="color" 
                                                         value={secondaryColor}
                                                         onChange={(e) => onUpdateProps({ config: { ...config, secondaryColor: e.target.value } })}
                                                         className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
-                
                                                     <span className="text-[10px] font-mono text-slate-500">{secondaryColor}</span>
                                                 </div>
                                             </div>
                                             <div>
-                                                <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Fondo Tarjeta</label>
+                                                <label className="text-[10px] text-slate-500 block mb-0.5">Fondo Contenedor</label>
                                                 <div className="flex items-center gap-2">
                                                     <input 
                                                         type="color" 
-                                                        value={bg.startsWith('#') ? bg : '#F8FAFC'}
+                                                        value={bg}
                                                         onChange={(e) => onUpdateProps({ config: { ...config, bg: e.target.value } })}
                                                         className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
-                
                                                     <span className="text-[10px] font-mono text-slate-500">{bg}</span>
                                                 </div>
                                             </div>
                                             <div>
-                                                <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Color Borde</label>
+                                                <label className="text-[10px] text-slate-500 block mb-0.5">Borde</label>
                                                 <div className="flex items-center gap-2">
                                                     <input 
                                                         type="color" 
-                                                        value={border.startsWith('#') ? border : '#CBD5E1'}
+                                                        value={border}
                                                         onChange={(e) => onUpdateProps({ config: { ...config, border: e.target.value } })}
                                                         className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
-                
                                                     <span className="text-[10px] font-mono text-slate-500">{border}</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-0.5">Color Texto</label>
+                                                <div className="flex items-center gap-2">
+                                                    <input 
+                                                        type="color" 
+                                                        value={textColor}
+                                                        onChange={(e) => onUpdateProps({ config: { ...config, textColor: e.target.value } })}
+                                                        className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
+                                                    <span className="text-[10px] font-mono text-slate-500">{textColor}</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="space-y-2 border-t pt-3">
+                                    <div className="border-t pt-3 space-y-2">
                                         <div className="font-montserrat font-bold text-[11px] text-slate-700">
-                                            Textos & Etiquetas
+                                            Textos Personalizados
                                         </div>
                                         <div>
                                             <label className="text-[10px] text-slate-500 block mb-0.5">Título / Biomarcador</label>
@@ -2187,7 +2639,6 @@ className="overflow-x-auto">
                                                 value={label}
                                                 onChange={(e) => onUpdateProps({ config: { ...config, label: e.target.value } })}
                                                 className="w-full p-2 rounded-xl border border-slate-300 text-xs font-bold text-lumino-dark outline-none focus:border-lumino-teal" />
-        
                                         </div>
                                         <div>
                                             <label className="text-[10px] text-slate-500 block mb-0.5">Subtítulo Descriptivo</label>
@@ -2196,7 +2647,6 @@ className="overflow-x-auto">
                                                 value={sub}
                                                 onChange={(e) => onUpdateProps({ config: { ...config, sub: e.target.value } })}
                                                 className="w-full p-2 rounded-xl border border-slate-300 text-xs text-slate-600 outline-none focus:border-lumino-teal" />
-        
                                         </div>
                                     </div>
                                 </div>
@@ -2207,72 +2657,59 @@ className="overflow-x-auto">
                         {(selectedItem.type === 'custom_chart' || selectedItem.type === 'radar_chart' || selectedItem.type === 'lipid_polyol_chart' || selectedItem.type === 'scatter_matrix' || selectedItem.type === 'macro_sculptor') && (
                             <div className="space-y-4">
                                 <div>
-                                    <label className="font-montserrat font-bold text-[11px] text-slate-700 block mb-1">
-                                        Tipo de Visualización
-                                    </label>
-                                    <div className="grid grid-cols-2 gap-1.5">
-                                        {[
-                                            { type: 'bar', label: '📊 Barras Verticales' },
-                                            { type: 'ranking', label: '🏆 Ranking Horizontal' },
-                                            { type: 'donut', label: '🍩 Donut de Macros' },
-                                            { type: 'radar', label: '🕸️ Radar 360°' },
-                                            { type: 'scatter', label: '🎯 Matriz 2D Dispersión' }
-                                        ].map(opt => (
-                                            <button
-                                                key={opt.type}
-                                                onClick={() => onUpdateProps({ 
-                                                    type: 'custom_chart',
-                                                    config: { ...config, chartType: opt.type } 
-                                                })}
-                                                className={`p-2 rounded-xl text-left border text-[10.5px] font-montserrat font-bold transition ${
-                                                    (config.chartType || (selectedItem.type === 'radar_chart' ? 'radar' : selectedItem.type === 'scatter_matrix' ? 'scatter' : 'bar')) === opt.type
-                                                        ? 'bg-lumino-teal text-white border-lumino-teal shadow'
-                                                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                                                }`}
-                                            >
-                                                {opt.label}
-                                            </button>
-                                        ))}
-                                    </div>
+                                    <label className="text-[10px] text-slate-500 font-semibold block mb-1">Tipo de Gráfica</label>
+                                    <select
+                                        value={config.chartType || (selectedItem.type === 'radar_chart' ? 'radar' : selectedItem.type === 'scatter_matrix' ? 'scatter' : 'bar')}
+                                        onChange={(e) => onUpdateProps({
+                                            type: 'custom_chart',
+                                            config: { ...config, chartType: e.target.value }
+                                        })}
+                                        className="w-full p-2 rounded-xl border border-slate-300 text-xs font-bold text-lumino-dark outline-none focus:border-lumino-teal"
+                                    >
+                                        <option value="bar">📊 Barras Verticales de Comparativa</option>
+                                        <option value="ranking">🏆 Ranking Horizontal Proporcional</option>
+                                        <option value="donut">🍩 Dona de Distribución Calórica</option>
+                                        <option value="radar">🕸️ Radar Nutricional 360°</option>
+                                        <option value="scatter">🫧 Dispersión 2D (Scatter)</option>
+                                    </select>
                                 </div>
 
-                                <div className="border-t pt-3 space-y-3">
+                                <div className="border-t pt-3 space-y-2">
                                     <div className="font-montserrat font-bold text-[11px] text-slate-700">
-                                        Variables & Fuentes de Datos
+                                        Variable Nutricional Principal (Eje Y / Métrica)
                                     </div>
-                                    <div>
-                                        <label className="text-[10px] text-slate-500 font-semibold block mb-1">Métrica Principal (Eje Y / Barras)</label>
-                                        <select
-                                            value={config.metric || 'protein'}
-                                            onChange={(e) => onUpdateProps({ config: { ...config, metric: e.target.value } })}
-                                            className="w-full p-2 rounded-xl border border-slate-300 font-roboto font-bold text-xs bg-white text-lumino-dark outline-none focus:ring-2 focus:ring-lumino-teal"
-                                        >
-                                            {Object.entries(NUTRITIONAL_METRICS).map(([k, m]) => (
-                                                <option key={k} value={k}>
-                                                    {m.label} ({m.unit})
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                    <select
+                                        value={config.metric || 'protein'}
+                                        onChange={(e) => onUpdateProps({ config: { ...config, metric: e.target.value } })}
+                                        className="w-full p-2 rounded-xl border border-slate-300 text-xs font-semibold text-lumino-dark outline-none focus:border-lumino-teal"
+                                    >
+                                        {Object.entries(NUTRITIONAL_METRICS).map(([k, v]) => (
+                                            <option key={k} value={k}>
+                                                {v.label} ({v.unit})
+                                            </option>
+                                        ))}
+                                    </select>
 
                                     {(config.chartType === 'scatter' || selectedItem.type === 'scatter_matrix') && (
-                                        <div>
-                                            <label className="text-[10px] text-slate-500 font-semibold block mb-1">Métrica Secundaria (Eje X)</label>
+                                        <div className="pt-2">
+                                            <div className="font-montserrat font-bold text-[11px] text-slate-700 mb-1">
+                                                Variable Secundaria (Eje X)
+                                            </div>
                                             <select
                                                 value={config.secondaryMetric || 'netCarbs'}
                                                 onChange={(e) => onUpdateProps({ config: { ...config, secondaryMetric: e.target.value } })}
-                                                className="w-full p-2 rounded-xl border border-slate-300 font-roboto font-bold text-xs bg-white text-lumino-dark outline-none focus:ring-2 focus:ring-lumino-teal"
+                                                className="w-full p-2 rounded-xl border border-slate-300 text-xs font-semibold text-lumino-dark outline-none focus:border-lumino-teal"
                                             >
-                                                {Object.entries(NUTRITIONAL_METRICS).map(([k, m]) => (
+                                                {Object.entries(NUTRITIONAL_METRICS).map(([k, v]) => (
                                                     <option key={k} value={k}>
-                                                        {m.label} ({m.unit})
+                                                        {v.label} ({v.unit})
                                                     </option>
                                                 ))}
                                             </select>
                                         </div>
                                     )}
 
-                                    <div>
+                                    <div className="pt-2">
                                         <label className="text-[10px] text-slate-500 font-semibold block mb-1">Título de la Gráfica</label>
                                         <input
                                             type="text"
@@ -2280,7 +2717,6 @@ className="overflow-x-auto">
                                             placeholder="Título personalizado..."
                                             onChange={(e) => onUpdateProps({ config: { ...config, title: e.target.value } })}
                                             className="w-full p-2 rounded-xl border border-slate-300 text-xs font-bold text-lumino-dark outline-none focus:border-lumino-teal" />
-    
                                     </div>
                                 </div>
 
@@ -2297,7 +2733,6 @@ className="overflow-x-auto">
                                                     value={config.primaryColor || '#146779'}
                                                     onChange={(e) => onUpdateProps({ config: { ...config, primaryColor: e.target.value } })}
                                                     className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
-            
                                                 <span className="text-[10px] font-mono text-slate-500">{config.primaryColor || '#146779'}</span>
                                             </div>
                                         </div>
@@ -2309,7 +2744,6 @@ className="overflow-x-auto">
                                                     value={config.accentColor || '#38BDF8'}
                                                     onChange={(e) => onUpdateProps({ config: { ...config, accentColor: e.target.value } })}
                                                     className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
-            
                                                 <span className="text-[10px] font-mono text-slate-500">{config.accentColor || '#38BDF8'}</span>
                                             </div>
                                         </div>
@@ -2322,7 +2756,6 @@ className="overflow-x-auto">
                                             checked={config.showLabels !== false}
                                             onChange={(e) => onUpdateProps({ config: { ...config, showLabels: e.target.checked } })}
                                             className="w-4 h-4 text-lumino-teal rounded" />
-    
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <label className="text-[11px] text-slate-600 font-bold">Mostrar Cuadrícula de Ejes</label>
@@ -2331,7 +2764,6 @@ className="overflow-x-auto">
                                             checked={config.showGrid !== false}
                                             onChange={(e) => onUpdateProps({ config: { ...config, showGrid: e.target.checked } })}
                                             className="w-4 h-4 text-lumino-teal rounded" />
-    
                                     </div>
                                 </div>
                             </div>
@@ -2343,14 +2775,43 @@ className="overflow-x-auto">
                             return (
                                 <div className="space-y-4">
                                     <div className="p-3 bg-slate-50 border rounded-2xl">
-                                        <div className="font-montserrat font-black text-xs text-lumino-dark">{bar.name}</div>
-                                        <div className="text-[10px] text-slate-500">{bar.flavor} • {bar.servingGrams}g</div>
+                                        <div className="flex items-start justify-between">
+                                            <div>
+                                                <div className="font-montserrat font-black text-xs text-lumino-dark">{bar.name}</div>
+                                                <div className="text-[10px] text-slate-500">{bar.flavor} • {bar.servingGrams}g</div>
+                                            </div>
+                                            {onFocusBar && (
+                                                <button
+                                                    onClick={() => onFocusBar(bar.id)}
+                                                    className="px-2.5 py-1 rounded-lg bg-lumino-teal text-white text-[10px] font-montserrat font-bold hover:bg-teal-700 shadow-sm flex items-center gap-1"
+                                                    title="Abrir Dashboard Dedicado para esta Barra"
+                                                >
+                                                    🔍 Ver Focus
+                                                </button>
+                                            )}
+                                        </div>
                                         <div className="mt-2 text-[10px] font-roboto flex justify-between text-slate-600 bg-white p-2 rounded-lg border">
                                             <span>🔥 <strong>{bar.calories}</strong> kcal</span>
                                             <span>💪 <strong>{bar.protein}g</strong> Pro</span>
-                                            <span>🌿 <strong>{bar.fiber}g</strong> Fib</span>
-                                            <span>⚡ <strong>{bar.netCarbs}g</strong> Net</span>
+                                            <span>🌾 <strong>{bar.fiber}g</strong> Fib</span>
+                                            <span>✨ <strong>{bar.netCarbs}g</strong> Net</span>
                                         </div>
+                                    </div>
+
+                                    {/* Cambiar Fuente de Datos / Producto Asignado */}
+                                    <div>
+                                        <label className="text-[10px] text-slate-500 font-bold block mb-1">Cambiar Producto / Fuente de Datos</label>
+                                        <select
+                                            value={selectedItem.barId}
+                                            onChange={(e) => onUpdateProps({ barId: e.target.value })}
+                                            className="w-full p-2 rounded-xl border border-slate-300 text-xs font-semibold text-lumino-dark outline-none focus:border-lumino-teal"
+                                        >
+                                            {allBars.map(b => (
+                                                <option key={b.id} value={b.id}>
+                                                    {b.name} ({b.flavor})
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
 
                                     <div className="space-y-2 border-t pt-3">
@@ -2365,7 +2826,6 @@ className="overflow-x-auto">
                                                     value={config.brandColor || bar.brandColor}
                                                     onChange={(e) => onUpdateProps({ config: { ...config, brandColor: e.target.value } })}
                                                     className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
-            
                                             </div>
                                             <div>
                                                 <label className="text-[10px] text-slate-500 block mb-0.5">Color de Acento</label>
@@ -2374,7 +2834,6 @@ className="overflow-x-auto">
                                                     value={config.accentColor || bar.accentColor}
                                                     onChange={(e) => onUpdateProps({ config: { ...config, accentColor: e.target.value } })}
                                                     className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
-            
                                             </div>
                                         </div>
                                     </div>
@@ -2392,7 +2851,6 @@ className="overflow-x-auto">
                                         value={selectedItem.title || ''}
                                         onChange={(e) => onUpdateProps({ title: e.target.value })}
                                         className="w-full p-2 rounded-xl border border-slate-300 text-xs font-bold text-lumino-dark outline-none" />
-
                                 </div>
                                 <div>
                                     <label className="text-[10px] text-slate-500 font-bold block mb-1">Contenido / Diagnóstico</label>
@@ -2401,17 +2859,15 @@ className="overflow-x-auto">
                                         value={selectedItem.text || ''}
                                         onChange={(e) => onUpdateProps({ text: e.target.value })}
                                         className="w-full p-2 rounded-xl border border-slate-300 text-xs text-slate-700 outline-none" />
-
                                 </div>
                                 <div className="grid grid-cols-2 gap-2 pt-2 border-t">
                                     <div>
                                         <label className="text-[10px] text-slate-500 font-bold block mb-1">Color Fondo</label>
                                         <input
                                             type="color"
-                                            value={selectedItem.bgColor || '#0D1B2A'}
-                                            onChange={(e) => onUpdateProps({ bgColor: e.target.value })}
+                                            value={selectedItem.bgColor || selectedItem.badgeColor || '#780030'}
+                                            onChange={(e) => onUpdateProps({ bgColor: e.target.value, badgeColor: e.target.value })}
                                             className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
-    
                                     </div>
                                     <div>
                                         <label className="text-[10px] text-slate-500 font-bold block mb-1">Color Acento</label>
@@ -2420,7 +2876,6 @@ className="overflow-x-auto">
                                             value={selectedItem.accentColor || '#F73282'}
                                             onChange={(e) => onUpdateProps({ accentColor: e.target.value })}
                                             className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
-    
                                     </div>
                                 </div>
                             </div>
@@ -2436,7 +2891,6 @@ className="overflow-x-auto">
                                         value={selectedItem.title || ''}
                                         onChange={(e) => onUpdateProps({ title: e.target.value })}
                                         className="w-full p-2 rounded-xl border border-slate-300 text-xs font-bold text-lumino-dark outline-none" />
-
                                 </div>
                                 <div>
                                     <label className="text-[10px] text-slate-500 font-bold block mb-1">Subtítulo</label>
@@ -2445,7 +2899,6 @@ className="overflow-x-auto">
                                         value={selectedItem.subtitle || ''}
                                         onChange={(e) => onUpdateProps({ subtitle: e.target.value })}
                                         className="w-full p-2 rounded-xl border border-slate-300 text-xs text-slate-700 outline-none" />
-
                                 </div>
                                 <div className="grid grid-cols-2 gap-2 pt-2 border-t">
                                     <div>
@@ -2455,7 +2908,6 @@ className="overflow-x-auto">
                                             value={selectedItem.bgColor || '#0D1B2A'}
                                             onChange={(e) => onUpdateProps({ bgColor: e.target.value })}
                                             className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
-    
                                     </div>
                                     <div>
                                         <label className="text-[10px] text-slate-500 font-bold block mb-1">Color Acento</label>
@@ -2464,7 +2916,6 @@ className="overflow-x-auto">
                                             value={selectedItem.accentColor || '#F73282'}
                                             onChange={(e) => onUpdateProps({ accentColor: e.target.value })}
                                             className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
-    
                                     </div>
                                 </div>
                             </div>
@@ -2474,7 +2925,6 @@ className="overflow-x-auto">
             );
         };
 
-        // WIDGET 4: Radar Comparador Multi-Barra (Añadible desde la barra lateral)
         const RadarComparisonWidget = ({ bars }) => {
             const axes = [
                 { label: 'Proteína', key: 'protein', max: 22 },
@@ -2556,7 +3006,9 @@ className="flex justify-center gap-3 text-[9px] font-bold">
         // 7. APLICACIÓN PRINCIPAL: LUMINOBITE NUTRITION CANVAS STUDIO
         // ============================================================================
         const App = () => {
-            const [items, setItems] = useState(createDefaultCanvasItems);
+            const [items, setItems] = useState([]); // Inicia con lienzo vacío por defecto según requerimiento
+            const [gridSize, setGridSize] = useState(24); // Tamaño personalizable de cuadrícula (16, 20, 24, 32, 48)
+            const [focusedBarId, setFocusedBarId] = useState(null); // Capa de dashboard específico para una barra
             const [selectedUid, setSelectedUid] = useState(null);
             const [activeSidebarTab, setActiveSidebarTab] = useState('stickers'); // 'stickers' | 'bars' | 'charts' | 'annotations'
             const [gridStyle, setGridStyle] = useState('dots'); // 'dots' | 'lines' | 'clean'
@@ -2727,16 +3179,18 @@ className="flex justify-center gap-3 text-[9px] font-bold">
                             let nx = origX + dx;
                             let ny = origY + dy;
                             if (snapToGrid) {
-                                nx = Math.round(nx / 12) * 12;
-                                ny = Math.round(ny / 12) * 12;
+                                const step = Math.max(8, Math.round(gridSize / 2));
+                                nx = Math.round(nx / step) * step;
+                                ny = Math.round(ny / step) * step;
                             }
                             return { ...item, x: Math.max(8, nx), y: Math.max(8, ny) };
                         } else {
                             let nw = Math.max(95, origW + dx);
                             let nh = Math.max(70, origH + dy);
                             if (snapToGrid) {
-                                nw = Math.round(nw / 12) * 12;
-                                nh = Math.round(nh / 12) * 12;
+                                const step = Math.max(8, Math.round(gridSize / 2));
+                                nw = Math.round(nw / step) * step;
+                                nh = Math.round(nh / step) * step;
                             }
                             return { ...item, w: nw, h: nh };
                         }
@@ -2753,7 +3207,7 @@ className="flex justify-center gap-3 text-[9px] font-bold">
                     window.removeEventListener('mousemove', handleMouseMove);
                     window.removeEventListener('mouseup', handleMouseUp);
                 };
-            }, [zoom, snapToGrid]);
+            }, [zoom, snapToGrid, gridSize]);
 
             // Funciones para agregar nuevos elementos desde la Barra Lateral Izquierda (Canva Drawer)
             const spawnSticker = (stickerObj, customX = null, customY = null) => {
@@ -2860,6 +3314,12 @@ className="flex justify-center gap-3 text-[9px] font-bold">
             const applyLayoutPreset = (presetName) => {
                 if (presetName === 'default') {
                     setItems(createDefaultCanvasItems());
+                    resetFilters();
+                } else if (presetName === 'random') {
+                    setItems(generateRandomCanvasTheme());
+                    resetFilters();
+                } else if (presetName === 'empty') {
+                    setItems([]);
                     resetFilters();
                 } else if (presetName === 'allergen_focus') {
                     resetFilters();
@@ -3037,16 +3497,30 @@ className="w-3 h-3 bg-white rounded-full" />
                                 <div 
 className="hidden lg:flex items-center gap-1.5 ml-4 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
                                     <button
+                                        onClick={() => applyLayoutPreset('random')}
+                                        title="Genera un tema de lienzo aleatorio con combinaciones profesionales"
+                                        className="px-2.5 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-white bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 shadow-sm flex items-center gap-1 transition"
+                                    >
+                                        <span>🎲</span> Tema Aleatorio
+                                    </button>
+                                    <button
                                         onClick={() => applyLayoutPreset('default')}
-                                        className="px-3 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-slate-300 hover:bg-lumino-teal hover:text-white transition"
+                                        className="px-2.5 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-slate-300 hover:bg-lumino-teal hover:text-white transition"
                                     >
                                         Vista General BI
                                     </button>
                                     <button
                                         onClick={() => applyLayoutPreset('allergen_focus')}
-                                        className="px-3 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-slate-300 hover:bg-lumino-pink hover:text-white transition"
+                                        className="px-2.5 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-slate-300 hover:bg-lumino-pink hover:text-white transition"
                                     >
-                                        Modo Alérgenos & Stickers
+                                        Alérgenos & Trazas
+                                    </button>
+                                    <button
+                                        onClick={() => applyLayoutPreset('empty')}
+                                        title="Vaciar completamente el lienzo para empezar de cero"
+                                        className="px-2.5 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-rose-300 hover:bg-rose-900/60 transition"
+                                    >
+                                        🗑️ Vaciar
                                     </button>
                                 </div>
                             )}
@@ -3120,6 +3594,20 @@ className="hidden md:flex items-center bg-slate-900 rounded-xl p-1 border border
                             >
                                 Cuadrícula: {gridStyle === 'dots' ? 'Puntos' : gridStyle === 'lines' ? 'Milimétrica' : 'Limpia'}
                             </button>
+
+                            {/* Selector de Tamaño de Cuadrícula */}
+                            <div className="hidden sm:flex items-center bg-slate-900 rounded-xl px-2 py-1 border border-slate-800 text-xs gap-1">
+                               <span className="text-[10px] font-montserrat font-bold text-slate-400 uppercase">Paso:</span>
+                                {[16, 20, 24, 32, 48].map(size => (
+                                    <button
+                                        key={size}
+                                        onClick={() => setGridSize(size)}
+                                    className={`px-2 py-0.5 rounded text-[10.5px] font-roboto font-bold transition ${gridSize === size ? 'bg-lumino-teal text-white shadow-sm' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+                                    >
+                                        {size}px
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         {/* Acciones de Exportación y Modo Presentación */}
@@ -3260,11 +3748,11 @@ className="grid grid-cols-2 gap-2.5">
                                                         >
                                                             <div 
 className="w-14 h-14 mb-1">
-                                                                <ScientificIcon iconType={iconType} primaryColor={primaryColor} secondaryColor={secondaryColor} />
+                                                                <ScientificIcon iconType={st.iconType} primaryColor={st.primaryColor} secondaryColor={st.secondaryColor} />
                                                             </div>
                                                             <div 
 className="font-montserrat font-extrabold text-[11px] text-lumino-dark leading-tight">
-                                                                <span style={{ color: textColor }}>{label}</span>
+                                                                <span>{st.label}</span>
                                                             </div>
                                                             <div 
 className="text-[9.5px] text-slate-500 font-semibold">
@@ -3473,17 +3961,68 @@ className="flex items-center gap-1.5">
                             onDragOver={(e) => e.preventDefault()}
                             onDrop={handleCanvasDrop}
                         >
+                            {/* VISTA 1: DASHBOARD DEDICADO DE PRODUCTO (LAYER FOCUS) */}
+                            {focusedBarId ? (
+                                <FocusedBarDashboard
+                                    barId={focusedBarId}
+                                    allBars={PROTEIN_BARS_DATA}
+                                    onClose={(newBarId) => {
+                                        if (typeof newBarId === 'string') {
+                                            setFocusedBarId(newBarId);
+                                        } else {
+                                            setFocusedBarId(null);
+                                        }
+                                    }}
+                                    customImage={customBarImages[focusedBarId]}
+                                    onUploadImage={(bId, imgData) => setCustomBarImages(prev => ({ ...prev, [bId]: imgData }))}
+                                />
+                            ) : (
+                            /* VISTA 2: LIENZO GLOBAL DE TRABAJO */
                             <div
                                 ref={canvasRef}
-                                className={`min-w-[1600px] min-h-[1080px] relative transition-colors duration-300 origin-top-left ${
-                                    gridStyle === 'dots' ? 'canvas-grid-dots' : gridStyle === 'lines' ? 'canvas-grid-lines' : 'canvas-clean'
-                                }`}
+                                className={`min-w-[1600px] min-h-[1080px] relative transition-colors duration-300 origin-top-left ${gridStyle === 'dots' ? 'canvas-grid-dots' : gridStyle === 'lines' ? 'canvas-grid-lines' : 'canvas-clean'}`}
                                 style={{
                                     transform: `scale(${zoom})`,
-                                    width: '1600px',
-                                    height: '1080px'
+                                    height: '1080px',
+                                    '--grid-size': `${gridSize}px`
                                 }}
                             >
+                                {/* PANTALLA DE INICIO / ONBOARDING CUANDO EL LIENZO ESTÁ VACÍO */}
+                                {items.length === 0 && (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-auto z-10 p-8 select-none">
+                                        <div className="max-w-xl w-full bg-white/95 backdrop-blur-md rounded-3xl p-8 border-2 border-dashed border-slate-300 shadow-2xl text-center flex flex-col items-center animate-fadeIn">
+                                            <div className="w-16 h-16 rounded-2xl bg-teal-50 border border-teal-200 flex items-center justify-center text-3xl shadow-sm mb-4">
+                                                🎨
+                                            </div>
+                                            <h2 className="font-montserrat font-black text-2xl text-lumino-dark tracking-tight">
+                                                Lienzo de Análisis Vacío
+                                            </h2>
+                                            <p className="text-sm text-slate-500 font-sans mt-2 leading-relaxed">
+                                                Comienza tu investigación nutricional desde cero arrastrando elementos, o inicializa una plantilla prediseñada.
+                                            </p>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full mt-6">
+                                                <button
+                                                    onClick={() => applyLayoutPreset('random')}
+                                                    className="w-full px-4 py-3 rounded-2xl bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-montserrat font-bold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition hover:scale-[1.02]"
+                                                >
+                                                    <span>🎲</span> Generar Tema Aleatorio
+                                                </button>
+                                                <button
+                                                    onClick={() => applyLayoutPreset('default')}
+                                                    className="w-full px-4 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-montserrat font-bold text-xs uppercase tracking-wider shadow-md flex items-center justify-center gap-2 transition hover:scale-[1.02]"
+                                                >
+                                                    <span>📊</span> Cargar Benchmark BI
+                                                </button>
+                                            </div>
+
+                                            <div className="mt-5 text-[11px] text-slate-400 flex items-center gap-2">
+                                                <span>💡</span>
+                                                <span>Arrastra tarjetas, stickers o gráficos desde el panel izquierdo para crear tu diseño</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                                 {/* Marca de Agua Institucional en el Lienzo */}
                                 <div 
 className="absolute bottom-4 right-6 pointer-events-none flex items-center gap-2 opacity-50">
@@ -3591,6 +4130,7 @@ style={{ backgroundColor: item.bgColor || '#0D1B2A', borderLeftColor: item.accen
                                                         isPulsedBySticker={pulsed}
                                                         activeStickerTag={activeStickerTag}
                                                         isSelectedBar={isSelectedBar}
+                                                        onFocusBar={(bId) => setFocusedBarId(bId)}
                                                         onSelectBar={(bId) => {
                                                             setSelectedBarId(prev => prev === bId ? null : bId);
                                                             setHighlightedBarId(prev => prev === bId ? null : bId);
@@ -3731,10 +4271,11 @@ className="text-[8.5px] font-bold text-lumino-teal uppercase">
                                     );
                                 })}
                             </div>
+                            )}
                         </main>
 
                         {/* BARRA LATERAL DERECHA: INSPECTOR DE PROPIEDADES Y COLORES */}
-                        {showInspector && !presentationMode && (
+                        {showInspector && !presentationMode && !focusedBarId && (
                             <PropertyInspectorSidebar
                                 selectedItem={items.find(i => i.uid === selectedUid)}
                                 onUpdateProps={updateSelectedItemProps}
@@ -3743,6 +4284,7 @@ className="text-[8.5px] font-bold text-lumino-teal uppercase">
                                 allIcons={CUTE_STICKERS_LIBRARY}
                                 onDelete={deleteSelectedItem}
                                 onDuplicate={duplicateSelectedItem}
+                                onFocusBar={(bId) => setFocusedBarId(bId)}
                             />
                         )}
                     </div>
