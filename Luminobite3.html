@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuminoBite Studio - Constructor Visual Avanzado</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&family=Open+Sans:wght@400;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Open Sans', 'sans-serif'],
+                        montserrat: ['Montserrat', 'sans-serif'],
+                        roboto: ['Roboto', 'sans-serif'],
+                    },
+                    colors: {
+                        lumino: {
+                            bg: '#F9F8F3', 
+                            dark: '#0D1B2A', 
+                            teal: '#146779',
+                            pink: '#F73282',
+                            burgundy: '#780030',
+                            olive: '#786F14',
+                            beige: '#CCCAB5'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- React y Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+       .hero-banner {
+            background-color: #780030;
+            background-image:
+                radial-gradient(at 34% 86%, #146779 0px, transparent 62%),
+                radial-gradient(at 69% 48%, #CCCAB5 0px, transparent 62%),
+                radial-gradient(at 63% 86%, #780030 0px, transparent 62%);
+            background-size: 300% 300%; /* Amplía el fondo para permitir el paneo */
+            animation: guradeFluid 18s ease-in-out infinite alternate;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 2rem;
+            min-height: 85vh;
+        }
+
+        @keyframes guradeFluid {
+            0% { background-position: 0% 0%; }
+            25% { background-position: 100% 50%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 50%; }
+            100% { background-position: 0% 0%; }
+        }
+        /* Cuadrícula Milimétrica */
+        .grid-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 9990;
+            background-size: 10px 10px, 100px 100px;
+            background-image:
+                linear-gradient(to right, rgba(20, 103, 121, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(20, 103, 121, 0.1) 1px, transparent 1px),
+                linear-gradient(to right, rgba(20, 103, 121, 0.3) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(20, 103, 121, 0.3) 1px, transparent 1px);
+        }
+        
+        /* Modificadores de Selección y Redimensionamiento */
+        .editor-selected {
+            outline: 2px dashed #F73282 !important;
+            outline-offset: 2px;
+            cursor: move;
+        }
+        
+        .editor-selected.absolute-mode {
+            resize: both;
+            overflow: auto;
+            min-width: 50px;
+            min-height: 50px;
+        }
+
+        /* Highlight de partes de texto editadas */
+        .custom-text-span {
+            display: inline-block;
+            padding: 0 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        body.editor-active * {
+            transition: outline 0.1s ease;
+        }
+        
+        body.editor-active *:hover:not(#live-editor-panel):not(#live-editor-panel *) {
+            outline: 1px solid rgba(20, 103, 121, 0.5);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-lumino-bg text-lumino-dark font-sans antialiased selection:bg-lumino-pink selection:text-white relative overflow-x-hidden">
+
+    <!-- CONTENIDO DEL SITIO -->
+    <div id="site-content" class="w-full transition-all duration-300">
+        <header class="w-full fixed top-0 bg-white/90 backdrop-blur-md z-50 border-b border-slate-200">
+            <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+                <div class="font-montserrat font-black text-2xl tracking-tighter flex items-center gap-2">
+                    <div class="w-6 h-6 bg-lumino-dark rounded-full relative overflow-hidden">
+                        <div class="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full"></div>
+                    </div>
+                    LUMINOBITE<span class="text-slate-400 font-normal">STUDIO</span>
+                </div>
+                
+                <nav class="hidden md:flex gap-8 text-sm font-semibold text-slate-600 tracking-wide">
+                    <a href="#servicios" class="hover:text-lumino-teal transition">SERVICIOS</a>
+                    <a href="#estudio" class="hover:text-lumino-teal transition">EL ESTUDIO</a>
+                    <a href="#planes" class="hover:text-lumino-teal transition">PLANES</a>
+                </nav>
+                
+                <button class="font-montserrat font-bold text-xs uppercase tracking-wider bg-lumino-dark text-white px-6 py-3 hover:bg-lumino-teal transition rounded-sm shadow-md">
+                    Acceso a Clientes
+                </button>
+            </div>
+        </header>
+
+        <main class="pt-20 min-h-screen">
+            <!-- BANNER HERO CON ANIMACIÓN FLUIDA -->
+            <section class="hero-banner w-full px-6 text-center">
+                <!-- Capas de fluidos en movimiento -->
+                <div class="fluid-blob blob-1"></div>
+                <div class="fluid-blob blob-2"></div>
+                <div class="fluid-blob blob-3"></div>
+
+                <div class="hero-content max-w-5xl mx-auto flex flex-col items-center">
+                    <div class="inline-block bg-white text-[#0D1B2A] font-bold px-4 py-1 rounded-full text-xs uppercase tracking-widest mb-6 border border-white/20 shadow-md">
+                        Plataforma de Suscripción B2B
+                    </div>
+                    <h1 class="font-montserrat font-black text-5xl md:text-7xl leading-tight mb-8 text-balance text-white drop-shadow-md">
+                        Decisiones claras a partir de bioprocesos complejos.
+                    </h1>
+                    <p class="text-lg md:text-xl text-white font-medium max-w-2xl mb-10 leading-relaxed text-balance drop-shadow">
+                        Traducimos la ciencia de alimentos y la ingeniería de costos en dashboards interactivos. Suscríbete a nuestro portal y obtén simuladores TEA y visualización de datos en tiempo real.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="#planes" class="font-montserrat font-bold text-sm uppercase tracking-wider bg-white text-lumino-teal px-8 py-4 hover:bg-lumino-dark hover:text-white transition shadow-lg rounded-sm inline-block">
+                            Ver Planes
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="servicios" class="max-w-7xl mx-auto px-6 py-20">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-10 border border-slate-200 shadow-sm">
+                        <h3 class="font-montserrat font-extrabold text-xl mb-3 text-lumino-teal">Food Science</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            Desarrollo de producto y análisis de bioprocesos. Traducimos la investigación de laboratorio en parámetros industriales escalables.
+                        </p>
+                    </div>
+                    <div class="bg-white p-10 shadow-xl border-t-4 border-lumino-pink">
+                        <h3 class="font-montserrat font-extrabold text-xl mb-3 text-lumino-pink">Dynamic Data Viz</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            Dashboards interactivos y reportes ejecutivos. Convertimos miles de filas de datos en narrativas visuales.
+                        </p>
+                    </div>
+                    <div class="bg-white p-10 border border-slate-200 shadow-sm">
+                        <h3 class="font-montserrat font-extrabold text-xl mb-3 text-lumino-olive">Cost Engineering</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            Análisis Tecno-Económico. Modelado de costos, predicción de rentabilidad y escenarios de simulación.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ROOT DEL EDITOR REACT -->
+    <div id="editor-root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const LiveEditor = () => {
+            const [isEditing, setIsEditing] = useState(false);
+            const [showGrid, setShowGrid] = useState(false);
+            const [selectedEl, setSelectedEl] = useState(null);
+            const [styles, setStyles] = useState({
+                fontFamily: '',
+                backgroundColor: '',
+                color: '',
+                fontSize: '',
+                position: 'static'
+            });
+            
+            const [partialStyles, setPartialStyles] = useState({
+                fontFamily: 'Montserrat',
+                backgroundColor: '#F73282',
+                color: '#ffffff',
+                fontSize: '18'
+            });
+
+            const isDragging = useRef(false);
+            const dragOffset = useRef({ x: 0, y: 0 });
+
+            useEffect(() => {
+                const contentDiv = document.getElementById('site-content');
+                if (isEditing) {
+                    document.body.classList.add('editor-active');
+                    contentDiv.style.marginRight = '320px';
+                    contentDiv.style.width = 'calc(100% - 320px)';
+                } else {
+                    document.body.classList.remove('editor-active');
+                    contentDiv.style.marginRight = '0';
+                    contentDiv.style.width = '100%';
+                    if (selectedEl) {
+                        selectedEl.classList.remove('editor-selected');
+                        selectedEl.classList.remove('absolute-mode');
+                        selectedEl.contentEditable = "false";
+                        setSelectedEl(null);
+                    }
+                }
+            }, [isEditing]);
+
+            useEffect(() => {
+                const handlePointerDown = (e) => {
+                    if (!isEditing) return;
+                    
+                    if (e.target.closest('#live-editor-panel')) return;
+                    
+                    const rect = e.target.getBoundingClientRect();
+                    const isResizeCorner = (e.clientX > rect.right - 20) && (e.clientY > rect.bottom - 20);
+                    if (isResizeCorner && e.target.style.position === 'absolute') {
+                        return; 
+                    }
+
+                    e.stopPropagation();
+
+                    if (selectedEl && selectedEl !== e.target) {
+                        selectedEl.classList.remove('editor-selected');
+                        selectedEl.classList.remove('absolute-mode');
+                        selectedEl.contentEditable = "false";
+                    }
+
+                    const target = e.target;
+                    target.classList.add('editor-selected');
+                    
+                    if (['H1','H2','H3','P','SPAN','A','BUTTON', 'DIV'].includes(target.tagName)) {
+                        target.contentEditable = "true";
+                    }
+
+                    setSelectedEl(target);
+                    
+                    const compStyles = window.getComputedStyle(target);
+                    const isAbs = target.style.position === 'absolute' || target.style.position === 'fixed';
+                    
+                    if (isAbs) {
+                        target.classList.add('absolute-mode');
+                    } else {
+                        target.classList.remove('absolute-mode');
+                    }
+
+                    setStyles({
+                        fontFamily: compStyles.fontFamily.split(',')[0].replace(/['"]/g, ''),
+                        backgroundColor: rgb2hex(compStyles.backgroundColor),
+                        color: rgb2hex(compStyles.color),
+                        fontSize: parseInt(compStyles.fontSize),
+                        position: target.style.position || 'static'
+                    });
+
+                    if (isAbs && !isResizeCorner) {
+                        isDragging.current = true;
+                        dragOffset.current = {
+                            x: e.clientX - rect.left,
+                            y: e.clientY - rect.top
+                        };
+                    }
+                };
+
+                const handlePointerMove = (e) => {
+                    if (!isEditing || !isDragging.current || !selectedEl) return;
+                    
+                    e.preventDefault();
+                    let newX = e.clientX - dragOffset.current.x;
+                    let newY = e.clientY - dragOffset.current.y;
+
+                    if (showGrid) {
+                        newX = Math.round(newX / 10) * 10;
+                        newY = Math.round(newY / 10) * 10;
+                    }
+
+                    selectedEl.style.left = `${newX}px`;
+                    selectedEl.style.top = `${newY}px`;
+                    selectedEl.style.right = 'auto';
+                    selectedEl.style.bottom = 'auto';
+                };
+
+                const handlePointerUp = () => {
+                    isDragging.current = false;
+                };
+
+                if (isEditing) {
+                    document.addEventListener('mousedown', handlePointerDown);
+                    document.addEventListener('mousemove', handlePointerMove);
+                    document.addEventListener('mouseup', handlePointerUp);
+                }
+
+                return () => {
+                    document.removeEventListener('mousedown', handlePointerDown);
+                    document.removeEventListener('mousemove', handlePointerMove);
+                    document.removeEventListener('mouseup', handlePointerUp);
+                };
+            }, [isEditing, selectedEl, showGrid]);
+
+            const rgb2hex = (rgb) => {
+                if (!rgb || rgb === 'transparent' || rgb === 'rgba(0, 0, 0, 0)') return '#transparent';
+                const match = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+                if (!match) return rgb;
+                const hex = (x) => ("0" + parseInt(x).toString(16)).slice(-2);
+                return "#" + hex(match[1]) + hex(match[2]) + hex(match[3]);
+            };
+
+            const updateStyle = (property, value) => {
+                if (!selectedEl) return;
+                
+                selectedEl.style[property] = property === 'fontSize' ? `${value}px` : value;
+                
+                if (property === 'position') {
+                    if (value === 'absolute') {
+                        const rect = selectedEl.getBoundingClientRect();
+                        selectedEl.style.top = `${rect.top + window.scrollY}px`;
+                        selectedEl.style.left = `${rect.left + window.scrollX}px`;
+                        selectedEl.style.width = `${rect.width}px`;
+                        selectedEl.style.margin = '0';
+                        selectedEl.classList.add('absolute-mode');
+                    } else {
+                        selectedEl.style.top = '';
+                        selectedEl.style.left = '';
+                        selectedEl.style.width = '';
+                        selectedEl.classList.remove('absolute-mode');
+                    }
+                }
+
+                setStyles(prev => ({ ...prev, [property]: value }));
+            };
+
+            const applyPartialFormatting = () => {
+                const selection = window.getSelection();
+                if (!selection.rangeCount || selection.isCollapsed) {
+                    alert("Por favor, selecciona una porción de texto primero (arrastrando el ratón sobre el texto).");
+                    return;
+                }
+                
+                const range = selection.getRangeAt(0);
+                const span = document.createElement('span');
+                
+                span.className = 'custom-text-span';
+                span.style.fontFamily = partialStyles.fontFamily;
+                span.style.backgroundColor = partialStyles.backgroundColor;
+                span.style.color = partialStyles.color;
+                span.style.fontSize = `${partialStyles.fontSize}px`;
+                
+                span.textContent = range.toString();
+                range.deleteContents();
+                range.insertNode(span);
+                
+                selection.removeAllRanges();
+            };
+
+            return (
+                <>
+                    {showGrid && <div className="grid-overlay"></div>}
+
+                    {!isEditing && (
+                        <button 
+                            onClick={() => setIsEditing(true)}
+                            className="fixed bottom-6 right-6 bg-lumino-teal text-white p-4 rounded-full shadow-2xl hover:bg-lumino-dark transition-all z-[10000]"
+                        >
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </button>
+                    )}
+
+                    <div 
+                        id="live-editor-panel"
+                        className={`fixed top-0 right-0 h-full w-80 bg-lumino-dark border-l border-slate-800 shadow-2xl z-[10000] text-white flex flex-col transition-transform duration-300 ${isEditing ? 'translate-x-0' : 'translate-x-full'}`}
+                    >
+                        <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-[#0a111a]">
+                            <h2 className="font-montserrat font-bold text-sm uppercase tracking-widest text-lumino-teal">Constructor WYSIWYG</h2>
+                            <button onClick={() => setIsEditing(false)} className="text-slate-400 hover:text-white">✕</button>
+                        </div>
+
+                        <div className="p-5 flex-1 overflow-y-auto flex flex-col gap-6">
+                            
+                            <div className="space-y-3">
+                                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-800 pb-2">Entorno</h3>
+                                <button 
+                                    onClick={() => setShowGrid(!showGrid)}
+                                    className={`w-full py-2 px-4 rounded text-xs font-bold uppercase transition flex items-center justify-center gap-2 ${showGrid ? 'bg-lumino-pink text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+                                >
+                                    {showGrid ? 'Ocultar Cuadrícula' : 'Mostrar Cuadrícula'}
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-800 pb-2">
+                                    Caja / Elemento Completo
+                                </h3>
+                                
+                                {selectedEl ? (
+                                    <>
+                                        <div className="bg-slate-900 p-3 rounded border border-slate-800">
+                                            <label className="text-xs text-slate-400 block mb-2 font-semibold">Comportamiento (Layout)</label>
+                                            <select 
+                                                className="w-full bg-slate-800 text-white text-xs p-2 rounded border border-slate-700 focus:outline-none focus:border-lumino-teal"
+                                                value={styles.position === 'absolute' ? 'absolute' : 'static'}
+                                                onChange={(e) => updateStyle('position', e.target.value)}
+                                            >
+                                                <option value="static">Flujo Normal</option>
+                                                <option value="absolute">Libre (Arrastrar y Esquinas)</option>
+                                            </select>
+                                            {styles.position === 'absolute' && (
+                                                <p className="text-[10px] text-lumino-pink mt-2 leading-tight">
+                                                    * Arrastra el elemento para moverlo, o tira de la esquina inferior derecha para redimensionarlo.
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <label className="text-xs text-slate-400 block mb-1">Fuente General</label>
+                                            <select 
+                                                className="w-full bg-slate-800 text-white text-xs p-2 rounded border border-slate-700"
+                                                value={styles.fontFamily}
+                                                onChange={(e) => updateStyle('fontFamily', e.target.value)}
+                                            >
+                                                <option value="Montserrat">Montserrat (Títulos)</option>
+                                                <option value="Open Sans">Open Sans (Cuerpo)</option>
+                                                <option value="Roboto">Roboto (Números)</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="text-xs text-slate-400 block mb-1">Fondo Caja</label>
+                                                <input 
+                                                    type="color" 
+                                                    value={styles.backgroundColor !== '#transparent' ? styles.backgroundColor : '#ffffff'}
+                                                    onChange={(e) => updateStyle('backgroundColor', e.target.value)}
+                                                    className="w-full h-8 cursor-pointer rounded bg-transparent"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs text-slate-400 block mb-1">Texto Caja</label>
+                                                <input 
+                                                    type="color" 
+                                                    value={styles.color}
+                                                    onChange={(e) => updateStyle('color', e.target.value)}
+                                                    className="w-full h-8 cursor-pointer rounded bg-transparent"
+                                                />
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="text-xs text-slate-500 text-center py-4">Selecciona un elemento en la página.</div>
+                                )}
+                            </div>
+
+                            <div className="space-y-4 pt-4">
+                                <h3 className="text-xs font-bold text-lumino-teal uppercase tracking-widest border-b border-slate-800 pb-2">
+                                    Sub-Selección de Texto
+                                </h3>
+                                <p className="text-[10px] text-slate-400 leading-tight">
+                                    Sombrea con el ratón una parte del texto en tu página y aplica estos estilos específicos.
+                                </p>
+                                
+                                <div>
+                                    <label className="text-[10px] text-slate-400 block mb-1">Fuente Especial</label>
+                                    <select 
+                                        className="w-full bg-slate-800 text-white text-xs p-2 rounded border border-slate-700"
+                                        value={partialStyles.fontFamily}
+                                        onChange={(e) => setPartialStyles({...partialStyles, fontFamily: e.target.value})}
+                                    >
+                                        <option value="Montserrat">Montserrat</option>
+                                        <option value="Open Sans">Open Sans</option>
+                                        <option value="Roboto">Roboto</option>
+                                    </select>
+                                </div>
+                                
+                                <div className="flex items-center gap-2">
+                                    <div className="flex-1">
+                                        <label className="text-[10px] text-slate-400 block mb-1">Fondo (Resaltado)</label>
+                                        <input 
+                                            type="color" 
+                                            value={partialStyles.backgroundColor}
+                                            onChange={(e) => setPartialStyles({...partialStyles, backgroundColor: e.target.value})}
+                                            className="w-full h-6 cursor-pointer rounded bg-transparent"
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <label className="text-[10px] text-slate-400 block mb-1">Color de Letra</label>
+                                        <input 
+                                            type="color" 
+                                            value={partialStyles.color}
+                                            onChange={(e) => setPartialStyles({...partialStyles, color: e.target.value})}
+                                            className="w-full h-6 cursor-pointer rounded bg-transparent"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                    <label className="text-[10px] text-slate-400">Tamaño (px)</label>
+                                    <input 
+                                        type="number" min="10" max="100" 
+                                        value={partialStyles.fontSize}
+                                        onChange={(e) => setPartialStyles({...partialStyles, fontSize: e.target.value})}
+                                        className="w-16 bg-slate-800 text-white text-xs p-1 rounded border border-slate-700 text-center"
+                                    />
+                                </div>
+
+                                <button 
+                                    onClick={applyPartialFormatting}
+                                    className="w-full py-2 bg-lumino-teal hover:bg-teal-500 text-white text-xs font-bold rounded shadow-md transition"
+                                >
+                                    Aplicar al Texto Sombreado
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('editor-root'));
+        root.render(<LiveEditor />);
+    </script>
+</body>
+</html>
