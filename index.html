@@ -475,9 +475,154 @@ className="w-full h-28 rounded-xl overflow-hidden bg-slate-100 flex items-center
         };
 
         // ============================================================================
-        // 3. BIBLIOTECA DE ICONOS KAWAII / LINDOS DE INGREDIENTES (CON FILTRO ACTIVO)
+        // 3. ICONOGRAFÍA BIOTECNOLÓGICA Y CIENTÍFICA (SISTEMA VECTORIAL PARAMETRIZADO)
         // ============================================================================
+        const ScientificIcon = ({ iconType, primaryColor = '#146779', secondaryColor = '#38BDF8', className = 'w-full h-full' }) => {
+            switch (iconType) {
+                case 'milk':
+                    return (
+                        <svg viewBox="0 0 100 100" className={className}>
+                            <circle cx="50" cy="50" r="44" fill={primaryColor} fillOpacity="0.08" stroke={primaryColor} strokeWidth="1.5" strokeDasharray="3 3"/>
+                            <path d="M42,22 L58,22 M45,22 L45,34 L28,68 C25,74 29,80 36,80 L64,80 C71,80 75,74 72,68 L55,34 L55,22" fill="none" stroke={primaryColor} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M33,62 L67,62 L69,69 C70,72 68,75 64,75 L36,75 C32,75 30,72 31,69 Z" fill={primaryColor} fillOpacity="0.25"/>
+                            <polygon points="50,42 58,47 58,57 50,62 42,57 42,47" fill={secondaryColor} stroke={primaryColor} strokeWidth="2"/>
+                            <circle cx="50" cy="52" r="3" fill="#FFFFFF"/>
+                            <circle cx="68" cy="32" r="4.5" fill={secondaryColor} stroke={primaryColor} strokeWidth="2"/>
+                            <line x1="56" y1="36" x2="64" y2="33" stroke={primaryColor} strokeWidth="2"/>
+                        </svg>
+                    );
+                case 'soy':
+                    return (
+                        <svg viewBox="0 0 100 100" className={className}>
+                            <circle cx="50" cy="50" r="44" fill={primaryColor} fillOpacity="0.08" stroke={primaryColor} strokeWidth="1.5" strokeDasharray="3 3"/>
+                            <path d="M50,80 C50,55 30,48 24,32 C38,30 50,42 50,52 C50,38 64,28 76,32 C70,48 50,55 50,80 Z" fill={secondaryColor} fillOpacity="0.3" stroke={primaryColor} strokeWidth="2.8" strokeLinejoin="round"/>
+                            <line x1="50" y1="78" x2="50" y2="28" stroke={primaryColor} strokeWidth="2.5" strokeLinecap="round"/>
+                            <circle cx="34" cy="40" r="4" fill={primaryColor}/>
+                            <circle cx="66" cy="40" r="4" fill={primaryColor}/>
+                            <circle cx="50" cy="24" r="5" fill={secondaryColor} stroke={primaryColor} strokeWidth="2"/>
+                        </svg>
+                    );
+                case 'almond':
+                    return (
+                        <svg viewBox="0 0 100 100" className={className}>
+                            <circle cx="50" cy="50" r="44" fill={primaryColor} fillOpacity="0.08" stroke={primaryColor} strokeWidth="1.5" strokeDasharray="3 3"/>
+                            <path d="M50,18 C68,34 72,60 50,82 C28,60 32,34 50,18 Z" fill={secondaryColor} fillOpacity="0.25" stroke={primaryColor} strokeWidth="2.8" strokeLinejoin="round"/>
+                            <path d="M50,26 C60,40 62,60 50,74" fill="none" stroke={primaryColor} strokeWidth="2.2" strokeLinecap="round"/>
+                            <circle cx="50" cy="54" r="5.5" fill={secondaryColor} stroke={primaryColor} strokeWidth="2"/>
+                        </svg>
+                    );
+                case 'peanut':
+                    return (
+                        <svg viewBox="0 0 100 100" className={className}>
+                            <circle cx="50" cy="50" r="44" fill={primaryColor} fillOpacity="0.08" stroke={primaryColor} strokeWidth="1.5" strokeDasharray="3 3"/>
+                            <path d="M40,24 C30,24 26,38 34,48 C28,58 32,74 46,76 C58,78 66,72 64,58 C72,48 68,24 52,24 Z" fill={secondaryColor} fillOpacity="0.25" stroke={primaryColor} strokeWidth="2.8" strokeLinejoin="round"/>
+                            <circle cx="45" cy="38" r="5.5" fill={primaryColor}/>
+                            <circle cx="47" cy="62" r="5.5" fill={secondaryColor} stroke={primaryColor} strokeWidth="2"/>
+                            <line x1="38" y1="50" x2="60" y2="50" stroke={primaryColor} strokeWidth="2" strokeDasharray="2 2"/>
+                        </svg>
+                    );
+                case 'egg':
+                    return (
+                        <svg viewBox="0 0 100 100" className={className}>
+                            <circle cx="50" cy="50" r="44" fill={primaryColor} fillOpacity="0.08" stroke={primaryColor} strokeWidth="1.5" strokeDasharray="3 3"/>
+                            <path d="M26,52 C22,34 38,20 50,20 C62,20 78,34 74,52 C70,72 50,80 36,78 C26,72 26,62 26,52 Z" fill="#FFFFFF" stroke={primaryColor} strokeWidth="2.8"/>
+                            <circle cx="50" cy="50" r="14" fill={secondaryColor} fillOpacity="0.35" stroke={primaryColor} strokeWidth="2.2"/>
+                            <circle cx="50" cy="50" r="6" fill={primaryColor}/>
+                        </svg>
+                    );
+                case 'collagen':
+                    return (
+                        <svg viewBox="0 0 100 100" className={className}>
+                            <circle cx="50" cy="50" r="44" fill={primaryColor} fillOpacity="0.08" stroke={primaryColor} strokeWidth="1.5" strokeDasharray="3 3"/>
+                            <path d="M28,30 Q50,50 28,70 M50,22 Q72,50 50,78 M72,30 Q50,50 72,70" fill="none" stroke={primaryColor} strokeWidth="2.8" strokeLinecap="round"/>
+                            <circle cx="39" cy="40" r="4" fill={secondaryColor} stroke={primaryColor} strokeWidth="1.5"/>
+                            <circle cx="61" cy="60" r="4" fill={secondaryColor} stroke={primaryColor} strokeWidth="1.5"/>
+                            <circle cx="50" cy="50" r="5" fill={primaryColor}/>
+                        </svg>
+                    );
+                case 'maltitol':
+                    return (
+                        <svg viewBox="0 0 100 100" className={className}>
+                            <circle cx="50" cy="50" r="44" fill={primaryColor} fillOpacity="0.08" stroke={primaryColor} strokeWidth="1.5" strokeDasharray="3 3"/>
+                            <polygon points="50,26 72,38 72,62 50,74 28,62 28,38" fill="none" stroke={primaryColor} strokeWidth="2.8"/>
+                            <circle cx="50" cy="26" r="4.5" fill={secondaryColor} stroke={primaryColor} strokeWidth="2"/>
+                            <circle cx="72" cy="38" r="4.5" fill={primaryColor}/>
+                            <circle cx="72" cy="62" r="4.5" fill={secondaryColor} stroke={primaryColor} strokeWidth="2"/>
+                            <circle cx="50" cy="74" r="4.5" fill={primaryColor}/>
+                            <circle cx="28" cy="62" r="4.5" fill={secondaryColor} stroke={primaryColor} strokeWidth="2"/>
+                            <circle cx="28" cy="38" r="4.5" fill={primaryColor}/>
+                            <text x="50" y="54" fill={primaryColor} fontFamily="Montserrat" fontWeight="900" fontSize="10" textAnchor="middle">-OH</text>
+                        </svg>
+                    );
+                case 'dates':
+                    return (
+                        <svg viewBox="0 0 100 100" className={className}>
+                            <circle cx="50" cy="50" r="44" fill={primaryColor} fillOpacity="0.08" stroke={primaryColor} strokeWidth="1.5" strokeDasharray="3 3"/>
+                            <ellipse cx="50" cy="50" rx="19" ry="27" transform="rotate(-20 50 50)" fill={secondaryColor} fillOpacity="0.3" stroke={primaryColor} strokeWidth="2.8"/>
+                            <line x1="38" y1="35" x2="62" y2="65" stroke={primaryColor} strokeWidth="2.2" strokeLinecap="round"/>
+                            <circle cx="44" cy="42" r="3.5" fill={primaryColor}/>
+                            <circle cx="56" cy="58" r="3.5" fill={primaryColor}/>
+                        </svg>
+                    );
+                case 'cocoa':
+                    return (
+                        <svg viewBox="0 0 100 100" className={className}>
+                            <circle cx="50" cy="50" r="44" fill={primaryColor} fillOpacity="0.08" stroke={primaryColor} strokeWidth="1.5" strokeDasharray="3 3"/>
+                            <polygon points="50,22 74,40 68,76 32,76 26,40" fill={secondaryColor} fillOpacity="0.25" stroke={primaryColor} strokeWidth="2.8" strokeLinejoin="round"/>
+                            <line x1="50" y1="22" x2="50" y2="76" stroke={primaryColor} strokeWidth="2"/>
+                            <line x1="26" y1="40" x2="74" y2="40" stroke={primaryColor} strokeWidth="2"/>
+                            <line x1="29" y1="58" x2="71" y2="58" stroke={primaryColor} strokeWidth="2"/>
+                            <circle cx="50" cy="49" r="4" fill={primaryColor}/>
+                        </svg>
+                    );
+                case 'fiber':
+                    return (
+                        <svg viewBox="0 0 100 100" className={className}>
+                            <circle cx="50" cy="50" r="44" fill={primaryColor} fillOpacity="0.08" stroke={primaryColor} strokeWidth="1.5" strokeDasharray="3 3"/>
+                            <path d="M28,70 C24,40 45,24 72,24 C72,50 58,72 28,70 Z" fill={secondaryColor} fillOpacity="0.3" stroke={primaryColor} strokeWidth="2.8"/>
+                            <path d="M28,70 Q52,48 70,30" fill="none" stroke={primaryColor} strokeWidth="2.2" strokeLinecap="round"/>
+                            <circle cx="44" cy="48" r="3.5" fill={primaryColor}/>
+                            <circle cx="58" cy="38" r="3.5" fill={primaryColor}/>
+                        </svg>
+                    );
+                case 'gluten_free':
+                    return (
+                        <svg viewBox="0 0 100 100" className={className}>
+                            <circle cx="50" cy="50" r="44" fill={primaryColor} fillOpacity="0.08" stroke={primaryColor} strokeWidth="1.5" strokeDasharray="3 3"/>
+                            <path d="M50,18 L76,28 L76,52 C76,68 64,78 50,84 C36,78 24,68 24,52 L24,28 Z" fill={secondaryColor} fillOpacity="0.25" stroke={primaryColor} strokeWidth="2.8" strokeLinejoin="round"/>
+                            <text x="50" y="52" fill={primaryColor} fontFamily="Montserrat" fontWeight="900" fontSize="16" textAnchor="middle">GF</text>
+                            <path d="M42,62 L48,68 L60,56" fill="none" stroke={secondaryColor} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                    );
+                case 'high_protein':
+                default:
+                    return (
+                        <svg viewBox="0 0 100 100" className={className}>
+                            <circle cx="50" cy="50" r="44" fill={primaryColor} fillOpacity="0.08" stroke={primaryColor} strokeWidth="1.5" strokeDasharray="3 3"/>
+                            <polygon points="50,20 78,35 78,65 50,80 22,65 22,35" fill={secondaryColor} fillOpacity="0.2" stroke={primaryColor} strokeWidth="2.8"/>
+                            <text x="50" y="47" fill={primaryColor} fontFamily="Montserrat" fontWeight="900" fontSize="15" textAnchor="middle">20g+</text>
+                            <text x="50" y="62" fill={secondaryColor} fontFamily="Roboto" fontWeight="900" fontSize="8.5" textAnchor="middle" letterSpacing="1">PROTEIN</text>
+                        </svg>
+                    );
+            }
+        };
+
         const CUTE_STICKERS_LIBRARY = [
+            { id: 'sticker_cow', tag: 'milk', label: 'Lácteos & Whey', sub: 'Aislado / Caseinato', bg: '#F8FAFC', border: '#E2E8F0', primaryColor: '#146779', secondaryColor: '#38BDF8', iconType: 'milk', renderSvg: (p, s) => <ScientificIcon iconType="milk" primaryColor={p || '#146779'} secondaryColor={s || '#38BDF8'} /> },
+            { id: 'sticker_soy', tag: 'soy', label: 'Soya & Lecitina', sub: 'Emulgente / Proteína', bg: '#F8FAFC', border: '#E2E8F0', primaryColor: '#059669', secondaryColor: '#34D399', iconType: 'soy', renderSvg: (p, s) => <ScientificIcon iconType="soy" primaryColor={p || '#059669'} secondaryColor={s || '#34D399'} /> },
+            { id: 'sticker_almond', tag: 'almond', label: 'Almendras & Nueces', sub: 'Frutos Secos / Grasas', bg: '#F8FAFC', border: '#E2E8F0', primaryColor: '#D97706', secondaryColor: '#FBBF24', iconType: 'almond', renderSvg: (p, s) => <ScientificIcon iconType="almond" primaryColor={p || '#D97706'} secondaryColor={s || '#FBBF24'} /> },
+            { id: 'sticker_peanut', tag: 'peanut', label: 'Maní / Cacahuate', sub: 'Alérgeno Principal', bg: '#F8FAFC', border: '#E2E8F0', primaryColor: '#EA580C', secondaryColor: '#FB923C', iconType: 'peanut', renderSvg: (p, s) => <ScientificIcon iconType="peanut" primaryColor={p || '#EA580C'} secondaryColor={s || '#FB923C'} /> },
+            { id: 'sticker_egg', tag: 'egg', label: 'Albúmina de Huevo', sub: 'Proteína Pura', bg: '#F8FAFC', border: '#E2E8F0', primaryColor: '#CA8A04', secondaryColor: '#FDE047', iconType: 'egg', renderSvg: (p, s) => <ScientificIcon iconType="egg" primaryColor={p || '#CA8A04'} secondaryColor={s || '#FDE047'} /> },
+            { id: 'sticker_collagen', tag: 'collagen', label: 'Péptidos Colágeno', sub: 'Péptidos Bovinos', bg: '#F8FAFC', border: '#E2E8F0', primaryColor: '#DB2777', secondaryColor: '#F472B6', iconType: 'collagen', renderSvg: (p, s) => <ScientificIcon iconType="collagen" primaryColor={p || '#DB2777'} secondaryColor={s || '#F472B6'} /> },
+            { id: 'sticker_polyol', tag: 'maltitol', label: 'Polioles / Edulcorante', sub: 'Alcoholes de Azúcar', bg: '#F8FAFC', border: '#E2E8F0', primaryColor: '#7C3AED', secondaryColor: '#A78BFA', iconType: 'maltitol', renderSvg: (p, s) => <ScientificIcon iconType="maltitol" primaryColor={p || '#7C3AED'} secondaryColor={s || '#A78BFA'} /> },
+            { id: 'sticker_dates', tag: 'dates', label: 'Dátiles Naturales', sub: 'Glúcidos Naturales', bg: '#F8FAFC', border: '#E2E8F0', primaryColor: '#78350F', secondaryColor: '#D97706', iconType: 'dates', renderSvg: (p, s) => <ScientificIcon iconType="dates" primaryColor={p || '#78350F'} secondaryColor={s || '#D97706'} /> },
+            { id: 'sticker_cocoa', tag: 'cocoa', label: 'Cacao Puro 100%', sub: 'Licor / Manteca Cacao', bg: '#F8FAFC', border: '#E2E8F0', primaryColor: '#451A03', secondaryColor: '#B45309', iconType: 'cocoa', renderSvg: (p, s) => <ScientificIcon iconType="cocoa" primaryColor={p || '#451A03'} secondaryColor={s || '#B45309'} /> },
+            { id: 'sticker_fiber', tag: 'fiber', label: 'Fibra Prebiótica', sub: 'Fibra Soluble de Maíz', bg: '#F8FAFC', border: '#E2E8F0', primaryColor: '#16A34A', secondaryColor: '#4ADE80', iconType: 'fiber', renderSvg: (p, s) => <ScientificIcon iconType="fiber" primaryColor={p || '#16A34A'} secondaryColor={s || '#4ADE80'} /> },
+            { id: 'sticker_gf', tag: 'gluten_free', label: 'Gluten Free (GF)', sub: 'Certificación GFCO', bg: '#F8FAFC', border: '#E2E8F0', primaryColor: '#0D9488', secondaryColor: '#2DD4BF', iconType: 'gluten_free', renderSvg: (p, s) => <ScientificIcon iconType="gluten_free" primaryColor={p || '#0D9488'} secondaryColor={s || '#2DD4BF'} /> },
+            { id: 'sticker_protein', tag: 'high_protein', label: 'Alta Proteína (≥20g)', sub: 'Densidad Proteica', bg: '#F8FAFC', border: '#E2E8F0', primaryColor: '#0D1B2A', secondaryColor: '#146779', iconType: 'high_protein', renderSvg: (p, s) => <ScientificIcon iconType="high_protein" primaryColor={p || '#0D1B2A'} secondaryColor={s || '#146779'} /> }
+        ];
+
+        const __LEGACY_STICKERS_UNUSED = [
             {
                 id: 'sticker_cow',
                 tag: 'milk',
@@ -880,7 +1025,7 @@ className="w-full h-28 rounded-xl overflow-hidden bg-slate-100 flex items-center
         // ============================================================================
         // 5. COMPONENTE DE TARJETA DE BARRA DE PROTEÍNA (FRENTE VISUAL + REVERSO FDA)
         // ============================================================================
-        const BarProductCard = ({ bar, isMatchedByFilter, isPulsedBySticker, activeStickerTag, onUploadImage, customImage, isSelectedBar, onSelectBar }) => {
+        const BarProductCard = ({ bar, isMatchedByFilter, isPulsedBySticker, activeStickerTag, onUploadImage, customImage, isSelectedBar, onSelectBar, config = {} }) => {
             const [flipped, setFlipped] = useState(false);
             const fileInputRef = useRef(null);
 
@@ -905,7 +1050,7 @@ className="w-full h-28 rounded-xl overflow-hidden bg-slate-100 flex items-center
                     <div 
 
                         className="h-2 w-full shrink-0"
-                        style={{ background: `linear-gradient(90deg, ${bar.brandColor}, ${bar.accentColor})` }}
+                        style={{ background: `linear-gradient(90deg, ${config.brandColor || bar.brandColor}, ${config.accentColor || bar.accentColor})` }}
                     />
 
                     {/* Encabezado de la Tarjeta */}
@@ -1398,8 +1543,8 @@ className="flex items-center justify-between border-b border-slate-100 pb-2">
                                             fill={inZone ? b.brandColor : '#CBD5E1'}
                                             fillOpacity={inZone ? 0.88 : 0.45}
                                             stroke={isStickerMatch ? '#F73282' : '#FFFFFF'}
-                                            strokeWidth={isStickerMatch ? 3.5 : 2}
-                                        />
+                                            strokeWidth={isStickerMatch ? 3.5 : 2} />
+    
                                         <text
                                             x={cx}
                                             y={cy - r - 4}
@@ -1604,6 +1749,731 @@ className="overflow-x-auto">
             );
         };
 
+        // ============================================================================
+        // 6.5. WIDGET DE GRÁFICO DINÁMICO MULTI-VARIABLE (BARRAS, RADAR, DONUT, SCATTER, RANKING)
+        // ============================================================================
+        const NUTRITIONAL_METRICS = {
+            protein: { label: 'Proteína', unit: 'g', max: 25, color: '#146779' },
+            netCarbs: { label: 'Carbohidratos Netos', unit: 'g', max: 25, color: '#F73282' },
+            polyols: { label: 'Polioles / Edulcorante', unit: 'g', max: 20, color: '#9333EA' },
+            fiber: { label: 'Fibra Prebiótica', unit: 'g', max: 15, color: '#10B981' },
+            satFat: { label: 'Grasa Saturada', unit: 'g', max: 8, color: '#BE123C' },
+            totalFat: { label: 'Grasa Total', unit: 'g', max: 12, color: '#D97706' },
+            calories: { label: 'Calorías Totales', unit: 'kcal', max: 250, color: '#0D1B2A' },
+            sodium: { label: 'Sodio', unit: 'mg', max: 250, color: '#F59E0B' },
+            potassium: { label: 'Potasio', unit: 'mg', max: 500, color: '#0284C7' },
+            calcium: { label: 'Calcio', unit: 'mg', max: 200, color: '#6366F1' }
+        };
+
+        const FlexibleBiChartWidget = ({ 
+            item, 
+            bars, 
+            selectedBarId, 
+            onSelectBar 
+        }) => {
+            const config = item.config || {};
+            const chartType = config.chartType || 'bar';
+            const metricKey = config.metric || 'protein';
+            const secondaryMetricKey = config.secondaryMetric || 'netCarbs';
+            const primaryColor = config.primaryColor || '#146779';
+            const accentColor = config.accentColor || '#38BDF8';
+            const showLabels = config.showLabels !== false;
+            const showGrid = config.showGrid !== false;
+            const title = config.title || `Análisis: ${NUTRITIONAL_METRICS[metricKey]?.label || 'Proteína'}`;
+
+            const metricDef = NUTRITIONAL_METRICS[metricKey] || NUTRITIONAL_METRICS.protein;
+            const activeBar = bars.find(b => b.id === selectedBarId) || bars[0];
+
+            return (
+                <div className="w-full h-full bg-white rounded-2xl border border-slate-200 shadow-md p-4 flex flex-col justify-between overflow-hidden">
+                    {/* Encabezado del Widget */}
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2 shrink-0">
+                        <div>
+                            <div className="flex items-center gap-1.5">
+                                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: primaryColor }} />
+                                <h3 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-dark truncate max-w-[220px]">
+                                    {title}
+                                </h3>
+                            </div>
+                            <p className="text-[10px] text-slate-400 font-medium">
+                                Variable: <strong>{metricDef.label}</strong> ({metricDef.unit}) • Modo: {chartType.toUpperCase()}
+                            </p>
+                        </div>
+                        <span className="text-[9px] font-montserrat font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                            {bars.length} Barras
+                        </span>
+                    </div>
+
+                    {/* Área de Visualización según chartType */}
+                    <div className="flex-1 flex items-center justify-center relative w-full h-full min-h-0">
+                        {chartType === 'bar' && (
+                            <svg viewBox="0 0 320 180" className="w-full h-full">
+                                {showGrid && [0.25, 0.5, 0.75, 1].map((pct, i) => (
+                                    <g key={i}>
+                                        <line x1="30" y1={150 - pct * 120} x2="310" y2={150 - pct * 120} stroke="#F1F5F9" strokeWidth="1" strokeDasharray="3 3"/>
+                                        <text x="25" y={154 - pct * 120} fontSize="7" fill="#94A3B8" textAnchor="end" fontFamily="Roboto">
+                                            {Math.round(metricDef.max * pct)}{metricDef.unit}
+                                        </text>
+                                    </g>
+                                ))}
+                                <line x1="30" y1="150" x2="310" y2="150" stroke="#CBD5E1" strokeWidth="1.5"/>
+                                {bars.map((b, idx) => {
+                                    const val = b[metricKey] || 0;
+                                    const barH = Math.min(130, Math.max(6, (val / metricDef.max) * 125));
+                                    const barW = Math.max(22, 240 / bars.length - 12);
+                                    const x = 45 + idx * (255 / bars.length);
+                                    const y = 150 - barH;
+                                    const isSel = selectedBarId === b.id;
+
+                                    return (
+                                        <g 
+                                            key={b.id} 
+                                            className="cursor-pointer group"
+                                            onClick={(e) => { e.stopPropagation(); onSelectBar && onSelectBar(b.id); }}
+                                        >
+                                            <rect
+                                                x={x}
+                                                y={y}
+                                                width={barW}
+                                                height={barH}
+                                                rx="4"
+                                                fill={isSel ? accentColor : primaryColor}
+                                                stroke={isSel ? primaryColor : '#FFFFFF'}
+                                                strokeWidth={isSel ? 2 : 1}
+                                                className="transition-all duration-300 hover:opacity-85" />
+        
+                                            {showLabels && (
+                                                <text
+                                                    x={x + barW / 2}
+                                                    y={y - 4}
+                                                    fontSize="8"
+                                                    fontWeight="800"
+                                                    fill="#0D1B2A"
+                                                    textAnchor="middle"
+                                                    fontFamily="Roboto"
+                                                >
+                                                    {val}{metricDef.unit}
+                                                </text>
+                                            )}
+                                            <text
+                                                x={x + barW / 2}
+                                                y="164"
+                                                fontSize="7.5"
+                                                fontWeight={isSel ? "800" : "600"}
+                                                fill={isSel ? primaryColor : "#64748B"}
+                                                textAnchor="middle"
+                                                fontFamily="Montserrat"
+                                            >
+                                                {b.name.split(' ')[0]}
+                                            </text>
+                                        </g>
+                                    );
+                                })}
+                            </svg>
+                        )}
+
+                        {chartType === 'ranking' && (
+                            <div className="w-full h-full flex flex-col justify-around py-1 space-y-1 overflow-y-auto">
+                                {[...bars].sort((a,b) => (b[metricKey] || 0) - (a[metricKey] || 0)).map((b, idx) => {
+                                    const val = b[metricKey] || 0;
+                                    const pct = Math.min(100, Math.max(8, (val / metricDef.max) * 100));
+                                    const isSel = selectedBarId === b.id;
+                                    return (
+                                        <div
+                                            key={b.id}
+                                            onClick={(e) => { e.stopPropagation(); onSelectBar && onSelectBar(b.id); }}
+                                            className={`p-1.5 rounded-xl border transition cursor-pointer flex items-center gap-2 ${
+                                                isSel ? 'bg-teal-50 border-lumino-teal' : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100'
+                                            }`}
+                                        >
+                                            <span className="font-montserrat font-black text-[9px] w-4 text-slate-400 text-center">#{idx + 1}</span>
+                                            <span className="font-montserrat font-bold text-[10px] w-24 truncate text-lumino-dark">{b.name}</span>
+                                            <div className="flex-1 h-3 bg-slate-200 rounded-full overflow-hidden">
+                                                <div 
+                                                    style={{ width: `${pct}%`, backgroundColor: isSel ? accentColor : primaryColor }}
+                                                    className="h-full rounded-full transition-all duration-300" />
+            
+                                            </div>
+                                            {showLabels && (
+                                                <span className="font-roboto font-black text-[10px] text-lumino-dark min-w-[36px] text-right">
+                                                    {val}{metricDef.unit}
+                                                </span>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {chartType === 'donut' && (() => {
+                            const cal = activeBar.calories || 200;
+                            const proKcal = (activeBar.protein || 20) * 4;
+                            const fatKcal = (activeBar.totalFat || 7) * 9;
+                            const carbKcal = Math.max(0, cal - proKcal - fatKcal);
+                            const total = proKcal + fatKcal + carbKcal;
+                            
+                            const proPct = (proKcal / total);
+                            const fatPct = (fatKcal / total);
+                            const carbPct = (carbKcal / total);
+
+                            const r = 50;
+                            const circ = 2 * Math.PI * r;
+                            const proDash = proPct * circ;
+                            const fatDash = fatPct * circ;
+                            const carbDash = carbPct * circ;
+
+                            return (
+                                <div className="flex items-center justify-around w-full h-full">
+                                    <svg viewBox="0 0 140 140" className="w-32 h-32 transform -rotate-90">
+                                        <circle cx="70" cy="70" r={r} fill="none" stroke="#E2E8F0" strokeWidth="18"/>
+                                        <circle cx="70" cy="70" r={r} fill="none" stroke={primaryColor} strokeWidth="18" strokeDasharray={`${proDash} ${circ}`} strokeDashoffset="0"/>
+                                        <circle cx="70" cy="70" r={r} fill="none" stroke={accentColor} strokeWidth="18" strokeDasharray={`${fatDash} ${circ}`} strokeDashoffset={-proDash}/>
+                                        <circle cx="70" cy="70" r={r} fill="none" stroke="#F59E0B" strokeWidth="18" strokeDasharray={`${carbDash} ${circ}`} strokeDashoffset={-(proDash + fatDash)}/>
+                                    </svg>
+                                    <div className="space-y-1.5 text-[9.5px] font-roboto">
+                                        <div className="font-montserrat font-black text-xs text-lumino-dark mb-1">{activeBar.name}</div>
+                                        <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: primaryColor }}/> Proteína: <strong>{Math.round(proPct*100)}%</strong> ({activeBar.protein}g)</div>
+                                        <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: accentColor }}/> Grasas: <strong>{Math.round(fatPct*100)}%</strong> ({activeBar.totalFat}g)</div>
+                                        <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500"/> Carbos/Otros: <strong>{Math.round(carbPct*100)}%</strong></div>
+                                        <div className="text-[8.5px] text-slate-400 pt-1 border-t">Calorías Totales: <strong>{cal} kcal</strong></div>
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {chartType === 'radar' && (
+                            <RadarComparisonWidget bars={bars} />
+                        )}
+
+                        {chartType === 'scatter' && (() => {
+                            const secDef = NUTRITIONAL_METRICS[secondaryMetricKey] || NUTRITIONAL_METRICS.netCarbs;
+                            return (
+                                <svg viewBox="0 0 320 180" className="w-full h-full">
+                                    {showGrid && (
+                                        <>
+                                            <line x1="40" y1="20" x2="40" y2="150" stroke="#E2E8F0" strokeWidth="1"/>
+                                            <line x1="40" y1="150" x2="310" y2="150" stroke="#E2E8F0" strokeWidth="1"/>
+                                        </>
+                                    )}
+                                    {bars.map(b => {
+                                        const valY = b[metricKey] || 0;
+                                        const valX = b[secondaryMetricKey] || 0;
+                                        const cx = 50 + (valX / secDef.max) * 240;
+                                        const cy = 145 - (valY / metricDef.max) * 115;
+                                        const isSel = selectedBarId === b.id;
+                                        return (
+                                            <g key={b.id} onClick={() => onSelectBar && onSelectBar(b.id)} className="cursor-pointer">
+                                                <circle cx={cx} cy={cy} r={isSel ? 10 : 7} fill={isSel ? accentColor : primaryColor} stroke="#FFFFFF" strokeWidth="2"/>
+                                                {showLabels && (
+                                                    <text x={cx} y={cy - 10} fontSize="7.5" fontWeight="800" fill="#0D1B2A" textAnchor="middle" fontFamily="Montserrat">
+                                                        {b.name.split(' ')[0]}
+                                                    </text>
+                                                )}\n                                            </g>
+                                        );
+                                    })}
+                                    <text x="180" y="170" fontSize="8" fontWeight="700" fill="#64748B" textAnchor="middle" fontFamily="Montserrat">
+                                        {secDef.label} ({secDef.unit}) →
+                                    </text>
+                                    <text x="14" y="85" fontSize="8" fontWeight="700" fill="#64748B" textAnchor="middle" fontFamily="Montserrat" transform="rotate(-90 14 85)">
+                                        {metricDef.label} ({metricDef.unit}) →
+                                    </text>
+                                </svg>
+                            );
+                        })()}
+                    </div>
+                </div>
+            );
+        };
+
+        // ============================================================================
+        // 6.6. BARRA LATERAL DERECHA: INSPECTOR DE PROPIEDADES, FUENTES DE DATOS Y COLORES
+        // ============================================================================
+        const PropertyInspectorSidebar = ({
+            selectedItem,
+            onUpdateProps,
+            onClose,
+            allBars,
+            allIcons,
+            onDelete,
+            onDuplicate
+        }) => {
+            if (!selectedItem) {
+                return (
+                    <aside className="w-80 bg-white border-l border-slate-200 flex flex-col shrink-0 z-40 shadow-xl p-5 justify-between">
+                        <div>
+                            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-lumino-teal" />
+                                    <h3 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-dark">
+                                        Inspector de Propiedades
+                                    </h3>
+                                </div>
+                                <span className="text-[10px] font-roboto font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500">
+                                    Inactivo
+                                </span>
+                            </div>
+
+                            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 text-center space-y-3">
+                                <div className="w-12 h-12 rounded-full bg-teal-50 border border-teal-200 text-lumino-teal flex items-center justify-center mx-auto text-xl">
+                                    ⚙️
+                                </div>
+                                <h4 className="font-montserrat font-extrabold text-xs text-lumino-dark">
+                                    Ningún elemento seleccionado
+                                </h4>
+                                <p className="text-[11px] text-slate-500 leading-relaxed font-sans">
+                                    Haz clic sobre cualquier <strong>tarjeta de barra</strong>, <strong>icono</strong>, <strong>gráfica</strong> o <strong>nota</strong> en el lienzo para personalizar sus colores vectoriales, fuentes de variables y estilos analíticos.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="text-[10px] text-slate-400 text-center font-roboto border-t pt-3">
+                            LuminoBite Studio • Biocontrol & Analytics 2.0
+                        </div>
+                    </aside>
+                );
+            }
+
+            const config = selectedItem.config || {};
+
+            return (
+                <aside className="w-84 bg-white border-l border-slate-200 flex flex-col shrink-0 z-40 shadow-2xl overflow-y-auto">
+                    {/* Encabezado del Inspector */}
+                    <div className="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between shrink-0">
+                        <div>
+                            <div className="flex items-center gap-1.5">
+                                <span className="w-2.5 h-2.5 rounded-full bg-lumino-pink animate-pulse" />
+                                <h3 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-dark">
+                                    Inspector de Propiedades
+                                </h3>
+                            </div>
+                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+                                Tipo: {selectedItem.type.replace('_', ' ')}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={onDuplicate}
+                                title="Clonar elemento"
+                                className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-bold"
+                            >
+                                ⧉
+                            </button>
+                            <button
+                                onClick={onDelete}
+                                title="Eliminar elemento"
+                                className="p-1.5 rounded-lg bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-600 text-xs font-bold"
+                            >
+                                🗑️
+                            </button>
+                            <button
+                                onClick={onClose}
+                                title="Cerrar inspector"
+                                className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-500 text-xs font-bold"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="p-4 space-y-5 text-xs">
+                        {/* 1. EDICIÓN PARA ICONOS / STICKERS CIENTÍFICOS */}
+                        {selectedItem.type === 'cute_sticker' && (() => {
+                            const currentSticker = allIcons.find(s => s.id === selectedItem.stickerId) || allIcons[0];
+                            const currentIconType = config.iconType || currentSticker.iconType || 'milk';
+                            const primaryColor = config.primaryColor || currentSticker.primaryColor || '#146779';
+                            const secondaryColor = config.secondaryColor || currentSticker.secondaryColor || '#38BDF8';
+                            const bg = config.bg || currentSticker.bg || '#F8FAFC';
+                            const border = config.border || currentSticker.border || '#CBD5E1';
+                            const textColor = config.textColor || '#0D1B2A';
+                            const label = config.label ?? currentSticker.label;
+                            const sub = config.sub ?? currentSticker.sub;
+
+                            return (
+                                <div className="space-y-4">
+                                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex items-center gap-3">
+                                        <div className="w-14 h-14 rounded-xl border flex items-center justify-center p-1.5 shadow-sm" style={{ backgroundColor: bg, borderColor: border }}>
+                                            <ScientificIcon iconType={currentIconType} primaryColor={primaryColor} secondaryColor={secondaryColor} />
+                                        </div>
+                                        <div>
+                                            <div className="font-montserrat font-black text-xs" style={{ color: textColor }}>{label}</div>
+                                            <div className="text-[10px] text-slate-400 font-semibold">{sub}</div>
+                                            <span className="text-[9px] font-bold text-lumino-teal uppercase bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200 mt-1 inline-block">
+                                                Tag: {currentSticker.tag}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="font-montserrat font-bold text-[11px] text-slate-600 block mb-1">
+                                            Símbolo Científico / Icono
+                                        </label>
+                                        <select
+                                            value={currentIconType}
+                                            onChange={(e) => onUpdateProps({ config: { ...config, iconType: e.target.value } })}
+                                            className="w-full p-2 rounded-xl border border-slate-300 font-roboto font-semibold text-xs bg-white text-lumino-dark focus:ring-2 focus:ring-lumino-teal outline-none"
+                                        >
+                                            {allIcons.map(ic => (
+                                                <option key={ic.iconType} value={ic.iconType}>
+                                                    {ic.label} ({ic.sub})
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="space-y-2 border-t pt-3">
+                                        <div className="font-montserrat font-bold text-[11px] text-slate-700">
+                                            Paleta Cromática del Elemento
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Vector Principal</label>
+                                                <div className="flex items-center gap-2">
+                                                    <input 
+                                                        type="color" 
+                                                        value={primaryColor}
+                                                        onChange={(e) => onUpdateProps({ config: { ...config, primaryColor: e.target.value } })}
+                                                        className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
+                
+                                                    <span className="text-[10px] font-mono text-slate-500">{primaryColor}</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Vector Acento</label>
+                                                <div className="flex items-center gap-2">
+                                                    <input 
+                                                        type="color" 
+                                                        value={secondaryColor}
+                                                        onChange={(e) => onUpdateProps({ config: { ...config, secondaryColor: e.target.value } })}
+                                                        className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
+                
+                                                    <span className="text-[10px] font-mono text-slate-500">{secondaryColor}</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Fondo Tarjeta</label>
+                                                <div className="flex items-center gap-2">
+                                                    <input 
+                                                        type="color" 
+                                                        value={bg.startsWith('#') ? bg : '#F8FAFC'}
+                                                        onChange={(e) => onUpdateProps({ config: { ...config, bg: e.target.value } })}
+                                                        className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
+                
+                                                    <span className="text-[10px] font-mono text-slate-500">{bg}</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Color Borde</label>
+                                                <div className="flex items-center gap-2">
+                                                    <input 
+                                                        type="color" 
+                                                        value={border.startsWith('#') ? border : '#CBD5E1'}
+                                                        onChange={(e) => onUpdateProps({ config: { ...config, border: e.target.value } })}
+                                                        className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
+                
+                                                    <span className="text-[10px] font-mono text-slate-500">{border}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2 border-t pt-3">
+                                        <div className="font-montserrat font-bold text-[11px] text-slate-700">
+                                            Textos & Etiquetas
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] text-slate-500 block mb-0.5">Título / Biomarcador</label>
+                                            <input 
+                                                type="text" 
+                                                value={label}
+                                                onChange={(e) => onUpdateProps({ config: { ...config, label: e.target.value } })}
+                                                className="w-full p-2 rounded-xl border border-slate-300 text-xs font-bold text-lumino-dark outline-none focus:border-lumino-teal" />
+        
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] text-slate-500 block mb-0.5">Subtítulo Descriptivo</label>
+                                            <input 
+                                                type="text" 
+                                                value={sub}
+                                                onChange={(e) => onUpdateProps({ config: { ...config, sub: e.target.value } })}
+                                                className="w-full p-2 rounded-xl border border-slate-300 text-xs text-slate-600 outline-none focus:border-lumino-teal" />
+        
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {/* 2. EDICIÓN PARA GRÁFICOS Y WIDGETS BI */}
+                        {(selectedItem.type === 'custom_chart' || selectedItem.type === 'radar_chart' || selectedItem.type === 'lipid_polyol_chart' || selectedItem.type === 'scatter_matrix' || selectedItem.type === 'macro_sculptor') && (
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="font-montserrat font-bold text-[11px] text-slate-700 block mb-1">
+                                        Tipo de Visualización
+                                    </label>
+                                    <div className="grid grid-cols-2 gap-1.5">
+                                        {[
+                                            { type: 'bar', label: '📊 Barras Verticales' },
+                                            { type: 'ranking', label: '🏆 Ranking Horizontal' },
+                                            { type: 'donut', label: '🍩 Donut de Macros' },
+                                            { type: 'radar', label: '🕸️ Radar 360°' },
+                                            { type: 'scatter', label: '🎯 Matriz 2D Dispersión' }
+                                        ].map(opt => (
+                                            <button
+                                                key={opt.type}
+                                                onClick={() => onUpdateProps({ 
+                                                    type: 'custom_chart',
+                                                    config: { ...config, chartType: opt.type } 
+                                                })}
+                                                className={`p-2 rounded-xl text-left border text-[10.5px] font-montserrat font-bold transition ${
+                                                    (config.chartType || (selectedItem.type === 'radar_chart' ? 'radar' : selectedItem.type === 'scatter_matrix' ? 'scatter' : 'bar')) === opt.type
+                                                        ? 'bg-lumino-teal text-white border-lumino-teal shadow'
+                                                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                                                }`}
+                                            >
+                                                {opt.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="border-t pt-3 space-y-3">
+                                    <div className="font-montserrat font-bold text-[11px] text-slate-700">
+                                        Variables & Fuentes de Datos
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] text-slate-500 font-semibold block mb-1">Métrica Principal (Eje Y / Barras)</label>
+                                        <select
+                                            value={config.metric || 'protein'}
+                                            onChange={(e) => onUpdateProps({ config: { ...config, metric: e.target.value } })}
+                                            className="w-full p-2 rounded-xl border border-slate-300 font-roboto font-bold text-xs bg-white text-lumino-dark outline-none focus:ring-2 focus:ring-lumino-teal"
+                                        >
+                                            {Object.entries(NUTRITIONAL_METRICS).map(([k, m]) => (
+                                                <option key={k} value={k}>
+                                                    {m.label} ({m.unit})
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {(config.chartType === 'scatter' || selectedItem.type === 'scatter_matrix') && (
+                                        <div>
+                                            <label className="text-[10px] text-slate-500 font-semibold block mb-1">Métrica Secundaria (Eje X)</label>
+                                            <select
+                                                value={config.secondaryMetric || 'netCarbs'}
+                                                onChange={(e) => onUpdateProps({ config: { ...config, secondaryMetric: e.target.value } })}
+                                                className="w-full p-2 rounded-xl border border-slate-300 font-roboto font-bold text-xs bg-white text-lumino-dark outline-none focus:ring-2 focus:ring-lumino-teal"
+                                            >
+                                                {Object.entries(NUTRITIONAL_METRICS).map(([k, m]) => (
+                                                    <option key={k} value={k}>
+                                                        {m.label} ({m.unit})
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    <div>
+                                        <label className="text-[10px] text-slate-500 font-semibold block mb-1">Título de la Gráfica</label>
+                                        <input
+                                            type="text"
+                                            value={config.title || ''}
+                                            placeholder="Título personalizado..."
+                                            onChange={(e) => onUpdateProps({ config: { ...config, title: e.target.value } })}
+                                            className="w-full p-2 rounded-xl border border-slate-300 text-xs font-bold text-lumino-dark outline-none focus:border-lumino-teal" />
+    
+                                    </div>
+                                </div>
+
+                                <div className="border-t pt-3 space-y-2">
+                                    <div className="font-montserrat font-bold text-[11px] text-slate-700">
+                                        Personalización de Colores & Estilos
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Color de Serie / Barras</label>
+                                            <div className="flex items-center gap-2">
+                                                <input 
+                                                    type="color" 
+                                                    value={config.primaryColor || '#146779'}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, primaryColor: e.target.value } })}
+                                                    className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
+            
+                                                <span className="text-[10px] font-mono text-slate-500">{config.primaryColor || '#146779'}</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Color de Acento / Selección</label>
+                                            <div className="flex items-center gap-2">
+                                                <input 
+                                                    type="color" 
+                                                    value={config.accentColor || '#38BDF8'}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, accentColor: e.target.value } })}
+                                                    className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
+            
+                                                <span className="text-[10px] font-mono text-slate-500">{config.accentColor || '#38BDF8'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between pt-2">
+                                        <label className="text-[11px] text-slate-600 font-bold">Mostrar Etiquetas Numéricas</label>
+                                        <input
+                                            type="checkbox"
+                                            checked={config.showLabels !== false}
+                                            onChange={(e) => onUpdateProps({ config: { ...config, showLabels: e.target.checked } })}
+                                            className="w-4 h-4 text-lumino-teal rounded" />
+    
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-[11px] text-slate-600 font-bold">Mostrar Cuadrícula de Ejes</label>
+                                        <input
+                                            type="checkbox"
+                                            checked={config.showGrid !== false}
+                                            onChange={(e) => onUpdateProps({ config: { ...config, showGrid: e.target.checked } })}
+                                            className="w-4 h-4 text-lumino-teal rounded" />
+    
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 3. EDICIÓN PARA TARJETAS DE BARRA DE PROTEÍNA */}
+                        {selectedItem.type === 'bar_card' && (() => {
+                            const bar = allBars.find(b => b.id === selectedItem.barId) || allBars[0];
+                            return (
+                                <div className="space-y-4">
+                                    <div className="p-3 bg-slate-50 border rounded-2xl">
+                                        <div className="font-montserrat font-black text-xs text-lumino-dark">{bar.name}</div>
+                                        <div className="text-[10px] text-slate-500">{bar.flavor} • {bar.servingGrams}g</div>
+                                        <div className="mt-2 text-[10px] font-roboto flex justify-between text-slate-600 bg-white p-2 rounded-lg border">
+                                            <span>🔥 <strong>{bar.calories}</strong> kcal</span>
+                                            <span>💪 <strong>{bar.protein}g</strong> Pro</span>
+                                            <span>🌿 <strong>{bar.fiber}g</strong> Fib</span>
+                                            <span>⚡ <strong>{bar.netCarbs}g</strong> Net</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2 border-t pt-3">
+                                        <div className="font-montserrat font-bold text-[11px] text-slate-700">
+                                            Personalizar Colores de la Ficha
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-0.5">Color de Marca</label>
+                                                <input
+                                                    type="color"
+                                                    value={config.brandColor || bar.brandColor}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, brandColor: e.target.value } })}
+                                                    className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
+            
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-0.5">Color de Acento</label>
+                                                <input
+                                                    type="color"
+                                                    value={config.accentColor || bar.accentColor}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, accentColor: e.target.value } })}
+                                                    className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
+            
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
+                        {/* 4. EDICIÓN PARA NOTAS / CALLOUTS */}
+                        {selectedItem.type === 'callout_badge' && (
+                            <div className="space-y-3">
+                                <div>
+                                    <label className="text-[10px] text-slate-500 font-bold block mb-1">Título de la Nota</label>
+                                    <input
+                                        type="text"
+                                        value={selectedItem.title || ''}
+                                        onChange={(e) => onUpdateProps({ title: e.target.value })}
+                                        className="w-full p-2 rounded-xl border border-slate-300 text-xs font-bold text-lumino-dark outline-none" />
+
+                                </div>
+                                <div>
+                                    <label className="text-[10px] text-slate-500 font-bold block mb-1">Contenido / Diagnóstico</label>
+                                    <textarea
+                                        rows="3"
+                                        value={selectedItem.text || ''}
+                                        onChange={(e) => onUpdateProps({ text: e.target.value })}
+                                        className="w-full p-2 rounded-xl border border-slate-300 text-xs text-slate-700 outline-none" />
+
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 pt-2 border-t">
+                                    <div>
+                                        <label className="text-[10px] text-slate-500 font-bold block mb-1">Color Fondo</label>
+                                        <input
+                                            type="color"
+                                            value={selectedItem.bgColor || '#0D1B2A'}
+                                            onChange={(e) => onUpdateProps({ bgColor: e.target.value })}
+                                            className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
+    
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] text-slate-500 font-bold block mb-1">Color Acento</label>
+                                        <input
+                                            type="color"
+                                            value={selectedItem.accentColor || '#F73282'}
+                                            onChange={(e) => onUpdateProps({ accentColor: e.target.value })}
+                                            className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
+    
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 5. EDICIÓN PARA BANNER DE TÍTULO */}
+                        {selectedItem.type === 'title_banner' && (
+                            <div className="space-y-3">
+                                <div>
+                                    <label className="text-[10px] text-slate-500 font-bold block mb-1">Título del Banner</label>
+                                    <input
+                                        type="text"
+                                        value={selectedItem.title || ''}
+                                        onChange={(e) => onUpdateProps({ title: e.target.value })}
+                                        className="w-full p-2 rounded-xl border border-slate-300 text-xs font-bold text-lumino-dark outline-none" />
+
+                                </div>
+                                <div>
+                                    <label className="text-[10px] text-slate-500 font-bold block mb-1">Subtítulo</label>
+                                    <textarea
+                                        rows="2"
+                                        value={selectedItem.subtitle || ''}
+                                        onChange={(e) => onUpdateProps({ subtitle: e.target.value })}
+                                        className="w-full p-2 rounded-xl border border-slate-300 text-xs text-slate-700 outline-none" />
+
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 pt-2 border-t">
+                                    <div>
+                                        <label className="text-[10px] text-slate-500 font-bold block mb-1">Color Fondo</label>
+                                        <input
+                                            type="color"
+                                            value={selectedItem.bgColor || '#0D1B2A'}
+                                            onChange={(e) => onUpdateProps({ bgColor: e.target.value })}
+                                            className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
+    
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] text-slate-500 font-bold block mb-1">Color Acento</label>
+                                        <input
+                                            type="color"
+                                            value={selectedItem.accentColor || '#F73282'}
+                                            onChange={(e) => onUpdateProps({ accentColor: e.target.value })}
+                                            className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
+    
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </aside>
+            );
+        };
+
         // WIDGET 4: Radar Comparador Multi-Barra (Añadible desde la barra lateral)
         const RadarComparisonWidget = ({ bars }) => {
             const axes = [
@@ -1713,6 +2583,22 @@ className="flex justify-center gap-3 text-[9px] font-bold">
             const [activeStickerTag, setActiveStickerTag] = useState(null);
             const [highlightedBarId, setHighlightedBarId] = useState(null);
             const [selectedBarId, setSelectedBarId] = useState(null);
+            const [showInspector, setShowInspector] = useState(true);
+
+            const updateSelectedItemProps = (newProps) => {
+                if (!selectedUid) return;
+                setItems(prev => prev.map(item => {
+                    if (item.uid !== selectedUid) return item;
+                    return {
+                        ...item,
+                        ...newProps,
+                        config: {
+                            ...(item.config || {}),
+                            ...(newProps.config || {})
+                        }
+                    };
+                }));
+            };
 
             // Referencias para Drag & Resize en el Canvas
             const canvasRef = useRef(null);
@@ -1909,7 +2795,7 @@ className="flex justify-center gap-3 text-[9px] font-bold">
                 setSelectedUid(newUid);
             };
 
-            const spawnWidget = (widgetType, w = 360, h = 340) => {
+            const spawnWidget = (widgetType, w = 380, h = 360, customX = null, customY = null) => {
                 const maxZ = items.reduce((m, it) => Math.max(m, it.z || 1), 1);
                 const newUid = `widget_${widgetType}_${Date.now()}`;
                 setItems(prev => [
@@ -1917,8 +2803,8 @@ className="flex justify-center gap-3 text-[9px] font-bold">
                     {
                         uid: newUid,
                         type: widgetType,
-                        x: 420 + Math.round(Math.random() * 160),
-                        y: 190 + Math.round(Math.random() * 120),
+                        x: customX ?? (420 + Math.round(Math.random() * 160)),
+                        y: customY ?? (190 + Math.round(Math.random() * 120)),
                         w,
                         h,
                         z: maxZ + 1
@@ -1927,7 +2813,7 @@ className="flex justify-center gap-3 text-[9px] font-bold">
                 setSelectedUid(newUid);
             };
 
-            const spawnCallout = (preset) => {
+            const spawnCallout = (preset, customX = null, customY = null) => {
                 const maxZ = items.reduce((m, it) => Math.max(m, it.z || 1), 1);
                 const newUid = `callout_${Date.now()}`;
                 setItems(prev => [
@@ -1935,8 +2821,8 @@ className="flex justify-center gap-3 text-[9px] font-bold">
                     {
                         uid: newUid,
                         type: 'callout_badge',
-                        x: 500 + Math.round(Math.random() * 150),
-                        y: 140 + Math.round(Math.random() * 150),
+                        x: customX ?? (500 + Math.round(Math.random() * 150)),
+                        y: customY ?? (140 + Math.round(Math.random() * 150)),
                         w: 270,
                         h: 88,
                         z: maxZ + 1,
@@ -2113,7 +2999,9 @@ className="flex justify-center gap-3 text-[9px] font-bold">
                             z: maxZ + 1
                         }]);
                     } else if (data.kind === 'widget') {
-                        spawnWidget(data.widgetType, 370, 350);
+                        spawnWidget(data.widgetType, 380, 360, dropX, dropY);
+                    } else if (data.kind === 'callout') {
+                        spawnCallout(data.preset, dropX, dropY);
                     }
                 } catch (err) {
                     console.error(err);
@@ -2238,6 +3126,19 @@ className="hidden md:flex items-center bg-slate-900 rounded-xl p-1 border border
                         <div 
 className="flex items-center gap-2.5">
                             <button
+                                onClick={() => setShowInspector(!showInspector)}
+                                className={`px-3.5 py-2 rounded-xl font-montserrat font-bold text-xs uppercase tracking-wider border transition flex items-center gap-1.5 ${
+                                    showInspector
+                                        ? 'bg-lumino-teal text-white border-teal-400 shadow-md'
+                                        : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                                }`}
+                                title="Abrir/Cerrar el Inspector de Propiedades y Colores"
+                            >
+                                <span>⚙️ Inspector</span>
+                                {selectedUid && <span className="w-2 h-2 rounded-full bg-lumino-pink animate-ping" />}
+                            </button>
+
+                            <button
                                 onClick={() => setPresentationMode(!presentationMode)}
                                 className={`px-3.5 py-2 rounded-xl font-montserrat font-bold text-xs uppercase tracking-wider border transition ${
                                     presentationMode
@@ -2293,8 +3194,8 @@ className="grid grid-cols-4 border-b border-slate-200 bg-slate-50 p-1.5 gap-1">
                                             activeSidebarTab === 'stickers' ? 'bg-lumino-dark text-white shadow' : 'text-slate-600 hover:bg-slate-200/60'
                                         }`}
                                     >
-                                        <span className="text-base">🐮</span>
-                                        <span>Iconos</span>
+                                        <span className="text-base">🔬</span>
+                                        <span>Biomarc.</span>
                                     </button>
                                     <button
                                         onClick={() => setActiveSidebarTab('bars')}
@@ -2302,7 +3203,7 @@ className="grid grid-cols-4 border-b border-slate-200 bg-slate-50 p-1.5 gap-1">
                                             activeSidebarTab === 'bars' ? 'bg-lumino-dark text-white shadow' : 'text-slate-600 hover:bg-slate-200/60'
                                         }`}
                                     >
-                                        <span className="text-base">🍫</span>
+                                        <span className="text-base">📊</span>
                                         <span>Barras</span>
                                     </button>
                                     <button
@@ -2320,7 +3221,7 @@ className="grid grid-cols-4 border-b border-slate-200 bg-slate-50 p-1.5 gap-1">
                                             activeSidebarTab === 'annotations' ? 'bg-lumino-dark text-white shadow' : 'text-slate-600 hover:bg-slate-200/60'
                                         }`}
                                     >
-                                        <span className="text-base">🏷️</span>
+                                        <span className="text-base">📋</span>
                                         <span>Notas</span>
                                     </button>
                                 </div>
@@ -2352,25 +3253,25 @@ className="grid grid-cols-2 gap-2.5">
                                                             key={st.id}
                                                             draggable
                                                             onDragStart={(e) => handleSidebarDragStart(e, { kind: 'sticker', stickerId: st.id })}
-                                                            onClick={() => spawnSticker(st)}
+                                                            onClick={() => setActiveStickerTag(prev => prev === st.tag ? null : st.tag)}
                                                             className={`p-2.5 rounded-2xl border-2 cursor-grab active:cursor-grabbing transition-all hover:scale-[1.03] flex flex-col items-center text-center shadow-sm ${
                                                                 isPresentInSelectedBar ? 'border-lumino-teal bg-teal-50 ring-2 ring-lumino-teal shadow-md' : isTagActive ? 'border-lumino-pink bg-pink-50/40' : 'border-slate-200/80 bg-lumino-bg/50 hover:border-lumino-teal'
                                                             }`}
                                                         >
                                                             <div 
 className="w-14 h-14 mb-1">
-                                                                {st.renderSvg()}
+                                                                <ScientificIcon iconType={iconType} primaryColor={primaryColor} secondaryColor={secondaryColor} />
                                                             </div>
                                                             <div 
 className="font-montserrat font-extrabold text-[11px] text-lumino-dark leading-tight">
-                                                                {st.label}
+                                                                <span style={{ color: textColor }}>{label}</span>
                                                             </div>
                                                             <div 
 className="text-[9.5px] text-slate-500 font-semibold">
                                                                 {st.sub}
                                                             </div>
                                                             <span className="mt-1 text-[8.5px] font-montserrat font-bold uppercase px-2 py-0.5 rounded-full bg-white border border-slate-200 text-lumino-teal">
-                                                                + Añadir al Lienzo
+                                                                {isTagActive ? '● Filtrando' : '✥ Arrastra al lienzo'}
                                                             </span>
                                                         </div>
                                                     );
@@ -2388,7 +3289,7 @@ className="space-y-3">
                                                     Tarjetas de Producto (5 Famosas)
                                                 </h4>
                                                 <p className="text-[11px] text-slate-500 leading-snug mt-0.5">
-                                                    Agrega tarjetas adicionales para comparar frente y reverso FDA simultáneamente.
+                                                    Haz clic para seleccionar y auditar alérgenos. Arrastra al lienzo para agregar.
                                                 </p>
                                             </div>
                                             {PROTEIN_BARS_DATA.map(bar => (
@@ -2396,7 +3297,7 @@ className="space-y-3">
                                                     key={bar.id}
                                                     draggable
                                                     onDragStart={(e) => handleSidebarDragStart(e, { kind: 'bar', barId: bar.id })}
-                                                    onClick={() => spawnBarCard(bar.id)}
+                                                    onClick={() => { setSelectedBarId(prev => prev === bar.id ? null : bar.id); setHighlightedBarId(prev => prev === bar.id ? null : bar.id); }}
                                                     className="p-3 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-teal cursor-pointer transition shadow-sm space-y-2"
                                                 >
                                                     <div 
@@ -2433,7 +3334,7 @@ className="space-y-3">
                                             </div>
 
                                             <div
-                                                onClick={() => spawnWidget('macro_sculptor', 390, 410)}
+                                                draggable onDragStart={(e) => handleSidebarDragStart(e, { kind: 'widget', widgetType: 'macro_sculptor' })}
                                                 className="p-3.5 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-pink cursor-pointer transition space-y-1"
                                             >
                                                 <div 
@@ -2442,7 +3343,7 @@ className="font-montserrat font-black text-xs text-lumino-dark">🎛️ Escultor
                                             </div>
 
                                             <div
-                                                onClick={() => spawnWidget('scatter_matrix', 390, 350)}
+                                                draggable onDragStart={(e) => handleSidebarDragStart(e, { kind: 'widget', widgetType: 'scatter_matrix' })}
                                                 className="p-3.5 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-teal cursor-pointer transition space-y-1"
                                             >
                                                 <div 
@@ -2451,7 +3352,7 @@ className="font-montserrat font-black text-xs text-lumino-dark">🎯 Matriz 2D c
                                             </div>
 
                                             <div
-                                                onClick={() => spawnWidget('lipid_polyol_chart', 380, 390)}
+                                                draggable onDragStart={(e) => handleSidebarDragStart(e, { kind: 'widget', widgetType: 'lipid_polyol_chart' })}
                                                 className="p-3.5 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-burgundy cursor-pointer transition space-y-1"
                                             >
                                                 <div 
@@ -2460,12 +3361,25 @@ className="font-montserrat font-black text-xs text-lumino-dark">🔬 Radiografí
                                             </div>
 
                                             <div
-                                                onClick={() => spawnWidget('radar_chart', 340, 340)}
+                                                draggable onDragStart={(e) => handleSidebarDragStart(e, { kind: 'widget', widgetType: 'radar_chart' })}
                                                 className="p-3.5 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-olive cursor-pointer transition space-y-1"
                                             >
                                                 <div 
 className="font-montserrat font-black text-xs text-lumino-dark">🕸️ Radar Nutricional 360°</div>
                                                 <p className="text-[10.5px] text-slate-500">Polígono multivariable con Proteína, Fibra, Potasio, Calcio y Eficiencia Keto.</p>
+                                            </div>
+
+                                            <div
+                                                draggable
+                                                onDragStart={(e) => handleSidebarDragStart(e, { kind: 'widget', widgetType: 'custom_chart' })}
+                                                className="p-3.5 rounded-2xl bg-teal-50/60 border-2 border-dashed border-lumino-teal hover:bg-teal-100/50 cursor-grab active:cursor-grabbing transition space-y-1 shadow-sm"
+                                            >
+                                                <div className="font-montserrat font-black text-xs text-lumino-teal flex items-center justify-between">
+                                                    <span>📈 Gráfico Configurable BI</span>
+                                                    <span className="text-[9px] bg-lumino-teal text-white px-2 py-0.5 rounded-full uppercase">Nuevo</span>
+                                                </div>
+                                                <p className="text-[10.5px] text-slate-600">Gráfico flexible: cambia a Barras, Ranking, Donut, Radar o Dispersión y elige la variable en el Inspector.</p>
+                                                <div className="text-[8.5px] font-bold text-lumino-teal uppercase pt-1">✥ Arrastra al lienzo para agregar</div>
                                             </div>
                                         </div>
                                     )}
@@ -2507,7 +3421,7 @@ className="space-y-3">
                                             ].map((preset, idx) => (
                                                 <div
                                                     key={idx}
-                                                    onClick={() => spawnCallout(preset)}
+                                                    draggable onDragStart={(e) => handleSidebarDragStart(e, { kind: 'callout', preset })}
                                                     className="p-3 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-pink cursor-pointer transition"
                                                 >
                                                     <div 
@@ -2515,6 +3429,7 @@ className="font-montserrat font-extrabold text-[11px]" style={{ color: preset.co
                                                         {preset.title}
                                                     </div>
                                                     <p className="text-[10px] text-slate-600 mt-1">{preset.text}</p>
+                                                    <div className="text-[8.5px] font-bold text-slate-400 uppercase mt-1">✥ Arrastra al lienzo para agregar</div>
                                                 </div>
                                             ))}
                                         </div>
@@ -2641,7 +3556,7 @@ className="w-4 h-4 rounded-full bg-lumino-dark" />
                                             {/* 1. BANNER DE TÍTULO EDITABLE */}
                                             {item.type === 'title_banner' && (
                                                 <div 
-className="w-full h-full bg-lumino-dark text-white rounded-2xl px-6 py-3.5 shadow-xl border-l-8 border-lumino-pink flex flex-col justify-center">
+style={{ backgroundColor: item.bgColor || '#0D1B2A', borderLeftColor: item.accentColor || '#F73282' }} className="w-full h-full text-white rounded-2xl px-6 py-3.5 shadow-xl border-l-8 flex flex-col justify-center">
                                                     <div 
 
                                                         contentEditable
@@ -2682,6 +3597,7 @@ className="w-full h-full bg-lumino-dark text-white rounded-2xl px-6 py-3.5 shado
                                                         }}
                                                         customImage={customBarImages[bar.id]}
                                                         onUploadImage={(bId, imgData) => setCustomBarImages(prev => ({ ...prev, [bId]: imgData }))}
+                                                        config={item.config}
                                                     />
                                                 );
                                             })()}
@@ -2716,14 +3632,33 @@ className="w-full h-full bg-lumino-dark text-white rounded-2xl px-6 py-3.5 shado
                                                 />
                                             )}
 
-                                            {/* 6. WIDGET RADAR NUTRICIONAL */}
+                                            {item.type === 'custom_chart' && (
+                                                <FlexibleBiChartWidget
+                                                    item={item}
+                                                    bars={PROTEIN_BARS_DATA}
+                                                    selectedBarId={selectedBarId}
+                                                    onSelectBar={(bId) => {
+                                                        setSelectedBarId(prev => prev === bId ? null : bId);
+                                                        setHighlightedBarId(prev => prev === bId ? null : bId);
+                                                    }}
+                                                />
+                                            )}
                                             {item.type === 'radar_chart' && (
                                                 <RadarComparisonWidget bars={PROTEIN_BARS_DATA} />
                                             )}
 
                                             {/* 7. STICKER LINDO DE INGREDIENTE (CON FILTRO PULSANTE AL HACER CLIC) */}
                                             {item.type === 'cute_sticker' && (() => {
+                                                const cfg = item.config || {};
                                                 const st = CUTE_STICKERS_LIBRARY.find(s => s.id === item.stickerId) || CUTE_STICKERS_LIBRARY[0];
+                                                const iconType = cfg.iconType || st.iconType || 'milk';
+                                                const primaryColor = cfg.primaryColor || st.primaryColor || '#146779';
+                                                const secondaryColor = cfg.secondaryColor || st.secondaryColor || '#38BDF8';
+                                                const bg = cfg.bg || st.bg || '#F8FAFC';
+                                                const border = cfg.border || st.border || '#CBD5E1';
+                                                const textColor = cfg.textColor || '#0D1B2A';
+                                                const label = cfg.label ?? st.label;
+                                                const sub = cfg.sub ?? st.sub;
                                                 const isFilteringThis = activeStickerTag === st.tag;
                                                 const isPresentInSelectedBar = selectedBarTags.includes(st.tag);
                                                 return (
@@ -2731,8 +3666,14 @@ className="w-full h-full bg-lumino-dark text-white rounded-2xl px-6 py-3.5 shado
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             setActiveStickerTag(prev => prev === st.tag ? null : st.tag);
-                                                        }}
-                                                        style={{ backgroundColor: isPresentInSelectedBar ? '#F0FDFA' : st.bg, borderColor: isPresentInSelectedBar ? '#146779' : isFilteringThis ? '#F73282' : st.border }}
+                                                      }}
+                                                />
+                                            )}
+
+
+    
+    
+                                                        style={{ backgroundColor: isPresentInSelectedBar ? '#F0FDFA' : bg, borderColor: isPresentInSelectedBar ? '#146779' : isFilteringThis ? '#F73282' : border }}
                                                         className={`w-full h-full rounded-2xl border-2 p-2 shadow-sm flex flex-col items-center justify-center text-center transition-all duration-300 hover:scale-105 ${isPresentInSelectedBar ? 'ring-4 ring-lumino-teal/40 shadow-lg scale-105' : ''} ${
                                                             isFilteringThis ? 'ring-4 ring-lumino-pink/40' : ''
                                                         }`}
@@ -2740,15 +3681,15 @@ className="w-full h-full bg-lumino-dark text-white rounded-2xl px-6 py-3.5 shado
                                                     >
                                                         <div 
 className="w-12 h-12 shrink-0">
-                                                            {st.renderSvg()}
+                                                            <ScientificIcon iconType={iconType} primaryColor={primaryColor} secondaryColor={secondaryColor} />
                                                         </div>
                                                         <div 
 className="font-montserrat font-black text-[10px] text-lumino-dark leading-tight mt-1">
-                                                            {st.label}
+                                                            <span style={{ color: textColor }}>{label}</span>
                                                         </div>
                                                         <div 
 className="text-[8.5px] font-bold text-lumino-teal uppercase">
-                                                            {isPresentInSelectedBar ? `✓ EN ${currentSelectedBar?.name?.split(' ')[0]}` : isFilteringThis ? '● FILTRO ACTIVO' : st.sub}
+                                                            {isPresentInSelectedBar ? `✓ EN ${currentSelectedBar?.name?.split(' ')[0]}` : isFilteringThis ? '● FILTRO ACTIVO' : sub}
                                                         </div>
                                                     </div>
                                                 );
@@ -2797,6 +3738,19 @@ className="text-[8.5px] font-bold text-lumino-teal uppercase">
                                 })}
                             </div>
                         </main>
+
+                        {/* BARRA LATERAL DERECHA: INSPECTOR DE PROPIEDADES Y COLORES */}
+                        {showInspector && !presentationMode && (
+                            <PropertyInspectorSidebar
+                                selectedItem={items.find(i => i.uid === selectedUid)}
+                                onUpdateProps={updateSelectedItemProps}
+                                onClose={() => setShowInspector(false)}
+                                allBars={PROTEIN_BARS_DATA}
+                                allIcons={CUTE_STICKERS_LIBRARY}
+                                onDelete={deleteSelectedItem}
+                                onDuplicate={duplicateSelectedItem}
+                            />
+                        )}
                     </div>
                 </div>
             );
