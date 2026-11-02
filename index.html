@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LuminoBite Studio — Nutrition Canvas & Living BI</title>
+    <title>LuminoBite Studio — Nutrition Intelligence & BI</title>
 
     <!-- Tipografías oficiales de LuminoBite -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -81,15 +81,24 @@
             background-color: #F9F8F3;
         }
 
-        /* Animaciones de pulso y filtrado vivo */
+        /* Animaciones de pulso y filtrado vivo profesional */
+        @keyframes subtleGlowTeal {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(20, 103, 121, 0.4), 0 4px 12px rgba(13, 27, 42, 0.08); }
+            50% { box-shadow: 0 0 0 6px rgba(20, 103, 121, 0.15), 0 8px 18px rgba(20, 103, 121, 0.2); }
+        }
+
+        .item-selected-glow {
+            outline: 2.5px solid #146779 !important;
+            box-shadow: 0 0 0 4px rgba(20, 103, 121, 0.18), 0 10px 25px -5px rgba(13, 27, 42, 0.15) !important;
+        }
         @keyframes pulseGlowPink {
             0%, 100% { box-shadow: 0 0 0 0 rgba(247, 50, 130, 0.55), 0 15px 30px -5px rgba(13, 27, 42, 0.15); }
             50% { box-shadow: 0 0 0 10px rgba(247, 50, 130, 0), 0 20px 35px -5px rgba(247, 50, 130, 0.28); }
         }
 
         .ingredient-match-glow {
-            animation: pulseGlowPink 2s infinite;
-            outline: 3px solid #F73282 !important;
+            animation: subtleGlowTeal 2.2s infinite ease-in-out;
+            outline: 2.5px solid #146779 !important;
         }
 
         /* Estilo de barras personalizadas de rango */
@@ -320,7 +329,8 @@
         const BarWrapperIllustration = ({ barId, customImage }) => {
             if (customImage) {
                 return (
-                    <div className="w-full h-28 rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center relative border border-slate-200">
+                    <div 
+className="w-full h-28 rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center relative border border-slate-200">
                         <img src={customImage} alt={barId} className="w-full h-full object-cover" />
                     </div>
                 );
@@ -471,8 +481,8 @@
             {
                 id: 'sticker_cow',
                 tag: 'milk',
-                label: 'Vaquita Láctea',
-                sub: 'Leche / Whey',
+                label: 'Lácteos & Whey',
+                sub: 'Aislado / Caseinato',
                 bg: '#EFF6FF',
                 border: '#93C5FD',
                 renderSvg: () => (
@@ -504,8 +514,8 @@
             {
                 id: 'sticker_soy',
                 tag: 'soy',
-                label: 'Vaina de Soya',
-                sub: 'Lecitina / Aislado',
+                label: 'Soya & Lecitina',
+                sub: 'Emulgente / Proteína',
                 bg: '#ECFDF5',
                 border: '#6EE7B7',
                 renderSvg: () => (
@@ -532,8 +542,8 @@
             {
                 id: 'sticker_almond',
                 tag: 'almond',
-                label: 'Almendra Feliz',
-                sub: 'Nueces de Árbol',
+                label: 'Almendras & Nueces',
+                sub: 'Frutos Secos / Grasas',
                 bg: '#FEF3C7',
                 border: '#FCD34D',
                 renderSvg: () => (
@@ -555,8 +565,8 @@
             {
                 id: 'sticker_peanut',
                 tag: 'peanut',
-                label: 'Cacahuate / Maní',
-                sub: 'Alérgeno Mayor',
+                label: 'Maní / Cacahuate',
+                sub: 'Alérgeno Principal',
                 bg: '#FFEDD5',
                 border: '#FDBA74',
                 renderSvg: () => (
@@ -575,8 +585,8 @@
             {
                 id: 'sticker_egg',
                 tag: 'egg',
-                label: 'Clarita de Huevo',
-                sub: 'Proteína Clara',
+                label: 'Albúmina de Huevo',
+                sub: 'Proteína Pura',
                 bg: '#FEF9C3',
                 border: '#FDE047',
                 renderSvg: () => (
@@ -614,8 +624,8 @@
             {
                 id: 'sticker_polyol',
                 tag: 'maltitol',
-                label: 'Matraz Polioles',
-                sub: 'Maltitol / Eritritol',
+                label: 'Polioles / Edulcorante',
+                sub: 'Alcoholes de Azúcar',
                 bg: '#F3E8FF',
                 border: '#C084FC',
                 renderSvg: () => (
@@ -634,8 +644,8 @@
             {
                 id: 'sticker_dates',
                 tag: 'dates',
-                label: 'Dátil Natural',
-                sub: 'Dulzor Real',
+                label: 'Dátiles Naturales',
+                sub: 'Glúcidos Naturales',
                 bg: '#F5F5F4',
                 border: '#D6D3D1',
                 renderSvg: () => (
@@ -653,8 +663,8 @@
             {
                 id: 'sticker_cocoa',
                 tag: 'cocoa',
-                label: 'Cacao Real',
-                sub: '100% Chocolate',
+                label: 'Cacao Puro 100%',
+                sub: 'Licor / Manteca Cacao',
                 bg: '#FEF2F2',
                 border: '#FCA5A5',
                 renderSvg: () => (
@@ -673,8 +683,8 @@
             {
                 id: 'sticker_fiber',
                 tag: 'fiber',
-                label: 'Hoja Prebiótica',
-                sub: 'Alta Fibra',
+                label: 'Fibra Prebiótica',
+                sub: 'Fibra Soluble de Maíz',
                 bg: '#ECFCCB',
                 border: '#BEF264',
                 renderSvg: () => (
@@ -691,8 +701,8 @@
             {
                 id: 'sticker_gf',
                 tag: 'gluten_free',
-                label: 'Escudo Sin Gluten',
-                sub: 'Certificado GF',
+                label: 'Gluten Free (GF)',
+                sub: 'Certificación GFCO',
                 bg: '#F0FDFA',
                 border: '#5EEAD4',
                 renderSvg: () => (
@@ -707,8 +717,8 @@
             {
                 id: 'sticker_protein',
                 tag: 'high_protein',
-                label: 'Power Proteína',
-                sub: '≥ 20g Proteína',
+                label: 'Alta Proteína (≥20g)',
+                sub: 'Densidad Proteica',
                 bg: '#FFE4E6',
                 border: '#FDA4AF',
                 renderSvg: () => (
@@ -738,8 +748,8 @@
                 w: 710,
                 h: 92,
                 z: 2,
-                title: 'BENCHMARK NUTRIMENTAL: TOP 5 BARRAS DE PROTEÍNA',
-                subtitle: 'Arrastra cualquier tarjeta, mueve las gráficas-filtro o haz clic en los iconos lindos para iluminar ingredientes.'
+                title: 'BENCHMARK NUTRIMENTAL & AUDITORÍA BI • TOP 5 BARRAS',
+                subtitle: 'Selecciona una barra para auditar sus biomarcadores y alérgenos o activa el reacomodo automático según filtros.'
             },
             // WIDGET FILTRO VIVO 1: Escultor de Macronutrientes y Límites
             {
@@ -870,7 +880,7 @@
         // ============================================================================
         // 5. COMPONENTE DE TARJETA DE BARRA DE PROTEÍNA (FRENTE VISUAL + REVERSO FDA)
         // ============================================================================
-        const BarProductCard = ({ bar, isMatchedByFilter, isPulsedBySticker, activeStickerTag, onUploadImage, customImage }) => {
+        const BarProductCard = ({ bar, isMatchedByFilter, isPulsedBySticker, activeStickerTag, onUploadImage, customImage, isSelectedBar, onSelectBar }) => {
             const [flipped, setFlipped] = useState(false);
             const fileInputRef = useRef(null);
 
@@ -886,31 +896,44 @@
 
             return (
                 <div 
-                    className={`w-full h-full rounded-2xl bg-white border transition-all duration-300 flex flex-col justify-between overflow-hidden relative ${
-                        isPulsedBySticker ? 'ingredient-match-glow' : 'shadow-lg border-slate-200/90'
+
+                    onClick={() => onSelectBar && onSelectBar(bar.id)} className={`w-full h-full rounded-2xl bg-white border transition-all duration-300 flex flex-col justify-between overflow-hidden relative cursor-pointer ${
+                        isSelectedBar ? 'item-selected-glow ring-2 ring-lumino-teal' : isPulsedBySticker ? 'ingredient-match-glow' : 'shadow-md border-slate-200/90'
                     } ${!isMatchedByFilter ? 'opacity-25 grayscale scale-[0.97]' : 'opacity-100'}`}
                 >
                     {/* Cinta Superior de Color de Marca */}
                     <div 
+
                         className="h-2 w-full shrink-0"
                         style={{ background: `linear-gradient(90deg, ${bar.brandColor}, ${bar.accentColor})` }}
                     />
 
                     {/* Encabezado de la Tarjeta */}
-                    <div className="px-4 pt-2.5 pb-1 flex items-start justify-between gap-2 shrink-0">
+                    <div 
+className="px-4 pt-2.5 pb-1 flex items-start justify-between gap-2 shrink-0">
                         <div>
-                            <div className="flex items-center gap-1.5">
+                            <div 
+className="flex items-center gap-1.5">
                                 <span className="font-montserrat font-black text-base tracking-tight text-lumino-dark">
                                     {bar.name}
                                 </span>
                                 <span className="font-roboto font-bold text-[11px] px-2 py-0.5 rounded-full bg-lumino-bg text-lumino-teal border border-lumino-beige">
                                     {bar.servingGrams}g
                                 </span>
+                                {isSelectedBar && (
+                                    <span className="font-montserrat font-extrabold text-[9px] px-2 py-0.5 rounded-full bg-lumino-teal text-white tracking-wider flex items-center gap-1 shadow-sm">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                                        AUDITANDO
+                                    </span>
+                                )}
+                                <span className="hidden">
+                                </span>
                             </div>
                             <p className="text-[11px] font-semibold text-slate-500 leading-tight">{bar.flavor}</p>
                         </div>
 
-                        <div className="flex items-center gap-1 no-export">
+                        <div 
+className="flex items-center gap-1 no-export">
                             <input 
                                 ref={fileInputRef}
                                 type="file" 
@@ -942,49 +965,72 @@
 
                     {/* CONTENIDO: FRENTE VISUAL vs REVERSO ETIQUETA NUTRIMENTAL COMPLETA */}
                     {!flipped ? (
-                        <div className="px-4 pb-3 flex-1 flex flex-col justify-between">
+                        <div 
+className="px-4 pb-3 flex-1 flex flex-col justify-between">
                             {/* Ilustración del Empaque */}
-                            <div className="my-1 relative group">
+                            <div 
+className="my-1 relative group">
                                 <BarWrapperIllustration barId={bar.id} customImage={customImage} />
                                 {isPulsedBySticker && (
-                                    <div className="absolute -top-1 -right-1 bg-lumino-pink text-white text-[10px] font-montserrat font-black px-2 py-0.5 rounded-full shadow">
+                                    <div 
+className="absolute -top-1 -right-1 bg-lumino-pink text-white text-[10px] font-montserrat font-black px-2 py-0.5 rounded-full shadow">
                                         ✓ CONTIENE {activeStickerTag?.toUpperCase()}
                                     </div>
                                 )}
                             </div>
 
                             {/* KPIs Principales (Calorías, Proteína, Carbos Netos, Fibra, Polioles) */}
-                            <div className="grid grid-cols-4 gap-1.5 my-1.5">
-                                <div className="bg-lumino-bg rounded-xl p-2 text-center border border-slate-200/70">
-                                    <div className="text-[9px] font-bold uppercase text-slate-400">Calorías</div>
-                                    <div className="font-roboto font-black text-sm text-lumino-dark">{bar.calories}</div>
-                                    <div className="text-[8px] text-slate-400">kcal</div>
+                            <div 
+className="grid grid-cols-4 gap-1.5 my-1.5">
+                                <div 
+className="bg-lumino-bg rounded-xl p-2 text-center border border-slate-200/70">
+                                    <div 
+className="text-[9px] font-bold uppercase text-slate-400">Calorías</div>
+                                    <div 
+className="font-roboto font-black text-sm text-lumino-dark">{bar.calories}</div>
+                                    <div 
+className="text-[8px] text-slate-400">kcal</div>
                                 </div>
-                                <div className="bg-teal-50/80 rounded-xl p-2 text-center border border-teal-200">
-                                    <div className="text-[9px] font-bold uppercase text-lumino-teal">Proteína</div>
-                                    <div className="font-roboto font-black text-sm text-lumino-teal">{bar.protein}g</div>
-                                    <div className="text-[8px] text-teal-600">{Math.round((bar.protein*4/bar.calories)*100)}% kcal</div>
+                                <div 
+className="bg-teal-50/80 rounded-xl p-2 text-center border border-teal-200">
+                                    <div 
+className="text-[9px] font-bold uppercase text-lumino-teal">Proteína</div>
+                                    <div 
+className="font-roboto font-black text-sm text-lumino-teal">{bar.protein}g</div>
+                                    <div 
+className="text-[8px] text-teal-600">{Math.round((bar.protein*4/bar.calories)*100)}% kcal</div>
                                 </div>
-                                <div className="bg-pink-50/70 rounded-xl p-2 text-center border border-pink-200">
-                                    <div className="text-[9px] font-bold uppercase text-lumino-pink">Net Carbs</div>
-                                    <div className="font-roboto font-black text-sm text-lumino-pink">{bar.netCarbs}g</div>
-                                    <div className="text-[8px] text-pink-600">Tot: {bar.totalCarbs}g</div>
+                                <div 
+className="bg-pink-50/70 rounded-xl p-2 text-center border border-pink-200">
+                                    <div 
+className="text-[9px] font-bold uppercase text-lumino-pink">Net Carbs</div>
+                                    <div 
+className="font-roboto font-black text-sm text-lumino-pink">{bar.netCarbs}g</div>
+                                    <div 
+className="text-[8px] text-pink-600">Tot: {bar.totalCarbs}g</div>
                                 </div>
-                                <div className="bg-amber-50/80 rounded-xl p-2 text-center border border-amber-200">
-                                    <div className="text-[9px] font-bold uppercase text-amber-800">Polioles</div>
-                                    <div className="font-roboto font-black text-sm text-amber-900">{bar.polyols}g</div>
-                                    <div className="text-[8px] text-amber-700 truncate">{bar.polyolType.split(' ')[0]}</div>
+                                <div 
+className="bg-amber-50/80 rounded-xl p-2 text-center border border-amber-200">
+                                    <div 
+className="text-[9px] font-bold uppercase text-amber-800">Polioles</div>
+                                    <div 
+className="font-roboto font-black text-sm text-amber-900">{bar.polyols}g</div>
+                                    <div 
+className="text-[8px] text-amber-700 truncate">{bar.polyolType.split(' ')[0]}</div>
                                 </div>
                             </div>
 
                             {/* Barra de Desglose de Grasas, Colesterol, Sodio y Fibra */}
-                            <div className="bg-slate-50 rounded-xl px-2.5 py-2 border border-slate-200/80 text-[10px] space-y-1">
-                                <div className="flex justify-between items-center font-roboto">
+                            <div 
+className="bg-slate-50 rounded-xl px-2.5 py-2 border border-slate-200/80 text-[10px] space-y-1">
+                                <div 
+className="flex justify-between items-center font-roboto">
                                     <span className="text-slate-500 font-semibold">Grasa Total: <strong className="text-lumino-dark">{bar.totalFat}g</strong></span>
                                     <span className="text-slate-500">Sat: <strong className={bar.satFat >= 4 ? 'text-lumino-pink' : 'text-lumino-dark'}>{bar.satFat}g</strong></span>
                                     <span className="text-slate-500">Trans: <strong className={bar.transFat > 0 ? 'text-red-600' : 'text-lumino-dark'}>{bar.transFat}g</strong></span>
                                 </div>
-                                <div className="flex justify-between items-center font-roboto border-t border-slate-200/70 pt-1">
+                                <div 
+className="flex justify-between items-center font-roboto border-t border-slate-200/70 pt-1">
                                     <span className="text-slate-500">Fibra: <strong className="text-emerald-700">{bar.fiber}g</strong></span>
                                     <span className="text-slate-500">Colest: <strong>{bar.cholesterol}mg</strong></span>
                                     <span className="text-slate-500">Sodio: <strong>{bar.sodium}mg</strong></span>
@@ -992,7 +1038,8 @@
                             </div>
 
                             {/* Declaración resumida CONTAINS */}
-                            <div className="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-between gap-1">
+                            <div 
+className="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-between gap-1">
                                 <span className="text-[9px] font-montserrat font-extrabold text-lumino-burgundy bg-rose-50 px-2 py-0.5 rounded border border-rose-200 truncate w-full">
                                     ⚠️ {bar.containsVerbatim}
                                 </span>
@@ -1001,26 +1048,38 @@
                     ) : (
                         /* REVERSO: ETIQUETA NUTRIMENTAL COMPLETA + INGREDIENTES + TRAZAS EN PLANTA */
                         <div 
+
                             className="px-4 pb-3 flex-1 overflow-y-auto space-y-2 text-[10px] leading-snug"
                             onMouseDown={(e) => e.stopPropagation()}
                         >
-                            <div className="border-2 border-lumino-dark p-2 rounded bg-white font-roboto">
-                                <div className="font-montserrat font-black text-xs border-b-4 border-lumino-dark pb-0.5 flex justify-between">
+                            <div 
+className="border-2 border-lumino-dark p-2 rounded bg-white font-roboto">
+                                <div 
+className="font-montserrat font-black text-xs border-b-4 border-lumino-dark pb-0.5 flex justify-between">
                                     <span>NUTRITION FACTS</span>
                                     <span>Porción: {bar.servingGrams}g</span>
                                 </div>
-                                <div className="flex justify-between font-black text-xs py-1 border-b-2 border-lumino-dark">
+                                <div 
+className="flex justify-between font-black text-xs py-1 border-b-2 border-lumino-dark">
                                     <span>Calorías</span>
                                     <span>{bar.calories} kcal</span>
                                 </div>
-                                <div className="divide-y divide-slate-200 text-[10px]">
-                                    <div className="py-0.5 flex justify-between"><span><strong>Grasa Total</strong> {bar.totalFat}g</span><span>Sat: <strong>{bar.satFat}g</strong> | Trans: <strong>{bar.transFat}g</strong></span></div>
-                                    <div className="py-0.5 flex justify-between"><span><strong>Colesterol</strong> {bar.cholesterol}mg</span><span><strong>Sodio</strong> {bar.sodium}mg</span></div>
-                                    <div className="py-0.5 flex justify-between"><span><strong>Carbohidratos Tot.</strong> {bar.totalCarbs}g</span><span><strong>Net Carbs: {bar.netCarbs}g</strong></span></div>
-                                    <div className="py-0.5 pl-2 flex justify-between text-slate-600"><span>Fibra Dietética: {bar.fiber}g</span><span>Azúcares: {bar.totalSugars}g (Añad: {bar.addedSugars}g)</span></div>
-                                    <div className="py-0.5 pl-2 flex justify-between text-slate-600"><span>Alcoholes de Azúcar (Polioles):</span><strong>{bar.polyols}g ({bar.polyolType})</strong></div>
-                                    <div className="py-0.5 flex justify-between font-bold text-lumino-teal"><span>Proteína</span><span>{bar.protein}g</span></div>
-                                    <div className="py-0.5 text-[9px] text-slate-500 flex justify-between pt-1">
+                                <div 
+className="divide-y divide-slate-200 text-[10px]">
+                                    <div 
+className="py-0.5 flex justify-between"><span><strong>Grasa Total</strong> {bar.totalFat}g</span><span>Sat: <strong>{bar.satFat}g</strong> | Trans: <strong>{bar.transFat}g</strong></span></div>
+                                    <div 
+className="py-0.5 flex justify-between"><span><strong>Colesterol</strong> {bar.cholesterol}mg</span><span><strong>Sodio</strong> {bar.sodium}mg</span></div>
+                                    <div 
+className="py-0.5 flex justify-between"><span><strong>Carbohidratos Tot.</strong> {bar.totalCarbs}g</span><span><strong>Net Carbs: {bar.netCarbs}g</strong></span></div>
+                                    <div 
+className="py-0.5 pl-2 flex justify-between text-slate-600"><span>Fibra Dietética: {bar.fiber}g</span><span>Azúcares: {bar.totalSugars}g (Añad: {bar.addedSugars}g)</span></div>
+                                    <div 
+className="py-0.5 pl-2 flex justify-between text-slate-600"><span>Alcoholes de Azúcar (Polioles):</span><strong>{bar.polyols}g ({bar.polyolType})</strong></div>
+                                    <div 
+className="py-0.5 flex justify-between font-bold text-lumino-teal"><span>Proteína</span><span>{bar.protein}g</span></div>
+                                    <div 
+className="py-0.5 text-[9px] text-slate-500 flex justify-between pt-1">
                                         <span>Vit D: {bar.vitD}mcg</span>
                                         <span>Calcio: {bar.calcium}mg</span>
                                         <span>Hierro: {bar.iron}mg</span>
@@ -1029,14 +1088,19 @@
                                 </div>
                             </div>
 
-                            <div className="bg-slate-50 p-2 rounded border border-slate-200">
-                                <div className="font-montserrat font-bold text-[9px] uppercase text-lumino-teal mb-0.5">Ingredientes Completos:</div>
+                            <div 
+className="bg-slate-50 p-2 rounded border border-slate-200">
+                                <div 
+className="font-montserrat font-bold text-[9px] uppercase text-lumino-teal mb-0.5">Ingredientes Completos:</div>
                                 <p className="text-[9.5px] text-slate-600 leading-tight">{bar.ingredientsES}</p>
                             </div>
 
-                            <div className="bg-rose-50 p-2 rounded border border-rose-200 space-y-1">
-                                <div className="font-montserrat font-extrabold text-[9.5px] text-lumino-burgundy">{bar.containsVerbatim}</div>
-                                <div className="font-roboto text-[9px] text-rose-900">{bar.tracesVerbatim}</div>
+                            <div 
+className="bg-rose-50 p-2 rounded border border-rose-200 space-y-1">
+                                <div 
+className="font-montserrat font-extrabold text-[9.5px] text-lumino-burgundy">{bar.containsVerbatim}</div>
+                                <div 
+className="font-roboto text-[9px] text-rose-900">{bar.tracesVerbatim}</div>
                             </div>
                         </div>
                     )}
@@ -1051,9 +1115,12 @@
         // WIDGET 1: Escultor Visual de Macronutrientes (Barras Interactivas Directas)
         const MacroSculptorWidget = ({ filters, setFilters, resetFilters, matchingCount, totalCount }) => {
             return (
-                <div className="w-full h-full bg-white rounded-2xl border border-slate-200 shadow-xl p-4 flex flex-col justify-between">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                        <div className="flex items-center gap-2">
+                <div 
+className="w-full h-full bg-white rounded-2xl border border-slate-200 shadow-xl p-4 flex flex-col justify-between">
+                    <div 
+className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                        <div 
+className="flex items-center gap-2">
                             <span className="w-3 h-3 rounded-full bg-lumino-pink animate-ping" />
                             <div>
                                 <h3 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-dark">
@@ -1068,12 +1135,15 @@
                     </div>
 
                     <div 
+
                         className="flex-1 flex flex-col justify-around py-2 space-y-2"
                         onMouseDown={(e) => e.stopPropagation()}
                     >
                         {/* 1. Proteína Mínima */}
-                        <div className="bg-lumino-bg/80 p-2.5 rounded-xl border border-slate-200/70">
-                            <div className="flex justify-between text-xs font-bold mb-1">
+                        <div 
+className="bg-lumino-bg/80 p-2.5 rounded-xl border border-slate-200/70">
+                            <div 
+className="flex justify-between text-xs font-bold mb-1">
                                 <span className="text-lumino-teal font-montserrat">💪 Proteína Mínima</span>
                                 <span className="font-roboto font-black text-lumino-teal">≥ {filters.minProtein} g</span>
                             </div>
@@ -1087,7 +1157,8 @@
                                 className="lumino-slider"
                                 style={{ background: `linear-gradient(90deg, #CBD5E1 ${((filters.minProtein-10)/11)*100}%, #146779 ${((filters.minProtein-10)/11)*100}%)` }}
                             />
-                            <div className="flex justify-between text-[9px] text-slate-400 mt-0.5 font-roboto">
+                            <div 
+className="flex justify-between text-[9px] text-slate-400 mt-0.5 font-roboto">
                                 <span>10g (RXBAR: 12g)</span>
                                 <span>20g (Estándar)</span>
                                 <span>21g (Quest)</span>
@@ -1095,8 +1166,10 @@
                         </div>
 
                         {/* 2. Tope de Carbohidratos Netos */}
-                        <div className="bg-lumino-bg/80 p-2.5 rounded-xl border border-slate-200/70">
-                            <div className="flex justify-between text-xs font-bold mb-1">
+                        <div 
+className="bg-lumino-bg/80 p-2.5 rounded-xl border border-slate-200/70">
+                            <div 
+className="flex justify-between text-xs font-bold mb-1">
                                 <span className="text-lumino-pink font-montserrat">🔥 Máximo Carbos Netos</span>
                                 <span className="font-roboto font-black text-lumino-pink">≤ {filters.maxNetCarbs} g</span>
                             </div>
@@ -1110,7 +1183,8 @@
                                 className="lumino-slider"
                                 style={{ background: `linear-gradient(90deg, #F73282 ${((filters.maxNetCarbs-2)/18)*100}%, #E2E8F0 ${((filters.maxNetCarbs-2)/18)*100}%)` }}
                             />
-                            <div className="flex justify-between text-[9px] text-slate-400 mt-0.5 font-roboto">
+                            <div 
+className="flex justify-between text-[9px] text-slate-400 mt-0.5 font-roboto">
                                 <span>2.2g (Keto/Grenade)</span>
                                 <span>10g (Pure)</span>
                                 <span>18g (RXBAR)</span>
@@ -1118,8 +1192,10 @@
                         </div>
 
                         {/* 3. Límite de Alcoholes de Azúcar (Polioles) */}
-                        <div className="bg-lumino-bg/80 p-2.5 rounded-xl border border-slate-200/70">
-                            <div className="flex justify-between text-xs font-bold mb-1">
+                        <div 
+className="bg-lumino-bg/80 p-2.5 rounded-xl border border-slate-200/70">
+                            <div 
+className="flex justify-between text-xs font-bold mb-1">
                                 <span className="text-purple-800 font-montserrat">🧪 Máximo Polioles (Maltitol/Eritritol)</span>
                                 <span className="font-roboto font-black text-purple-800">≤ {filters.maxPolyols} g</span>
                             </div>
@@ -1133,7 +1209,8 @@
                                 className="lumino-slider"
                                 style={{ background: `linear-gradient(90deg, #9333EA ${(filters.maxPolyols/16)*100}%, #E2E8F0 ${(filters.maxPolyols/16)*100}%)` }}
                             />
-                            <div className="flex justify-between text-[9px] text-slate-400 mt-0.5 font-roboto">
+                            <div 
+className="flex justify-between text-[9px] text-slate-400 mt-0.5 font-roboto">
                                 <span>0g (RXBAR)</span>
                                 <span>5-6g (Quest/Barebells)</span>
                                 <span>16g (Grenade)</span>
@@ -1141,9 +1218,12 @@
                         </div>
 
                         {/* 4. Fibra Mínima y Grasa Saturada */}
-                        <div className="grid grid-cols-2 gap-2">
-                            <div className="bg-lumino-bg/80 p-2 rounded-xl border border-slate-200/70">
-                                <div className="flex justify-between text-[11px] font-bold mb-1">
+                        <div 
+className="grid grid-cols-2 gap-2">
+                            <div 
+className="bg-lumino-bg/80 p-2 rounded-xl border border-slate-200/70">
+                                <div 
+className="flex justify-between text-[11px] font-bold mb-1">
                                     <span className="text-emerald-800">🌿 Fibra Mín.</span>
                                     <span className="font-roboto font-black text-emerald-700">≥ {filters.minFiber}g</span>
                                 </div>
@@ -1158,8 +1238,10 @@
                                     style={{ background: '#10B981' }}
                                 />
                             </div>
-                            <div className="bg-lumino-bg/80 p-2 rounded-xl border border-slate-200/70">
-                                <div className="flex justify-between text-[11px] font-bold mb-1">
+                            <div 
+className="bg-lumino-bg/80 p-2 rounded-xl border border-slate-200/70">
+                                <div 
+className="flex justify-between text-[11px] font-bold mb-1">
                                     <span className="text-lumino-burgundy">🥓 Grasa Sat.</span>
                                     <span className="font-roboto font-black text-lumino-burgundy">≤ {filters.maxSatFat}g</span>
                                 </div>
@@ -1177,7 +1259,8 @@
                         </div>
                     </div>
 
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between no-export" onMouseDown={(e) => e.stopPropagation()}>
+                    <div 
+className="pt-2 border-t border-slate-100 flex items-center justify-between no-export" onMouseDown={(e) => e.stopPropagation()}>
                         <button
                             onClick={() => setFilters(prev => ({ ...prev, hideUnmatched: !prev.hideUnmatched }))}
                             className={`text-[10px] font-montserrat font-bold px-2.5 py-1 rounded-lg border transition ${
@@ -1186,7 +1269,7 @@
                                     : 'bg-slate-100 text-slate-600 border-slate-200'
                             }`}
                         >
-                            {filters.hideUnmatched ? 'Modo: Ocultar descartadas' : 'Modo: Atenuar descartadas'}
+                            {filters.hideUnmatched ? '✓ Reacomodo Activo: Solo Filtradas' : 'Modo: Atenuar No Coincidentes'}
                         </button>
                         <button
                             onClick={resetFilters}
@@ -1229,8 +1312,10 @@
             const zoneBottomY = mapY(filters.minProtein);
 
             return (
-                <div className="w-full h-full bg-white rounded-2xl border border-slate-200 shadow-xl p-4 flex flex-col justify-between">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <div 
+className="w-full h-full bg-white rounded-2xl border border-slate-200 shadow-xl p-4 flex flex-col justify-between">
+                    <div 
+className="flex items-center justify-between border-b border-slate-100 pb-2">
                         <div>
                             <h3 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-dark">
                                 Mapa 2D: Proteína vs. Carbos Netos
@@ -1243,6 +1328,7 @@
                     </div>
 
                     <div 
+
                         className="flex-1 flex items-center justify-center relative"
                         onMouseDown={(e) => e.stopPropagation()}
                     >
@@ -1339,15 +1425,18 @@
             const [mode, setMode] = useState('carbs'); // 'carbs' | 'lipids' | 'allergens'
 
             return (
-                <div className="w-full h-full bg-white rounded-2xl border border-slate-200 shadow-xl p-4 flex flex-col justify-between">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <div 
+className="w-full h-full bg-white rounded-2xl border border-slate-200 shadow-xl p-4 flex flex-col justify-between">
+                    <div 
+className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                         <div>
                             <h3 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-dark">
                                 Radiografía Química de Etiqueta
                             </h3>
                             <p className="text-[10px] text-slate-400">Haz clic en una barra para resaltarla en el lienzo</p>
                         </div>
-                        <div className="flex bg-slate-100 p-0.5 rounded-lg no-export" onMouseDown={(e) => e.stopPropagation()}>
+                        <div 
+className="flex bg-slate-100 p-0.5 rounded-lg no-export" onMouseDown={(e) => e.stopPropagation()}>
                             <button
                                 onClick={() => setMode('carbs')}
                                 className={`px-2 py-1 rounded-md text-[9.5px] font-montserrat font-bold transition ${mode === 'carbs' ? 'bg-lumino-teal text-white' : 'text-slate-600'}`}
@@ -1369,10 +1458,13 @@
                         </div>
                     </div>
 
-                    <div className="flex-1 flex flex-col justify-around py-2" onMouseDown={(e) => e.stopPropagation()}>
+                    <div 
+className="flex-1 flex flex-col justify-around py-2" onMouseDown={(e) => e.stopPropagation()}>
                         {mode === 'carbs' && (
-                            <div className="space-y-2.5">
-                                <div className="flex items-center gap-3 text-[9.5px] font-bold justify-center">
+                            <div 
+className="space-y-2.5">
+                                <div 
+className="flex items-center gap-3 text-[9.5px] font-bold justify-center">
                                     <span className="flex items-center gap-1"><i className="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"/> Fibra</span>
                                     <span className="flex items-center gap-1"><i className="w-2.5 h-2.5 rounded-sm bg-purple-500 inline-block"/> Polioles</span>
                                     <span className="flex items-center gap-1"><i className="w-2.5 h-2.5 rounded-sm bg-lumino-pink inline-block"/> Azúcar/Almidón Neto</span>
@@ -1386,20 +1478,26 @@
 
                                     return (
                                         <div 
+
                                             key={b.id}
                                             onClick={() => onSelectHighlightBar(isSelected ? null : b.id)}
                                             className={`p-2 rounded-xl border cursor-pointer transition ${isSelected ? 'bg-pink-50/60 border-lumino-pink' : 'bg-slate-50 border-slate-200/60 hover:bg-slate-100'}`}
                                         >
-                                            <div className="flex justify-between text-[10.5px] font-bold mb-1">
+                                            <div 
+className="flex justify-between text-[10.5px] font-bold mb-1">
                                                 <span className="font-montserrat text-lumino-dark">{b.name}</span>
                                                 <span className="font-roboto text-slate-500">
                                                     Tot: <strong>{b.totalCarbs}g</strong> (Fib: {b.fiber}g | Pol: {b.polyols}g | Net: {b.netCarbs}g)
                                                 </span>
                                             </div>
-                                            <div className="w-full h-3.5 bg-slate-200 rounded-full overflow-hidden flex">
-                                                <div style={{ width: `${fiberW}%` }} className="bg-emerald-500 h-full" title={`Fibra: ${b.fiber}g`} />
-                                                <div style={{ width: `${polyolW}%` }} className="bg-purple-500 h-full" title={`Polioles: ${b.polyols}g`} />
-                                                <div style={{ width: `${netW}%` }} className="bg-lumino-pink h-full" title={`Carbos Netos: ${b.netCarbs}g`} />
+                                            <div 
+className="w-full h-3.5 bg-slate-200 rounded-full overflow-hidden flex">
+                                                <div 
+style={{ width: `${fiberW}%` }} className="bg-emerald-500 h-full" title={`Fibra: ${b.fiber}g`} />
+                                                <div 
+style={{ width: `${polyolW}%` }} className="bg-purple-500 h-full" title={`Polioles: ${b.polyols}g`} />
+                                                <div 
+style={{ width: `${netW}%` }} className="bg-lumino-pink h-full" title={`Carbos Netos: ${b.netCarbs}g`} />
                                             </div>
                                         </div>
                                     );
@@ -1408,14 +1506,19 @@
                         )}
 
                         {mode === 'lipids' && (
-                            <div className="space-y-2">
-                                <div className="text-[9.5px] text-center text-slate-500 font-semibold">
+                            <div 
+className="space-y-2">
+                                <div 
+className="text-[9.5px] text-center text-slate-500 font-semibold">
                                     Comparativa de Grasa Saturada, Grasa Trans, Colesterol y Sodio
                                 </div>
                                 {bars.map(b => (
-                                    <div key={b.id} className="p-2 rounded-xl bg-slate-50 border border-slate-200/70 flex items-center justify-between text-[10px]">
-                                        <div className="font-montserrat font-bold text-lumino-dark w-28 truncate">{b.name}</div>
-                                        <div className="flex gap-2 font-roboto">
+                                    <div 
+key={b.id} className="p-2 rounded-xl bg-slate-50 border border-slate-200/70 flex items-center justify-between text-[10px]">
+                                        <div 
+className="font-montserrat font-bold text-lumino-dark w-28 truncate">{b.name}</div>
+                                        <div 
+className="flex gap-2 font-roboto">
                                             <span className="px-2 py-0.5 rounded bg-rose-100 text-lumino-burgundy font-bold">
                                                 Sat: {b.satFat}g
                                             </span>
@@ -1432,7 +1535,8 @@
                         )}
 
                         {mode === 'allergens' && (
-                            <div className="overflow-x-auto">
+                            <div 
+className="overflow-x-auto">
                                 <table className="w-full text-[9.5px] text-center border-collapse">
                                     <thead>
                                         <tr className="border-b border-slate-200 text-slate-500 font-montserrat">
@@ -1521,8 +1625,10 @@
             };
 
             return (
-                <div className="w-full h-full bg-white rounded-2xl border border-slate-200 shadow-xl p-4 flex flex-col justify-between">
-                    <div className="border-b border-slate-100 pb-2 flex justify-between items-center">
+                <div 
+className="w-full h-full bg-white rounded-2xl border border-slate-200 shadow-xl p-4 flex flex-col justify-between">
+                    <div 
+className="border-b border-slate-100 pb-2 flex justify-between items-center">
                         <div>
                             <h3 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-dark">
                                 Radar Nutricional 360°
@@ -1530,7 +1636,8 @@
                             <p className="text-[10px] text-slate-400">Comparativa de densidad nutricional</p>
                         </div>
                     </div>
-                    <div className="flex-1 flex items-center justify-center">
+                    <div 
+className="flex-1 flex items-center justify-center">
                         <svg viewBox="0 0 220 220" className="w-48 h-48">
                             {[0.33, 0.66, 1].map((lvl, idx) => (
                                 <polygon
@@ -1565,7 +1672,8 @@
                             ))}
                         </svg>
                     </div>
-                    <div className="flex justify-center gap-3 text-[9px] font-bold">
+                    <div 
+className="flex justify-center gap-3 text-[9px] font-bold">
                         <span className="text-lumino-teal">● Quest</span>
                         <span className="text-lumino-pink">● Barebells</span>
                         <span className="text-amber-600">● RXBAR</span>
@@ -1604,6 +1712,7 @@
             // Filtro por Ingrediente / Sticker Lindo seleccionado
             const [activeStickerTag, setActiveStickerTag] = useState(null);
             const [highlightedBarId, setHighlightedBarId] = useState(null);
+            const [selectedBarId, setSelectedBarId] = useState(null);
 
             // Referencias para Drag & Resize en el Canvas
             const canvasRef = useRef(null);
@@ -1620,6 +1729,7 @@
                 });
                 setActiveStickerTag(null);
                 setHighlightedBarId(null);
+                setSelectedBarId(null);
             };
 
             // Evaluación de qué barras cumplen los filtros gráficos vivos
@@ -1636,6 +1746,64 @@
             const matchingBarsCount = useMemo(() => {
                 return PROTEIN_BARS_DATA.filter(checkBarMatches).length;
             }, [checkBarMatches]);
+
+            const currentSelectedBar = useMemo(() => {
+                return PROTEIN_BARS_DATA.find(b => b.id === (selectedBarId || highlightedBarId)) || null;
+            }, [selectedBarId, highlightedBarId]);
+
+            const selectedBarTags = useMemo(() => {
+                return currentSelectedBar ? currentSelectedBar.tags : [];
+            }, [currentSelectedBar]);
+
+            const applicableTags = useMemo(() => {
+                const matched = PROTEIN_BARS_DATA.filter(checkBarMatches);
+                return new Set(matched.flatMap(b => b.tags));
+            }, [checkBarMatches]);
+
+            const autoLayoutMap = useMemo(() => {
+                if (!filters.hideUnmatched) return null;
+                const map = {};
+                let bIdx = 0;
+                PROTEIN_BARS_DATA.forEach(bar => {
+                    if (checkBarMatches(bar)) {
+                        const col = bIdx % 3;
+                        const row = Math.floor(bIdx / 3);
+                        map[`bar_${bar.id}`] = {
+                            x: 455 + col * 330,
+                            y: 132 + row * 385,
+                            hidden: false
+                        };
+                        bIdx++;
+                    } else {
+                        map[`bar_${bar.id}`] = { hidden: true };
+                    }
+                });
+
+                const lipidCol = bIdx % 3;
+                const lipidRow = Math.floor(bIdx / 3);
+                map['widget_lipids_polyols'] = {
+                    x: 455 + lipidCol * 330,
+                    y: 132 + lipidRow * 385
+                };
+
+                let stIdx = 0;
+                items.filter(it => it.type === 'cute_sticker').forEach(it => {
+                    const st = CUTE_STICKERS_LIBRARY.find(s => s.id === it.stickerId);
+                    const isApplicable = st && (applicableTags.has(st.tag) || (currentSelectedBar && currentSelectedBar.tags.includes(st.tag)));
+                    if (isApplicable) {
+                        map[it.uid] = {
+                            x: 755 + stIdx * 128,
+                            y: 24,
+                            hidden: false
+                        };
+                        stIdx++;
+                    } else {
+                        map[it.uid] = { hidden: true };
+                    }
+                });
+
+                return map;
+            }, [filters.hideUnmatched, checkBarMatches, items, applicableTags, currentSelectedBar]);
 
             // Iniciar Arrastre o Redimensionamiento de un elemento del lienzo
             const startInteraction = (e, uid, mode = 'move') => {
@@ -1953,16 +2121,21 @@
             };
 
             return (
-                <div className={`w-screen h-screen flex flex-col select-none ${isExporting ? 'exporting-mode' : ''}`}>
+                <div 
+className={`w-screen h-screen flex flex-col select-none ${isExporting ? 'exporting-mode' : ''}`}>
                     {/* ==================================================================== */}
                     {/* BARRA SUPERIOR DE ESTUDIO (LUMINOBITE STUDIO HEADER)                 */}
                     {/* ==================================================================== */}
                     <header className="h-16 bg-lumino-dark text-white px-5 flex items-center justify-between border-b border-slate-800 shrink-0 z-50">
                         {/* Identidad de Marca */}
-                        <div className="flex items-center gap-4">
-                            <div className="font-montserrat font-black text-xl tracking-tighter flex items-center gap-2.5">
-                                <div className="w-7 h-7 bg-lumino-pink rounded-full relative overflow-hidden flex items-center justify-center shadow-md">
-                                    <div className="w-3 h-3 bg-white rounded-full" />
+                        <div 
+className="flex items-center gap-4">
+                            <div 
+className="font-montserrat font-black text-xl tracking-tighter flex items-center gap-2.5">
+                                <div 
+className="w-7 h-7 bg-lumino-pink rounded-full relative overflow-hidden flex items-center justify-center shadow-md">
+                                    <div 
+className="w-3 h-3 bg-white rounded-full" />
                                 </div>
                                 <span>LUMINOBITE</span>
                                 <span className="text-lumino-teal font-extrabold">CANVAS</span>
@@ -1973,7 +2146,8 @@
 
                             {/* Selector Rápido de Plantillas de Lienzo */}
                             {!presentationMode && (
-                                <div className="hidden lg:flex items-center gap-1.5 ml-4 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+                                <div 
+className="hidden lg:flex items-center gap-1.5 ml-4 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
                                     <button
                                         onClick={() => applyLayoutPreset('default')}
                                         className="px-3 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-slate-300 hover:bg-lumino-teal hover:text-white transition"
@@ -1991,9 +2165,36 @@
                         </div>
 
                         {/* Controles Centrales del Lienzo (Zoom, Cuadrícula, Filtro Activo) */}
-                        <div className="flex items-center gap-2">
+                        <div 
+className="flex items-center gap-2">
+                            {currentSelectedBar && (
+                                <div className="flex items-center gap-2 bg-lumino-teal/20 border border-lumino-teal px-3 py-1 rounded-full">
+                                    <span className="text-xs font-montserrat font-bold text-teal-300">
+                                        🔍 Barra Seleccionada: <strong className="text-white uppercase">{currentSelectedBar.name}</strong>
+                                    </span>
+                                    <button 
+                                        onClick={() => { setSelectedBarId(null); setHighlightedBarId(null); }}
+                                        className="text-xs bg-lumino-teal text-white rounded-full w-4 h-4 flex items-center justify-center font-bold hover:bg-teal-700"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            )}
+                            <button
+                                onClick={() => setFilters(prev => ({ ...prev, hideUnmatched: !prev.hideUnmatched }))}
+                                className={`px-3 py-1.5 rounded-xl font-montserrat font-bold text-xs uppercase tracking-wider border transition flex items-center gap-1.5 ${
+                                    filters.hideUnmatched
+                                        ? 'bg-lumino-teal text-white border-teal-400 shadow-md'
+                                        : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                                }`}
+                                title="Reacomoda automáticamente el lienzo para mostrar solo barras e iconos aplicables según los filtros"
+                            >
+                                <span className={`w-2 h-2 rounded-full ${filters.hideUnmatched ? 'bg-white' : 'bg-slate-500'}`} />
+                                <span>{filters.hideUnmatched ? 'Reacomodo Auto (ON)' : 'Solo Filtradas (Reacomodar)'}</span>
+                            </button>
                             {activeStickerTag && (
-                                <div className="flex items-center gap-2 bg-lumino-pink/20 border border-lumino-pink px-3 py-1 rounded-full">
+                                <div 
+className="flex items-center gap-2 bg-lumino-pink/20 border border-lumino-pink px-3 py-1 rounded-full">
                                     <span className="text-xs font-montserrat font-bold text-pink-300">
                                         ✨ Resaltando Ingrediente: <strong className="text-white uppercase">{activeStickerTag}</strong>
                                     </span>
@@ -2006,7 +2207,8 @@
                                 </div>
                             )}
 
-                            <div className="hidden md:flex items-center bg-slate-900 rounded-xl p-1 border border-slate-800 text-xs">
+                            <div 
+className="hidden md:flex items-center bg-slate-900 rounded-xl p-1 border border-slate-800 text-xs">
                                 <button
                                     onClick={() => setZoom(z => Math.max(0.55, +(z - 0.08).toFixed(2)))}
                                     className="px-2.5 py-1 hover:bg-slate-800 rounded-lg font-bold"
@@ -2033,7 +2235,8 @@
                         </div>
 
                         {/* Acciones de Exportación y Modo Presentación */}
-                        <div className="flex items-center gap-2.5">
+                        <div 
+className="flex items-center gap-2.5">
                             <button
                                 onClick={() => setPresentationMode(!presentationMode)}
                                 className={`px-3.5 py-2 rounded-xl font-montserrat font-bold text-xs uppercase tracking-wider border transition ${
@@ -2065,7 +2268,8 @@
 
                     {/* Notificación Flotante de Exportación */}
                     {exportNotice && (
-                        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[9999] bg-lumino-dark text-white px-5 py-2.5 rounded-full shadow-2xl border border-lumino-pink font-montserrat font-bold text-xs flex items-center gap-2">
+                        <div 
+className="fixed top-20 left-1/2 -translate-x-1/2 z-[9999] bg-lumino-dark text-white px-5 py-2.5 rounded-full shadow-2xl border border-lumino-pink font-montserrat font-bold text-xs flex items-center gap-2">
                             <span className="w-2.5 h-2.5 rounded-full bg-lumino-pink animate-ping" />
                             <span>{exportNotice}</span>
                         </div>
@@ -2074,13 +2278,15 @@
                     {/* ==================================================================== */}
                     {/* CUERPO PRINCIPAL: BARRA LATERAL CANVA + LIENZO INTERACTIVO LIBRE     */}
                     {/* ==================================================================== */}
-                    <div className="flex-1 flex overflow-hidden relative">
+                    <div 
+className="flex-1 flex overflow-hidden relative">
                         
                         {/* BARRA LATERAL IZQUIERDA (ESTILO CANVA) */}
                         {!presentationMode && (
                             <aside className="w-80 bg-white border-r border-slate-200 flex flex-col shrink-0 z-40 shadow-xl">
                                 {/* Pestañas de Categorías */}
-                                <div className="grid grid-cols-4 border-b border-slate-200 bg-slate-50 p-1.5 gap-1">
+                                <div 
+className="grid grid-cols-4 border-b border-slate-200 bg-slate-50 p-1.5 gap-1">
                                     <button
                                         onClick={() => setActiveSidebarTab('stickers')}
                                         className={`py-2 rounded-xl flex flex-col items-center gap-1 text-[10px] font-montserrat font-extrabold transition ${
@@ -2120,23 +2326,27 @@
                                 </div>
 
                                 {/* Contenido de la Pestaña Activa */}
-                                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                                <div 
+className="flex-1 overflow-y-auto p-4 space-y-4">
                                     
                                     {/* PESTAÑA 1: ICONOS LINDOS DE INGREDIENTES (DRAGGABLE & FILTERABLE) */}
                                     {activeSidebarTab === 'stickers' && (
                                         <div>
-                                            <div className="mb-3">
+                                            <div 
+className="mb-3">
                                                 <h4 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-teal">
-                                                    Stickers Lindos de Ingredientes
+                                                    Biomarcadores & Alérgenos Oficiales
                                                 </h4>
                                                 <p className="text-[11px] text-slate-500 leading-snug mt-0.5">
                                                     Arrástralos o haz clic para colocarlos en tu lienzo. ¡Al tocarlos en el lienzo iluminan todas las barras con ese ingrediente!
                                                 </p>
                                             </div>
 
-                                            <div className="grid grid-cols-2 gap-2.5">
+                                            <div 
+className="grid grid-cols-2 gap-2.5">
                                                 {CUTE_STICKERS_LIBRARY.map(st => {
                                                     const isTagActive = activeStickerTag === st.tag;
+                                                    const isPresentInSelectedBar = selectedBarTags.includes(st.tag);
                                                     return (
                                                         <div
                                                             key={st.id}
@@ -2144,16 +2354,19 @@
                                                             onDragStart={(e) => handleSidebarDragStart(e, { kind: 'sticker', stickerId: st.id })}
                                                             onClick={() => spawnSticker(st)}
                                                             className={`p-2.5 rounded-2xl border-2 cursor-grab active:cursor-grabbing transition-all hover:scale-[1.03] flex flex-col items-center text-center shadow-sm ${
-                                                                isTagActive ? 'border-lumino-pink bg-pink-50/40' : 'border-slate-200/80 bg-lumino-bg/50 hover:border-lumino-teal'
+                                                                isPresentInSelectedBar ? 'border-lumino-teal bg-teal-50 ring-2 ring-lumino-teal shadow-md' : isTagActive ? 'border-lumino-pink bg-pink-50/40' : 'border-slate-200/80 bg-lumino-bg/50 hover:border-lumino-teal'
                                                             }`}
                                                         >
-                                                            <div className="w-14 h-14 mb-1">
+                                                            <div 
+className="w-14 h-14 mb-1">
                                                                 {st.renderSvg()}
                                                             </div>
-                                                            <div className="font-montserrat font-extrabold text-[11px] text-lumino-dark leading-tight">
+                                                            <div 
+className="font-montserrat font-extrabold text-[11px] text-lumino-dark leading-tight">
                                                                 {st.label}
                                                             </div>
-                                                            <div className="text-[9.5px] text-slate-500 font-semibold">
+                                                            <div 
+className="text-[9.5px] text-slate-500 font-semibold">
                                                                 {st.sub}
                                                             </div>
                                                             <span className="mt-1 text-[8.5px] font-montserrat font-bold uppercase px-2 py-0.5 rounded-full bg-white border border-slate-200 text-lumino-teal">
@@ -2168,7 +2381,8 @@
 
                                     {/* PESTAÑA 2: TARJETAS DE LAS 5 BARRAS DE PROTEÍNA */}
                                     {activeSidebarTab === 'bars' && (
-                                        <div className="space-y-3">
+                                        <div 
+className="space-y-3">
                                             <div>
                                                 <h4 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-teal">
                                                     Tarjetas de Producto (5 Famosas)
@@ -2185,14 +2399,17 @@
                                                     onClick={() => spawnBarCard(bar.id)}
                                                     className="p-3 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-teal cursor-pointer transition shadow-sm space-y-2"
                                                 >
-                                                    <div className="flex justify-between items-center">
+                                                    <div 
+className="flex justify-between items-center">
                                                         <span className="font-montserrat font-black text-xs text-lumino-dark">{bar.name}</span>
                                                         <span className="text-[10px] font-roboto font-bold px-2 py-0.5 rounded bg-white border">{bar.servingGrams}g | {bar.calories} kcal</span>
                                                     </div>
-                                                    <div className="h-16 pointer-events-none">
+                                                    <div 
+className="h-16 pointer-events-none">
                                                         <BarWrapperIllustration barId={bar.id} customImage={customBarImages[bar.id]} />
                                                     </div>
-                                                    <div className="flex justify-between text-[10px] text-slate-600 font-roboto pt-1">
+                                                    <div 
+className="flex justify-between text-[10px] text-slate-600 font-roboto pt-1">
                                                         <span>Prot: <strong>{bar.protein}g</strong></span>
                                                         <span>NetCarb: <strong>{bar.netCarbs}g</strong></span>
                                                         <span>Polioles: <strong>{bar.polyols}g</strong></span>
@@ -2204,7 +2421,8 @@
 
                                     {/* PESTAÑA 3: GRÁFICAS-FILTRO VIVAS */}
                                     {activeSidebarTab === 'charts' && (
-                                        <div className="space-y-3">
+                                        <div 
+className="space-y-3">
                                             <div>
                                                 <h4 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-teal">
                                                     Gráficas-Filtro Interactivas
@@ -2218,7 +2436,8 @@
                                                 onClick={() => spawnWidget('macro_sculptor', 390, 410)}
                                                 className="p-3.5 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-pink cursor-pointer transition space-y-1"
                                             >
-                                                <div className="font-montserrat font-black text-xs text-lumino-dark">🎛️ Escultor de Macros y Polioles</div>
+                                                <div 
+className="font-montserrat font-black text-xs text-lumino-dark">🎛️ Escultor de Macros y Polioles</div>
                                                 <p className="text-[10.5px] text-slate-500">Sliders táctiles de Proteína, Carbos Netos, Fibra, Grasa Saturada y Alcoholes de Azúcar.</p>
                                             </div>
 
@@ -2226,7 +2445,8 @@
                                                 onClick={() => spawnWidget('scatter_matrix', 390, 350)}
                                                 className="p-3.5 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-teal cursor-pointer transition space-y-1"
                                             >
-                                                <div className="font-montserrat font-black text-xs text-lumino-dark">🎯 Matriz 2D con Zona Meta</div>
+                                                <div 
+className="font-montserrat font-black text-xs text-lumino-dark">🎯 Matriz 2D con Zona Meta</div>
                                                 <p className="text-[10.5px] text-slate-500">Gráfica de burbujas donde arrastras el cuadrante objetivo para filtrar las barras.</p>
                                             </div>
 
@@ -2234,7 +2454,8 @@
                                                 onClick={() => spawnWidget('lipid_polyol_chart', 380, 390)}
                                                 className="p-3.5 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-burgundy cursor-pointer transition space-y-1"
                                             >
-                                                <div className="font-montserrat font-black text-xs text-lumino-dark">🔬 Radiografía Química y Trazas</div>
+                                                <div 
+className="font-montserrat font-black text-xs text-lumino-dark">🔬 Radiografía Química y Trazas</div>
                                                 <p className="text-[10.5px] text-slate-500">Compara Fibra vs. Polioles, Grasas Saturadas/Trans y matriz de alérgenos en planta.</p>
                                             </div>
 
@@ -2242,7 +2463,8 @@
                                                 onClick={() => spawnWidget('radar_chart', 340, 340)}
                                                 className="p-3.5 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-olive cursor-pointer transition space-y-1"
                                             >
-                                                <div className="font-montserrat font-black text-xs text-lumino-dark">🕸️ Radar Nutricional 360°</div>
+                                                <div 
+className="font-montserrat font-black text-xs text-lumino-dark">🕸️ Radar Nutricional 360°</div>
                                                 <p className="text-[10.5px] text-slate-500">Polígono multivariable con Proteína, Fibra, Potasio, Calcio y Eficiencia Keto.</p>
                                             </div>
                                         </div>
@@ -2250,7 +2472,8 @@
 
                                     {/* PESTAÑA 4: SELLOS, ALERTAS Y TEXTOS EDITABLES */}
                                     {activeSidebarTab === 'annotations' && (
-                                        <div className="space-y-3">
+                                        <div 
+className="space-y-3">
                                             <div>
                                                 <h4 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-teal">
                                                     Sellos Científicos y Notas
@@ -2287,7 +2510,8 @@
                                                     onClick={() => spawnCallout(preset)}
                                                     className="p-3 rounded-2xl bg-lumino-bg border border-slate-200 hover:border-lumino-pink cursor-pointer transition"
                                                 >
-                                                    <div className="font-montserrat font-extrabold text-[11px]" style={{ color: preset.color }}>
+                                                    <div 
+className="font-montserrat font-extrabold text-[11px]" style={{ color: preset.color }}>
                                                         {preset.title}
                                                     </div>
                                                     <p className="text-[10px] text-slate-600 mt-1">{preset.text}</p>
@@ -2298,11 +2522,14 @@
                                 </div>
 
                                 {/* Barra Inferior del Inspector (Acciones sobre el elemento seleccionado) */}
-                                <div className="p-3 bg-slate-100 border-t border-slate-200 flex items-center justify-between">
-                                    <div className="text-[10px] font-montserrat font-bold text-slate-500 truncate">
+                                <div 
+className="p-3 bg-slate-100 border-t border-slate-200 flex items-center justify-between">
+                                    <div 
+className="text-[10px] font-montserrat font-bold text-slate-500 truncate">
                                         {selectedUid ? `Seleccionado: ${selectedUid.split('_')[0].toUpperCase()}` : 'Ningún elemento seleccionado'}
                                     </div>
-                                    <div className="flex items-center gap-1.5">
+                                    <div 
+className="flex items-center gap-1.5">
                                         <button
                                             onClick={duplicateSelectedItem}
                                             disabled={!selectedUid}
@@ -2343,8 +2570,10 @@
                                 }}
                             >
                                 {/* Marca de Agua Institucional en el Lienzo */}
-                                <div className="absolute bottom-4 right-6 pointer-events-none flex items-center gap-2 opacity-50">
-                                    <div className="w-4 h-4 rounded-full bg-lumino-dark" />
+                                <div 
+className="absolute bottom-4 right-6 pointer-events-none flex items-center gap-2 opacity-50">
+                                    <div 
+className="w-4 h-4 rounded-full bg-lumino-dark" />
                                     <span className="font-montserrat font-black text-xs tracking-widest text-lumino-dark">
                                         LUMINOBITE STUDIO • DYNAMIC NUTRITION CANVAS
                                     </span>
@@ -2355,7 +2584,24 @@
                                     const isSelected = selectedUid === item.uid && !presentationMode;
 
                                     // Si es una tarjeta de barra y el usuario activó "Ocultar descartadas"
-                                    if (item.type === 'bar_card') {
+                                    let posX = item.x;
+                                    let posY = item.y;
+                                    if (autoLayoutMap) {
+                                        if (item.type === 'bar_card') {
+                                            const lInfo = autoLayoutMap[`bar_${item.barId}`];
+                                            if (!lInfo || lInfo.hidden) return null;
+                                            posX = lInfo.x;
+                                            posY = lInfo.y;
+                                        } else if (item.type === 'lipid_polyol_chart' && autoLayoutMap['widget_lipids_polyols']) {
+                                            posX = autoLayoutMap['widget_lipids_polyols'].x;
+                                            posY = autoLayoutMap['widget_lipids_polyols'].y;
+                                        } else if (item.type === 'cute_sticker') {
+                                            const sInfo = autoLayoutMap[item.uid];
+                                            if (!sInfo || sInfo.hidden) return null;
+                                            posX = sInfo.x;
+                                            posY = sInfo.y;
+                                        }
+                                    } else if (item.type === 'bar_card') {
                                         const barObj = PROTEIN_BARS_DATA.find(b => b.id === item.barId);
                                         if (barObj && filters.hideUnmatched && !checkBarMatches(barObj)) {
                                             return null;
@@ -2368,8 +2614,9 @@
                                             onMouseDown={(e) => startInteraction(e, item.uid, 'move')}
                                             style={{
                                                 position: 'absolute',
-                                                left: `${item.x}px`,
-                                                top: `${item.y}px`,
+                                                left: `${posX}px`,
+                                                top: `${posY}px`,
+                                                transition: filters.hideUnmatched ? 'left 0.35s ease, top 0.35s ease' : 'none',
                                                 width: `${item.w}px`,
                                                 height: `${item.h}px`,
                                                 zIndex: item.z || 1
@@ -2381,6 +2628,7 @@
                                             {/* Barra Flotante de Controles cuando está seleccionado */}
                                             {isSelected && (
                                                 <div 
+
                                                     className="no-export absolute -top-8 left-0 bg-lumino-dark text-white px-2.5 py-1 rounded-lg shadow-lg flex items-center gap-2 text-[10px] font-montserrat font-bold z-50"
                                                     onMouseDown={(e) => e.stopPropagation()}
                                                 >
@@ -2392,8 +2640,10 @@
 
                                             {/* 1. BANNER DE TÍTULO EDITABLE */}
                                             {item.type === 'title_banner' && (
-                                                <div className="w-full h-full bg-lumino-dark text-white rounded-2xl px-6 py-3.5 shadow-xl border-l-8 border-lumino-pink flex flex-col justify-center">
+                                                <div 
+className="w-full h-full bg-lumino-dark text-white rounded-2xl px-6 py-3.5 shadow-xl border-l-8 border-lumino-pink flex flex-col justify-center">
                                                     <div 
+
                                                         contentEditable
                                                         suppressContentEditableWarning
                                                         onMouseDown={(e) => e.stopPropagation()}
@@ -2402,6 +2652,7 @@
                                                         {item.title}
                                                     </div>
                                                     <div 
+
                                                         contentEditable
                                                         suppressContentEditableWarning
                                                         onMouseDown={(e) => e.stopPropagation()}
@@ -2416,13 +2667,19 @@
                                             {item.type === 'bar_card' && (() => {
                                                 const bar = PROTEIN_BARS_DATA.find(b => b.id === item.barId) || PROTEIN_BARS_DATA[0];
                                                 const matched = checkBarMatches(bar);
-                                                const pulsed = (activeStickerTag && bar.tags.includes(activeStickerTag)) || highlightedBarId === bar.id;
+                                                const pulsed = (activeStickerTag && bar.tags.includes(activeStickerTag));
+                                                const isSelectedBar = selectedBarId === bar.id || highlightedBarId === bar.id;
                                                 return (
                                                     <BarProductCard
                                                         bar={bar}
                                                         isMatchedByFilter={matched}
                                                         isPulsedBySticker={pulsed}
                                                         activeStickerTag={activeStickerTag}
+                                                        isSelectedBar={isSelectedBar}
+                                                        onSelectBar={(bId) => {
+                                                            setSelectedBarId(prev => prev === bId ? null : bId);
+                                                            setHighlightedBarId(prev => prev === bId ? null : bId);
+                                                        }}
                                                         customImage={customBarImages[bar.id]}
                                                         onUploadImage={(bId, imgData) => setCustomBarImages(prev => ({ ...prev, [bId]: imgData }))}
                                                     />
@@ -2468,26 +2725,30 @@
                                             {item.type === 'cute_sticker' && (() => {
                                                 const st = CUTE_STICKERS_LIBRARY.find(s => s.id === item.stickerId) || CUTE_STICKERS_LIBRARY[0];
                                                 const isFilteringThis = activeStickerTag === st.tag;
+                                                const isPresentInSelectedBar = selectedBarTags.includes(st.tag);
                                                 return (
                                                     <div
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             setActiveStickerTag(prev => prev === st.tag ? null : st.tag);
                                                         }}
-                                                        style={{ backgroundColor: st.bg, borderColor: isFilteringThis ? '#F73282' : st.border }}
-                                                        className={`w-full h-full rounded-2xl border-2 p-2 shadow-md flex flex-col items-center justify-center text-center transition-transform hover:scale-105 ${
+                                                        style={{ backgroundColor: isPresentInSelectedBar ? '#F0FDFA' : st.bg, borderColor: isPresentInSelectedBar ? '#146779' : isFilteringThis ? '#F73282' : st.border }}
+                                                        className={`w-full h-full rounded-2xl border-2 p-2 shadow-sm flex flex-col items-center justify-center text-center transition-all duration-300 hover:scale-105 ${isPresentInSelectedBar ? 'ring-4 ring-lumino-teal/40 shadow-lg scale-105' : ''} ${
                                                             isFilteringThis ? 'ring-4 ring-lumino-pink/40' : ''
                                                         }`}
                                                         title="Haz clic para resaltar las barras que contienen este ingrediente"
                                                     >
-                                                        <div className="w-12 h-12 shrink-0">
+                                                        <div 
+className="w-12 h-12 shrink-0">
                                                             {st.renderSvg()}
                                                         </div>
-                                                        <div className="font-montserrat font-black text-[10px] text-lumino-dark leading-tight mt-1">
+                                                        <div 
+className="font-montserrat font-black text-[10px] text-lumino-dark leading-tight mt-1">
                                                             {st.label}
                                                         </div>
-                                                        <div className="text-[8.5px] font-bold text-lumino-teal uppercase">
-                                                            {isFilteringThis ? '● FILTRO ACTIVO' : st.sub}
+                                                        <div 
+className="text-[8.5px] font-bold text-lumino-teal uppercase">
+                                                            {isPresentInSelectedBar ? `✓ EN ${currentSelectedBar?.name?.split(' ')[0]}` : isFilteringThis ? '● FILTRO ACTIVO' : st.sub}
                                                         </div>
                                                     </div>
                                                 );
@@ -2496,6 +2757,7 @@
                                             {/* 8. SELLO / NOTA CIENTÍFICA EDITABLE */}
                                             {item.type === 'callout_badge' && (
                                                 <div 
+
                                                     className="w-full h-full rounded-2xl p-3.5 text-white shadow-lg flex flex-col justify-center"
                                                     style={{ backgroundColor: item.badgeColor || '#780030' }}
                                                 >
