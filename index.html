@@ -43,6 +43,12 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
+    <!-- SheetJS & PapaParse for Universal Excel/CSV Zero-Template Ingestion -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- LuminoBite Intelligent Dataset Engine -->
+    <script src="dataset-engine.js"></script>
+
     <style>
         * {
             box-sizing: border-box;
@@ -3324,7 +3330,7 @@ className="flex justify-center gap-3 text-[9px] font-bold">
             const [gridSize, setGridSize] = useState(24); // Tamaño personalizable de cuadrícula (16, 20, 24, 32, 48)
             const [focusedBarId, setFocusedBarId] = useState(null); // Capa de dashboard específico para una barra
             const [selectedUid, setSelectedUid] = useState(null);
-            const [activeSidebarTab, setActiveSidebarTab] = useState('stickers'); // 'stickers' | 'bars' | 'charts' | 'annotations'
+            const [activeSidebarTab, setActiveSidebarTab] = useState('bars'); // 'bars' | 'stickers' | 'charts' | 'annotations'
             const [gridStyle, setGridStyle] = useState('dots'); // 'dots' | 'lines' | 'clean'
             const [snapToGrid, setSnapToGrid] = useState(true);
             const [zoom, setZoom] = useState(0.92);
@@ -3334,6 +3340,22 @@ className="flex justify-center gap-3 text-[9px] font-bold">
 
             // Imágenes personalizadas subidas por el usuario para cualquier barra
             const [customBarImages, setCustomBarImages] = useState({});
+
+            // SaaS & Dataset Engine State (Suscripción, Subida Libre de Datos y Fórmulas)
+            const [userTier, setUserTier] = useState('pro'); // 'trial' | 'pro' | 'enterprise'
+            const [subscriptionCycle, setSubscriptionCycle] = useState('annual'); // 'monthly' | 'annual'
+            const [showPricingModal, setShowPricingModal] = useState(false);
+            const [showUploadModal, setShowUploadModal] = useState(false);
+            const [customBars, setCustomBars] = useState([]);
+            const [datasetInfo, setDatasetInfo] = useState(null);
+            const [uploadError, setUploadError] = useState(null);
+            const [isProcessingFile, setIsProcessingFile] = useState(false);
+            const datasetFileInputRef = useRef(null);
+
+            // Conjunto Unificado de Fórmulas y Productos (Benchmark Oficial + Fórmulas Subidas por el Usuario)
+            const activeBarsData = useMemo(() => {
+                return customBars.length > 0 ? customBars : PROTEIN_BARS_DATA;
+            }, [customBars]);
 
             // Estado de los Filtros Gráficos Vivos
             const [filters, setFilters] = useState({
@@ -3396,11 +3418,11 @@ className="flex justify-center gap-3 text-[9px] font-bold">
             }, [filters]);
 
             const matchingBarsCount = useMemo(() => {
-                return PROTEIN_BARS_DATA.filter(checkBarMatches).length;
+                return activeBarsData.filter(checkBarMatches).length;
             }, [checkBarMatches]);
 
             const currentSelectedBar = useMemo(() => {
-                return PROTEIN_BARS_DATA.find(b => b.id === (selectedBarId || highlightedBarId)) || null;
+                return activeBarsData.find(b => b.id === (selectedBarId || highlightedBarId)) || null;
             }, [selectedBarId, highlightedBarId]);
 
             const selectedBarTags = useMemo(() => {
@@ -3408,7 +3430,7 @@ className="flex justify-center gap-3 text-[9px] font-bold">
             }, [currentSelectedBar]);
 
             const applicableTags = useMemo(() => {
-                const matched = PROTEIN_BARS_DATA.filter(checkBarMatches);
+                const matched = activeBarsData.filter(checkBarMatches);
                 return new Set(matched.flatMap(b => b.tags));
             }, [checkBarMatches]);
 
@@ -3416,7 +3438,7 @@ className="flex justify-center gap-3 text-[9px] font-bold">
                 if (!filters.hideUnmatched) return null;
                 const map = {};
                 let bIdx = 0;
-                PROTEIN_BARS_DATA.forEach(bar => {
+                activeBarsData.forEach(bar => {
                     if (checkBarMatches(bar)) {
                         const col = bIdx % 3;
                         const row = Math.floor(bIdx / 3);
@@ -3660,7 +3682,7 @@ className="flex justify-center gap-3 text-[9px] font-bold">
                             h: 104,
                             z: 15
                         })),
-                        ...PROTEIN_BARS_DATA.map((b, idx) => ({
+                        ...activeBarsData.map((b, idx) => ({
                             uid: `card_preset_${b.id}`,
                             type: 'bar_card',
                             barId: b.id,
@@ -3693,6 +3715,98 @@ className="flex justify-center gap-3 text-[9px] font-bold">
             };
 
             // Exportar Visualización a Imagen PNG de Alta Resolución
+                        // ========================================================================
+            // MOTOR DE INGESTIÓN LIBRE DE DATOS (EXCEL / CSV) & NORMALIZACIÓN BI
+            // ========================================================================
+            const handleFileUpload = (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setIsProcessingFile(true);
+                setUploadError(null);
+
+                const fileName = file.name;
+                const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+
+                const processParsedRows = (rows) => {
+                    try {
+                        if (!rows || rows.length === 0) {
+                            throw new Error('El archivo no contiene filas o datos tabulares legibles.');
+                        }
+                        if (!window.LuminoDatasetEngine) {
+                            throw new Error('Motor de inferencia heurística no disponible.');
+                        }
+                        const normalized = window.LuminoDatasetEngine.normalizeRows(rows);
+                        if (normalized.length === 0) {
+                            throw new Error('No se pudieron inferir métricas o productos del archivo.');
+                        }
+                        setCustomBars(normalized);
+                        setDatasetInfo({
+                            fileName,
+                            totalRows: rows.length,
+                            importedCount: normalized.length,
+                            importedAt: new Date().toLocaleTimeString(),
+                            headers: Object.keys(rows[0] || {})
+                        });
+
+                        // Genera automáticamente un Lienzo con distribución y modelos adaptados
+                        const autoCanvasItems = window.LuminoDatasetEngine.generateDatasetCanvas(
+                            normalized,
+                            `AUDITORÍA BI: ${fileName.replace(/\.[^/.]+$/, '').toUpperCase()}`
+                        );
+                        setItems(autoCanvasItems);
+                        resetFilters();
+                        setIsProcessingFile(false);
+                        setShowUploadModal(false);
+                        setExportNotice(`¡Dataset procesado con éxito! Se generó una visualización personalizada para ${normalized.length} fórmulas.`);
+                        setTimeout(() => setExportNotice(null), 4000);
+                    } catch (err) {
+                        setIsProcessingFile(false);
+                        setUploadError(err.message || 'Error procesando el archivo de datos.');
+                    }
+                };
+
+                if (isExcel) {
+                    const reader = new FileReader();
+                    reader.onload = (evt) => {
+                        try {
+                            const data = new Uint8Array(evt.target.result);
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            const firstSheetName = workbook.SheetNames[0];
+                            const worksheet = workbook.Sheets[firstSheetName];
+                            const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+                            processParsedRows(jsonRows);
+                        } catch (err) {
+                            setIsProcessingFile(false);
+                            setUploadError('Error al leer el archivo Excel: ' + err.message);
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    // CSV parse con PapaParse (auto-detecta delimitador comas, puntos y coma, tabs)
+                    Papa.parse(file, {
+                        header: true,
+                        skipEmptyLines: true,
+                        dynamicTyping: true,
+                        complete: (results) => {
+                            processParsedRows(results.data);
+                        },
+                        error: (err) => {
+                            setIsProcessingFile(false);
+                            setUploadError('Error al parsear el CSV: ' + err.message);
+                        }
+                    });
+                }
+            };
+
+            const restoreBenchmarkDataset = () => {
+                setCustomBars([]);
+                setDatasetInfo(null);
+                setItems(createDefaultCanvasItems());
+                resetFilters();
+                setExportNotice('Restablecido al Benchmark Oficial LuminoBite (Top 5 Barras).');
+                setTimeout(() => setExportNotice(null), 3000);
+            };
+
             const handleExportPNG = async () => {
                 if (!canvasRef.current) return;
                 setIsExporting(true);
@@ -3800,6 +3914,15 @@ className={`w-screen h-screen flex flex-col select-none ${isExporting ? 'exporti
                                 <span className="hidden xl:inline-block text-[10px] font-montserrat uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-slate-800 text-lumino-beige border border-slate-700">
                                     Food Science BI Studio
                                 </span>
+                                {/* Badge de Suscripción SaaS (Trial / Pro / Enterprise) */}
+                                <button
+                                    onClick={() => setShowPricingModal(true)}
+                                    className="px-2.5 py-0.5 rounded-full text-[10px] font-montserrat font-extrabold uppercase tracking-wider bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-sm hover:scale-105 transition flex items-center gap-1 cursor-pointer"
+                                    title="Ver planes de suscripción mensual/anual para equipos de I+D"
+                                >
+                                    <span>💎</span>
+                                    <span>Plan {userTier.toUpperCase()}</span>
+                                </button>
                             </div>
 
                             {/* Selector Rápido de Plantillas de Lienzo */}
@@ -3837,6 +3960,20 @@ className={`w-screen h-screen flex flex-col select-none ${isExporting ? 'exporti
 
                         {/* Controles Centrales del Lienzo (Zoom, Cuadrícula, Filtro Activo) */}
                         <div className="flex items-center flex-wrap gap-2 shrink-0">
+                            {datasetInfo && (
+                                <div className="flex items-center gap-2 bg-indigo-950/70 border border-indigo-500/50 px-2.5 py-1 rounded-full text-xs shrink-0">
+                                    <span className="font-montserrat font-bold text-indigo-300">
+                                        📊 Dataset: <strong className="text-white">{datasetInfo.fileName}</strong> ({datasetInfo.importedCount} fórmulas)
+                                    </span>
+                                    <button
+                                        onClick={restoreBenchmarkDataset}
+                                        className="text-[10px] text-slate-400 hover:text-white px-1.5 py-0.5 rounded bg-slate-800 transition"
+                                        title="Volver al benchmark base oficial"
+                                    >
+                                        Restablecer
+                                    </button>
+                                </div>
+                            )}
                             {currentSelectedBar && (
                                 <div className="flex items-center gap-1.5 bg-lumino-teal/20 border border-lumino-teal px-2.5 py-1 rounded-full text-xs shrink-0">
                                     <span className="font-montserrat font-bold text-teal-300">
@@ -3950,6 +4087,16 @@ className={`w-screen h-screen flex flex-col select-none ${isExporting ? 'exporti
                                 title="Guardar diseño en formato JSON"
                             >
                                 JSON
+                            </button>
+
+                            {/* Botón de Ingestión Libre de Datos SaaS (Excel / CSV) */}
+                            <button
+                                onClick={() => setShowUploadModal(true)}
+                                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-montserrat font-bold text-xs uppercase tracking-wider transition shadow-md flex items-center gap-1.5 shrink-0"
+                                title="Sube archivos CSV o Excel en cualquier formato. El motor inteligente los normalizará automáticamente."
+                            >
+                                <span>📁 Subir Datos</span>
+                                {datasetInfo && <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />}
                             </button>
 
                             <button
@@ -4079,15 +4226,24 @@ className="text-[9.5px] text-slate-500 font-semibold">
                                     {activeSidebarTab === 'bars' && (
                                         <div 
 className="space-y-3">
-                                            <div>
-                                                <h4 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-teal">
-                                                    Tarjetas de Producto (5 Famosas)
-                                                </h4>
-                                                <p className="text-[11px] text-slate-500 leading-snug mt-0.5">
-                                                    Haz clic para seleccionar y auditar alérgenos. Arrastra al lienzo para agregar.
-                                                </p>
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div>
+                                                    <h4 className="font-montserrat font-black text-xs uppercase tracking-wider text-lumino-teal">
+                                                        {datasetInfo ? `Fórmulas de I+D (${datasetInfo.importedCount})` : `Fórmulas Benchmark (${activeBarsData.length})`}
+                                                    </h4>
+                                                    <p className="text-[11px] text-slate-500 leading-snug mt-0.5">
+                                                        Arrastra cualquier tarjeta al lienzo de trabajo o haz clic para auditar.
+                                                    </p>
+                                                </div>
+                                                <button
+                                                    onClick={() => setShowUploadModal(true)}
+                                                    className="px-2 py-1 rounded-lg bg-teal-50 border border-teal-200 text-teal-700 text-[10px] font-montserrat font-bold hover:bg-teal-100 transition shrink-0"
+                                                    title="Cargar archivo CSV/Excel de fórmulas"
+                                                >
+                                                    + Subir
+                                                </button>
                                             </div>
-                                            {PROTEIN_BARS_DATA.map(bar => (
+                                            {activeBarsData.map(bar => (
                                                 <div
                                                     key={bar.id}
                                                     draggable
@@ -4272,7 +4428,7 @@ className="flex items-center gap-1.5">
                             {focusedBarId ? (
                                 <FocusedBarDashboard
                                     barId={focusedBarId}
-                                    allBars={PROTEIN_BARS_DATA}
+                                    allBars={activeBarsData}
                                     onClose={(newBarId) => {
                                         if (typeof newBarId === 'string') {
                                             setFocusedBarId(newBarId);
@@ -4308,18 +4464,25 @@ className="flex items-center gap-1.5">
                                                 Comienza tu investigación nutricional desde cero arrastrando elementos, o inicializa una plantilla prediseñada.
                                             </p>
 
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full mt-6">
+                                            {/* Acciones de Inicio SaaS: Subida Libre o Presets */}
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-6">
+                                                <button
+                                                    onClick={() => setShowUploadModal(true)}
+                                                    className="w-full px-4 py-3.5 rounded-2xl bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-montserrat font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition hover:scale-[1.02]"
+                                                >
+                                                    <span>📁</span> Subir Excel / CSV
+                                                </button>
                                                 <button
                                                     onClick={() => applyLayoutPreset('random')}
-                                                    className="w-full px-4 py-3 rounded-2xl bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-montserrat font-bold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition hover:scale-[1.02]"
+                                                    className="w-full px-4 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-montserrat font-bold text-xs uppercase tracking-wider shadow-md flex items-center justify-center gap-2 transition hover:scale-[1.02]"
                                                 >
-                                                    <span>🎲</span> Generar Tema Aleatorio
+                                                    <span>🎲</span> Tema Aleatorio
                                                 </button>
                                                 <button
                                                     onClick={() => applyLayoutPreset('default')}
-                                                    className="w-full px-4 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-montserrat font-bold text-xs uppercase tracking-wider shadow-md flex items-center justify-center gap-2 transition hover:scale-[1.02]"
+                                                    className="w-full px-4 py-3.5 rounded-2xl bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-montserrat font-bold text-xs uppercase tracking-wider shadow-sm flex items-center justify-center gap-2 transition hover:scale-[1.02]"
                                                 >
-                                                    <span>📊</span> Cargar Benchmark BI
+                                                    <span>📊</span> Benchmark BI
                                                 </button>
                                             </div>
 
@@ -4363,7 +4526,7 @@ className="w-4 h-4 rounded-full bg-lumino-dark" />
                                             posY = sInfo.y;
                                         }
                                     } else if (item.type === 'bar_card') {
-                                        const barObj = PROTEIN_BARS_DATA.find(b => b.id === item.barId);
+                                        const barObj = activeBarsData.find(b => b.id === item.barId);
                                         if (barObj && filters.hideUnmatched && !checkBarMatches(barObj)) {
                                             return null;
                                         }
@@ -4426,7 +4589,7 @@ style={{ backgroundColor: item.bgColor || '#0D1B2A', borderLeftColor: item.accen
 
                                             {/* 2. TARJETA DE BARRA DE PROTEÍNA */}
                                             {item.type === 'bar_card' && (() => {
-                                                const bar = PROTEIN_BARS_DATA.find(b => b.id === item.barId) || PROTEIN_BARS_DATA[0];
+                                                const bar = activeBarsData.find(b => b.id === item.barId) || activeBarsData[0];
                                                 const matched = checkBarMatches(bar);
                                                 const pulsed = (activeStickerTag && bar.tags.includes(activeStickerTag));
                                                 const isSelectedBar = selectedBarId === bar.id || highlightedBarId === bar.id;
@@ -4456,14 +4619,14 @@ style={{ backgroundColor: item.bgColor || '#0D1B2A', borderLeftColor: item.accen
                                                     setFilters={setFilters}
                                                     resetFilters={resetFilters}
                                                     matchingCount={matchingBarsCount}
-                                                    totalCount={PROTEIN_BARS_DATA.length}
+                                                    totalCount={activeBarsData.length}
                                                 />
                                             )}
 
                                             {/* 4. WIDGET MATRIZ 2D SCATTER */}
                                             {item.type === 'scatter_matrix' && (
                                                 <ScatterMatrixWidget
-                                                    bars={PROTEIN_BARS_DATA}
+                                                    bars={activeBarsData}
                                                     filters={filters}
                                                     setFilters={setFilters}
                                                     activeStickerTag={activeStickerTag}
@@ -4473,7 +4636,7 @@ style={{ backgroundColor: item.bgColor || '#0D1B2A', borderLeftColor: item.accen
                                             {/* 5. WIDGET RADIOGRAFÍA DE CARBOS / POLIOLES / GRASAS / ALÉRGENOS */}
                                             {item.type === 'lipid_polyol_chart' && (
                                                 <LipidPolyolWidget
-                                                    bars={PROTEIN_BARS_DATA}
+                                                    bars={activeBarsData}
                                                     highlightedBarId={highlightedBarId}
                                                     onSelectHighlightBar={setHighlightedBarId}
                                                 />
@@ -4482,7 +4645,7 @@ style={{ backgroundColor: item.bgColor || '#0D1B2A', borderLeftColor: item.accen
                                             {item.type === 'custom_chart' && (
                                                 <FlexibleBiChartWidget
                                                     item={item}
-                                                    bars={PROTEIN_BARS_DATA}
+                                                    bars={activeBarsData}
                                                     selectedBarId={selectedBarId}
                                                     onSelectBar={(bId) => {
                                                         setSelectedBarId(prev => prev === bId ? null : bId);
@@ -4491,7 +4654,7 @@ style={{ backgroundColor: item.bgColor || '#0D1B2A', borderLeftColor: item.accen
                                                 />
                                             )}
                                             {item.type === 'radar_chart' && (
-                                                <RadarComparisonWidget bars={PROTEIN_BARS_DATA} />
+                                                <RadarComparisonWidget bars={activeBarsData} />
                                             )}
 
                                             {/* 7. STICKER LINDO DE INGREDIENTE (CON FILTRO PULSANTE AL HACER CLIC) */}
@@ -4587,7 +4750,7 @@ className="text-[8.5px] font-bold text-lumino-teal uppercase">
                                 selectedItem={items.find(i => i.uid === selectedUid)}
                                 onUpdateProps={updateSelectedItemProps}
                                 onClose={() => setShowInspector(false)}
-                                allBars={PROTEIN_BARS_DATA}
+                                allBars={activeBarsData}
                                 allIcons={CUTE_STICKERS_LIBRARY}
                                 onDelete={deleteSelectedItem}
                                 onDuplicate={duplicateSelectedItem}
@@ -4595,6 +4758,310 @@ className="text-[8.5px] font-bold text-lumino-teal uppercase">
                             />
                         )}
                     </div>
+
+                    {/* ==================================================================== */}
+                    {/* MODAL 1: MOTOR DE SUBIDA LIBRE DE ARCHIVOS (EXCEL / CSV ZERO-TEMPLATE)  */}
+                    {/* ==================================================================== */}
+                    {showUploadModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md animate-fadeIn">
+                            <div className="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col">
+                                <div className="p-6 bg-slate-900 text-white flex items-start justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-indigo-600 flex items-center justify-center text-xl shadow">
+                                            📁
+                                        </div>
+                                        <div>
+                                            <h3 className="font-montserrat font-black text-lg tracking-tight">
+                                                Cargar Datos de I+D (Zero-Template)
+                                            </h3>
+                                            <p className="text-xs text-slate-300 font-sans mt-0.5">
+                                                Sube tus tablas en el formato que tengas. Normalización e inferencia automática.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowUploadModal(false)}
+                                        className="text-slate-400 hover:text-white text-xl p-1 font-bold"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+
+                                <div className="p-6 space-y-5">
+                                    {/* Zona de Drop / Input de Archivo */}
+                                    <div
+                                        onClick={() => datasetFileInputRef.current?.click()}
+                                        className="border-2 border-dashed border-teal-500/50 hover:border-teal-500 bg-teal-50/40 hover:bg-teal-50/80 rounded-2xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center group"
+                                    >
+                                        <input
+                                            ref={datasetFileInputRef}
+                                            type="file"
+                                            accept=".csv, .xlsx, .xls, text/csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                                            onChange={handleFileUpload}
+                                            className="hidden"
+                                        />
+                                        <div className="w-16 h-16 rounded-full bg-white shadow-md flex items-center justify-center text-3xl mb-3 group-hover:scale-110 transition">
+                                            📊
+                                        </div>
+                                        <div className="font-montserrat font-extrabold text-sm text-lumino-dark">
+                                            {isProcessingFile ? 'Procesando archivo con IA heurística...' : 'Haz clic o arrastra tu archivo Excel o CSV aquí'}
+                                        </div>
+                                        <p className="text-xs text-slate-500 mt-1 max-w-sm">
+                                            Acepta archivos <strong>.xlsx</strong>, <strong>.xls</strong> o <strong>.csv</strong> con cualquier orden de columnas o nombres de encabezado.
+                                        </p>
+                                        <div className="mt-3 flex items-center gap-2">
+                                            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600 shadow-xs">
+                                                ✓ Sin plantillas rígidas
+                                            </span>
+                                            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600 shadow-xs">
+                                                ✓ Inferencia de Alérgenos
+                                            </span>
+                                            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600 shadow-xs">
+                                                ✓ Generación de Lienzo Auto
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Mensaje de Error en Ingestión */}
+                                    {uploadError && (
+                                        <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
+                                            <span>⚠️</span>
+                                            <span>{uploadError}</span>
+                                        </div>
+                                    )}
+
+                                    {/* Dataset Activo Actual (si existe) */}
+                                    {datasetInfo && (
+                                        <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between">
+                                            <div>
+                                                <div className="text-[11px] font-montserrat font-bold text-slate-700 flex items-center gap-1.5">
+                                                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                                    Dataset Activo: {datasetInfo.fileName}
+                                                </div>
+                                                <div className="text-[10px] text-slate-500 mt-0.5">
+                                                    {datasetInfo.importedCount} fórmulas procesadas • {datasetInfo.headers.length} columnas detectadas
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    restoreBenchmarkDataset();
+                                                    setShowUploadModal(false);
+                                                }}
+                                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold text-rose-600 hover:bg-rose-100 transition border border-rose-200"
+                                            >
+                                                Restablecer a Benchmark
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {/* Explicación de Valor SaaS */}
+                                    <div className="text-[11px] text-slate-500 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                        💡 <strong>¿Cómo funciona el motor Zero-Template?</strong> Puedes exportar datos directo desde tu LIMS, software de laboratorio o Excel interno. Nuestro algoritmo reconoce sinónimos de ingredientes, calorías, macronutrientes, alérgenos y oligoelementos, calculando carbos netos y generando visualizaciones aleatorias pero adaptadas a tus datos.
+                                    </div>
+                                </div>
+
+                                <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end">
+                                    <button
+                                        onClick={() => setShowUploadModal(false)}
+                                        className="px-4 py-2 rounded-xl text-xs font-montserrat font-bold text-slate-700 hover:bg-slate-200 transition"
+                                    >
+                                        Cerrar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ==================================================================== */}
+                    {/* MODAL 2: PLANES DE SUSCRIPCIÓN SAAS PARA EQUIPOS DE I+D             */}
+                    {/* ==================================================================== */}
+                    {showPricingModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
+                            <div className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+                                <div className="p-6 bg-lumino-dark text-white flex items-center justify-between shrink-0">
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-montserrat font-black bg-lumino-pink text-white uppercase tracking-wider">
+                                                Plataforma SaaS I+D
+                                            </span>
+                                            <span className="text-xs text-slate-400">Nutritional BI & Canvas Intelligence</span>
+                                        </div>
+                                        <h2 className="font-montserrat font-black text-2xl tracking-tight mt-1">
+                                            Planes de Suscripción para Equipos Científicos
+                                        </h2>
+                                        <p className="text-xs text-slate-300 font-sans mt-0.5">
+                                            Acceso total para subir tus fórmulas, auditar ingredientes y generar tableros ejecutivos interactivos.
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowPricingModal(false)}
+                                        className="text-slate-400 hover:text-white text-2xl p-1 font-bold"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+
+                                <div className="p-6 overflow-y-auto space-y-6">
+                                    {/* Selector de Ciclo (Mensual vs Anual con descuento) */}
+                                    <div className="flex items-center justify-center">
+                                        <div className="bg-slate-100 p-1 rounded-2xl flex items-center gap-1 border border-slate-200">
+                                            <button
+                                                onClick={() => setSubscriptionCycle('monthly')}
+                                                className={`px-4 py-1.5 rounded-xl text-xs font-montserrat font-bold transition ${
+                                                    subscriptionCycle === 'monthly' ? 'bg-lumino-dark text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                                                }`}
+                                            >
+                                                Facturación Mensual
+                                            </button>
+                                            <button
+                                                onClick={() => setSubscriptionCycle('annual')}
+                                                className={`px-4 py-1.5 rounded-xl text-xs font-montserrat font-bold transition flex items-center gap-1.5 ${
+                                                    subscriptionCycle === 'annual' ? 'bg-gradient-to-r from-teal-500 to-indigo-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                                                }`}
+                                            >
+                                                <span>Facturación Anual</span>
+                                                <span className="bg-amber-400 text-slate-950 text-[9px] font-black px-1.5 py-0.2 rounded-full uppercase">
+                                                    -20% OFF
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Grid de 3 Niveles SaaS: Starter Trial, Team Pro, Enterprise Suite */}
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                        {/* PLAN 1: TRIAL */}
+                                        <div className={`rounded-3xl p-5 border flex flex-col justify-between transition ${
+                                            userTier === 'trial' ? 'border-teal-500 ring-2 ring-teal-500 bg-teal-50/20' : 'border-slate-200 bg-white hover:border-slate-300'
+                                        }`}>
+                                            <div>
+                                                <div className="flex items-center justify-between">
+                                                    <h3 className="font-montserrat font-black text-sm text-lumino-dark">TRIAL LAB</h3>
+                                                    {userTier === 'trial' && <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-100 text-teal-800">Plan Actual</span>}
+                                                </div>
+                                                <div className="mt-3">
+                                                    <span className="font-montserrat font-black text-3xl text-lumino-dark">$0</span>
+                                                    <span className="text-xs text-slate-400 font-sans"> / 14 días</span>
+                                                </div>
+                                                <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                                                    Para investigadores individuales que desean validar modelos con el benchmark oficial.
+                                                </p>
+                                                <ul className="mt-4 space-y-2 text-xs text-slate-600 font-medium border-t pt-3">
+                                                    <li className="flex items-center gap-2">✓ Benchmark de 5 marcas globales</li>
+                                                    <li className="flex items-center gap-2">✓ Filtros biotecnológicos en vivo</li>
+                                                    <li className="flex items-center gap-2">✓ 1 archivo CSV personalizado de prueba</li>
+                                                    <li className="flex items-center gap-2 text-slate-400">✕ Sin exportación vectorizada PNG Ultra</li>
+                                                </ul>
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    setUserTier('trial');
+                                                    setShowPricingModal(false);
+                                                }}
+                                                className={`mt-6 w-full py-2.5 rounded-xl font-montserrat font-bold text-xs uppercase tracking-wider transition ${
+                                                    userTier === 'trial' ? 'bg-slate-200 text-slate-700' : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
+                                                }`}
+                                            >
+                                                {userTier === 'trial' ? 'Activo' : 'Seleccionar Trial'}
+                                            </button>
+                                        </div>
+
+                                        {/* PLAN 2: PRO I+D (Recomendado) */}
+                                        <div className={`rounded-3xl p-6 border-2 flex flex-col justify-between relative shadow-xl transition ${
+                                            userTier === 'pro' ? 'border-lumino-teal ring-2 ring-teal-500 bg-white' : 'border-teal-500 bg-white'
+                                        }`}>
+                                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-teal-500 to-indigo-600 text-white font-montserrat font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full shadow-md">
+                                                RECOMENDADO PARA I+D
+                                            </div>
+                                            <div>
+                                                <div className="flex items-center justify-between">
+                                                    <h3 className="font-montserrat font-black text-base text-lumino-dark">TEAM PRO I+D</h3>
+                                                    {userTier === 'pro' && <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-100 text-teal-800">Plan Actual</span>}
+                                                </div>
+                                                <div className="mt-3">
+                                                    <span className="font-montserrat font-black text-3xl text-lumino-dark">
+                                                        ${subscriptionCycle === 'annual' ? '79' : '99'}
+                                                    </span>
+                                                    <span className="text-xs text-slate-400 font-sans"> / usuario / mes</span>
+                                                    {subscriptionCycle === 'annual' && (
+                                                        <div className="text-[10px] text-teal-600 font-bold mt-0.5">Facturado anualmente ($948/año)</div>
+                                                    )}
+                                                </div>
+                                                <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                                                    Acceso sin límites para equipos de formulación de alimentos que suben datasets propios.
+                                                </p>
+                                                <ul className="mt-4 space-y-2 text-xs text-slate-600 font-medium border-t pt-3">
+                                                    <li className="flex items-center gap-2">✓ <strong>Ingestión Ilimitada</strong> Excel y CSV</li>
+                                                    <li className="flex items-center gap-2">✓ Inferencia Heurística Zero-Template</li>
+                                                    <li className="flex items-center gap-2">✓ Visualizaciones y dashboards auto-generados</li>
+                                                    <li className="flex items-center gap-2">✓ Inspector de marcas, logos, texturas y fades</li>
+                                                    <li className="flex items-center gap-2">✓ Exportación PNG Ultra HD & JSON ilimitada</li>
+                                                </ul>
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    setUserTier('pro');
+                                                    setShowPricingModal(false);
+                                                }}
+                                                className="mt-6 w-full py-2.5 rounded-xl font-montserrat font-black text-xs uppercase tracking-wider bg-lumino-teal hover:bg-teal-700 text-white shadow-md transition hover:scale-[1.02]"
+                                            >
+                                                {userTier === 'pro' ? 'Plan Activo' : 'Comenzar Suscripción Pro'}
+                                            </button>
+                                        </div>
+
+                                        {/* PLAN 3: ENTERPRISE */}
+                                        <div className={`rounded-3xl p-5 border flex flex-col justify-between transition ${
+                                            userTier === 'enterprise' ? 'border-amber-400 ring-2 ring-amber-400 bg-amber-50/20' : 'border-slate-200 bg-white hover:border-slate-300'
+                                        }`}>
+                                            <div>
+                                                <div className="flex items-center justify-between">
+                                                    <h3 className="font-montserrat font-black text-sm text-lumino-dark">ENTERPRISE</h3>
+                                                    {userTier === 'enterprise' && <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">Plan Actual</span>}
+                                                </div>
+                                                <div className="mt-3">
+                                                    <span className="font-montserrat font-black text-3xl text-lumino-dark">
+                                                        ${subscriptionCycle === 'annual' ? '249' : '299'}
+                                                    </span>
+                                                    <span className="text-xs text-slate-400 font-sans"> / mes (equipo completo)</span>
+                                                </div>
+                                                <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                                                    Para plantas productoras multinacionales y laboratorios con múltiples líneas de producto.
+                                                </p>
+                                                <ul className="mt-4 space-y-2 text-xs text-slate-600 font-medium border-t pt-3">
+                                                    <li className="flex items-center gap-2">✓ Todo lo incluido en Pro I+D</li>
+                                                    <li className="flex items-center gap-2">✓ Conexión API directa a ERP / LIMS</li>
+                                                    <li className="flex items-center gap-2">✓ Auditoría multi-planta de alérgenos</li>
+                                                    <li className="flex items-center gap-2">✓ Soporte bioinformático prioritario 24/7</li>
+                                                </ul>
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    setUserTier('enterprise');
+                                                    setShowPricingModal(false);
+                                                }}
+                                                className={`mt-6 w-full py-2.5 rounded-xl font-montserrat font-bold text-xs uppercase tracking-wider transition ${
+                                                    userTier === 'enterprise' ? 'bg-amber-400 text-slate-950 font-black' : 'bg-slate-900 hover:bg-slate-800 text-white'
+                                                }`}
+                                            >
+                                                {userTier === 'enterprise' ? 'Plan Activo' : 'Contactar Enterprise'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                                    <div className="text-xs text-slate-400 flex items-center gap-1.5">
+                                        <span>🔒 Pagos cifrados vía Stripe SaaS • Cancela en cualquier momento</span>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowPricingModal(false)}
+                                        className="px-4 py-2 rounded-xl text-xs font-montserrat font-bold text-slate-700 hover:bg-slate-200 transition"
+                                    >
+                                        Continuar al Canvas
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         };
