@@ -329,12 +329,29 @@
         // ============================================================================
         // 2. ILUSTRACIONES VECTORIALES DE EMPAQUES DE BARRAS (100% SELF-CONTAINED SVG)
         // ============================================================================
-        const BarWrapperIllustration = ({ barId, customImage }) => {
+        const BarWrapperIllustration = ({ barId, customImage, config = {} }) => {
             if (customImage) {
                 return (
                     <div 
-className="w-full h-28 rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center relative border border-slate-200">
+                        className="w-full h-28 rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center relative border border-slate-200"
+                        style={{
+                            filter: config.fade ? `opacity(${config.fade})` : undefined
+                        }}
+                    >
                         <img src={customImage} alt={barId} className="w-full h-full object-cover" />
+                        {/* Superposicion de Textura o Degradado si aplica */}
+                        {config.texture === 'grid' && (
+                            <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:8px_8px]" />
+                        )}
+                        {config.texture === 'stripes' && (
+                            <div className="absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(45deg,#000_25%,transparent_25%,transparent_50%,#000_50%,#000_75%,transparent_75%,transparent)] [background-size:12px_12px]" />
+                        )}
+                        {config.texture === 'metallic' && (
+                            <div className="absolute inset-0 pointer-events-none opacity-30 bg-gradient-to-r from-transparent via-white/50 to-transparent mix-blend-overlay" />
+                        )}
+                        {config.texture === 'dots' && (
+                            <div className="absolute inset-0 pointer-events-none opacity-25 bg-[radial-gradient(#fff_1.5px,transparent_1.5px)] [background-size:6px_6px]" />
+                        )}
                     </div>
                 );
             }
@@ -1162,31 +1179,103 @@ className="w-full h-28 rounded-xl overflow-hidden bg-slate-100 flex items-center
                 reader.readAsDataURL(file);
             };
 
+            // Configuracion estetica avanzada parametrizada desde el Inspector
+            const cardShape = config.shape || 'rounded';
+            const borderRadiusClass = cardShape === 'sharp' ? 'rounded-none' : cardShape === 'pill' ? 'rounded-3xl' : cardShape === 'cut' ? 'rounded-tr-3xl rounded-bl-3xl rounded-tl-sm rounded-br-sm' : 'rounded-2xl';
+            const cardBg = config.cardBg || '#FFFFFF';
+            const textColor = config.textColor || '#0D1B2A';
+            const customTitle = config.customTitle !== undefined && config.customTitle !== '' ? config.customTitle : bar.name;
+            const customFlavor = config.customFlavor !== undefined && config.customFlavor !== '' ? config.customFlavor : bar.flavor;
+            const customWeight = config.customWeight !== undefined && config.customWeight !== '' ? config.customWeight : `${bar.servingGrams}g`;
+            const customLogo = config.customLogo || 'brand';
+            const gradientType = config.gradientType || 'linear';
+            const texture = config.texture || 'none';
+            const fadeOpacity = config.fade !== undefined ? config.fade : 1;
+            const borderThickness = config.borderWidth !== undefined ? config.borderWidth : 1;
+            const borderColor = config.borderColor || '#E2E8F0';
+            const headerFont = config.headerFont || 'montserrat';
+            const fontClass = headerFont === 'sans' ? 'font-sans' : headerFont === 'serif' ? 'font-serif' : headerFont === 'mono' ? 'font-mono' : 'font-montserrat';
+            const titleSize = config.titleSize || 'base';
+            const titleSizeClass = titleSize === 'sm' ? 'text-xs' : titleSize === 'lg' ? 'text-lg' : titleSize === 'xl' ? 'text-xl' : 'text-base';
+
+            const headerGradient = gradientType === 'radial'
+                ? `radial-gradient(circle, ${config.brandColor || bar.brandColor}, ${config.accentColor || bar.accentColor})`
+                : gradientType === 'conic'
+                ? `conic-gradient(from 180deg at 50% 50%, ${config.brandColor || bar.brandColor}, ${config.accentColor || bar.accentColor}, ${config.brandColor || bar.brandColor})`
+                : gradientType === 'none'
+                ? (config.brandColor || bar.brandColor)
+                : `linear-gradient(90deg, ${config.brandColor || bar.brandColor}, ${config.accentColor || bar.accentColor})`;
+
             return (
                 <div 
-
-                    onClick={() => onSelectBar && onSelectBar(bar.id)} className={`w-full h-full rounded-2xl bg-white border transition-all duration-300 flex flex-col justify-between overflow-hidden relative cursor-pointer ${
-                        isSelectedBar ? 'item-selected-glow ring-2 ring-lumino-teal' : isPulsedBySticker ? 'ingredient-match-glow' : 'shadow-md border-slate-200/90'
-                    } ${!isMatchedByFilter ? 'opacity-25 grayscale scale-[0.97]' : 'opacity-100'}`}
+                    onClick={() => onSelectBar && onSelectBar(bar.id)} 
+                    className={`w-full h-full ${borderRadiusClass} border transition-all duration-300 flex flex-col justify-between overflow-hidden relative cursor-pointer ${
+                        isSelectedBar ? 'item-selected-glow ring-2 ring-lumino-teal' : isPulsedBySticker ? 'ingredient-match-glow' : 'shadow-md'
+                    } ${!isMatchedByFilter ? 'opacity-25 grayscale scale-[0.97]' : ''}`}
+                    style={{
+                        backgroundColor: cardBg,
+                        borderColor: isSelectedBar ? undefined : borderColor,
+                        borderWidth: `${borderThickness}px`,
+                        opacity: isMatchedByFilter ? fadeOpacity : undefined,
+                        boxShadow: config.cardShadow === 'none' ? 'none' : config.cardShadow === 'glow' ? `0 10px 25px -5px ${(config.brandColor || bar.brandColor)}40` : undefined
+                    }}
                 >
-                    {/* Cinta Superior de Color de Marca */}
-                    <div 
+                    {/* Textura decorativa de fondo si esta activada */}
+                    {texture === 'grid' && (
+                        <div className="absolute inset-0 pointer-events-none opacity-5 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:10px_10px]" />
+                    )}
+                    {texture === 'stripes' && (
+                        <div className="absolute inset-0 pointer-events-none opacity-5 bg-[linear-gradient(45deg,#000_25%,transparent_25%,transparent_50%,#000_50%,#000_75%,transparent_75%,transparent)] [background-size:12px_12px]" />
+                    )}
+                    {texture === 'metallic' && (
+                        <div className="absolute inset-0 pointer-events-none opacity-10 bg-gradient-to-tr from-transparent via-white to-transparent" />
+                    )}
+                    {texture === 'dots' && (
+                        <div className="absolute inset-0 pointer-events-none opacity-10 bg-[radial-gradient(#000_1.5px,transparent_1.5px)] [background-size:8px_8px]" />
+                    )}
 
-                        className="h-2 w-full shrink-0"
-                        style={{ background: `linear-gradient(90deg, ${config.brandColor || bar.brandColor}, ${config.accentColor || bar.accentColor})` }}
+                    {/* Cinta Superior de Color de Marca / Degradado Parametrizado */}
+                    <div 
+                        className="h-2.5 w-full shrink-0 transition-all duration-300"
+                        style={{ background: headerGradient }}
                     />
 
                     {/* Encabezado de la Tarjeta */}
-                    <div 
-className="px-4 pt-2.5 pb-1 flex items-start justify-between gap-2 shrink-0">
+                    <div className="px-4 pt-2.5 pb-1 flex items-start justify-between gap-2 shrink-0 relative z-10">
                         <div>
-                            <div 
-className="flex items-center gap-1.5">
-                                <span className="font-montserrat font-black text-base tracking-tight text-lumino-dark">
-                                    {bar.name}
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                                {/* Logo / Emblema Personalizable */}
+                                {customLogo === 'badge' && (
+                                    <span className="w-5 h-5 rounded-md flex items-center justify-center text-[11px] text-white font-black shadow-sm" style={{ backgroundColor: config.brandColor || bar.brandColor }}>
+                                        ★
+                                    </span>
+                                )}
+                                {customLogo === 'shield' && (
+                                    <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] text-white font-black shadow-sm" style={{ backgroundColor: config.accentColor || bar.accentColor }}>
+                                        🛡️
+                                    </span>
+                                )}
+                                {customLogo === 'leaf' && (
+                                    <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] text-white font-black shadow-sm bg-emerald-600">
+                                        🌿
+                                    </span>
+                                )}
+                                {customLogo === 'protein' && (
+                                    <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] text-white font-black shadow-sm bg-indigo-600">
+                                        ⚡
+                                    </span>
+                                )}
+                                {customLogo === 'custom_text' && config.logoText && (
+                                    <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider text-white shadow-sm" style={{ backgroundColor: config.brandColor || bar.brandColor }}>
+                                        {config.logoText}
+                                    </span>
+                                )}
+
+                                <span className={`${fontClass} font-black ${titleSizeClass} tracking-tight`} style={{ color: textColor }}>
+                                    {customTitle}
                                 </span>
-                                <span className="font-roboto font-bold text-[11px] px-2 py-0.5 rounded-full bg-lumino-bg text-lumino-teal border border-lumino-beige">
-                                    {bar.servingGrams}g
+                                <span className="font-roboto font-bold text-[11px] px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200" style={{ color: textColor }}>
+                                    {customWeight}
                                 </span>
                                 {isSelectedBar && (
                                     <span className="font-montserrat font-extrabold text-[9px] px-2 py-0.5 rounded-full bg-lumino-teal text-white tracking-wider flex items-center gap-1 shadow-sm">
@@ -1197,7 +1286,7 @@ className="flex items-center gap-1.5">
                                 <span className="hidden">
                                 </span>
                             </div>
-                            <p className="text-[11px] font-semibold text-slate-500 leading-tight">{bar.flavor}</p>
+                            <p className="text-[11px] font-semibold opacity-75 leading-tight" style={{ color: textColor }}>{customFlavor}</p>
                         </div>
 
                         <div 
@@ -1248,7 +1337,7 @@ className="px-4 pb-3 flex-1 flex flex-col justify-between">
                             {/* Ilustración del Empaque */}
                             <div 
 className="my-1 relative group">
-                                <BarWrapperIllustration barId={bar.id} customImage={customImage} />
+                                <BarWrapperIllustration barId={bar.id} customImage={customImage} config={config} />
                                 {isPulsedBySticker && (
                                     <div 
 className="absolute -top-1 -right-1 bg-lumino-pink text-white text-[10px] font-montserrat font-black px-2 py-0.5 rounded-full shadow">
@@ -2776,24 +2865,25 @@ className="overflow-x-auto">
                         {selectedItem.type === 'bar_card' && (() => {
                             const bar = allBars.find(b => b.id === selectedItem.barId) || allBars[0];
                             return (
-                                <div className="space-y-4">
-                                    <div className="p-3 bg-slate-50 border rounded-2xl">
+                                <div className="space-y-4 font-sans text-xs">
+                                    {/* Scorecard de la Barra Seleccionada */}
+                                    <div className="p-3.5 bg-gradient-to-br from-slate-50 to-slate-100/80 border border-slate-200 rounded-2xl shadow-sm">
                                         <div className="flex items-start justify-between">
                                             <div>
-                                                <div className="font-montserrat font-black text-xs text-lumino-dark">{bar.name}</div>
-                                                <div className="text-[10px] text-slate-500">{bar.flavor} • {bar.servingGrams}g</div>
+                                                <div className="font-montserrat font-black text-xs text-lumino-dark">{config.customTitle || bar.name}</div>
+                                                <div className="text-[10px] text-slate-500 font-medium">{config.customFlavor || bar.flavor} • {config.customWeight || `${bar.servingGrams}g`}</div>
                                             </div>
                                             {onFocusBar && (
                                                 <button
                                                     onClick={() => onFocusBar(bar.id)}
-                                                    className="px-2.5 py-1 rounded-lg bg-lumino-teal text-white text-[10px] font-montserrat font-bold hover:bg-teal-700 shadow-sm flex items-center gap-1"
+                                                    className="px-2.5 py-1 rounded-lg bg-lumino-teal text-white text-[10px] font-montserrat font-bold hover:bg-teal-700 shadow-sm flex items-center gap-1 transition"
                                                     title="Abrir Dashboard Dedicado para esta Barra"
                                                 >
                                                     🔍 Ver Focus
                                                 </button>
                                             )}
                                         </div>
-                                        <div className="mt-2 text-[10px] font-roboto flex justify-between text-slate-600 bg-white p-2 rounded-lg border">
+                                        <div className="mt-2.5 text-[10px] font-roboto flex justify-between text-slate-600 bg-white p-2 rounded-xl border border-slate-200/80 shadow-xs">
                                             <span>🔥 <strong>{bar.calories}</strong> kcal</span>
                                             <span>💪 <strong>{bar.protein}g</strong> Pro</span>
                                             <span>🌾 <strong>{bar.fiber}g</strong> Fib</span>
@@ -2801,13 +2891,13 @@ className="overflow-x-auto">
                                         </div>
                                     </div>
 
-                                    {/* Cambiar Fuente de Datos / Producto Asignado */}
+                                    {/* 1. SELECCION DE PRODUCTO / VARIABLE ASIGNADA */}
                                     <div>
-                                        <label className="text-[10px] text-slate-500 font-bold block mb-1">Cambiar Producto / Fuente de Datos</label>
+                                        <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1">Fuente de Datos / Producto</label>
                                         <select
                                             value={selectedItem.barId}
                                             onChange={(e) => onUpdateProps({ barId: e.target.value })}
-                                            className="w-full p-2 rounded-xl border border-slate-300 text-xs font-semibold text-lumino-dark outline-none focus:border-lumino-teal"
+                                            className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-lumino-dark outline-none focus:border-lumino-teal bg-white shadow-xs"
                                         >
                                             {allBars.map(b => (
                                                 <option key={b.id} value={b.id}>
@@ -2817,26 +2907,247 @@ className="overflow-x-auto">
                                         </select>
                                     </div>
 
-                                    <div className="space-y-2 border-t pt-3">
-                                        <div className="font-montserrat font-bold text-[11px] text-slate-700">
-                                            Personalizar Colores de la Ficha
+                                    {/* 2. EDICION DE TEXTOS Y TIPOGRAFIA */}
+                                    <div className="border-t border-slate-200/80 pt-3 space-y-2.5">
+                                        <div className="font-montserrat font-bold text-[11px] text-lumino-dark uppercase tracking-wider flex items-center gap-1">
+                                            <span>✏️</span> Textos y Tipografía
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] text-slate-500 block mb-1">Nombre / Título Personalizado</label>
+                                            <input
+                                                type="text"
+                                                value={config.customTitle !== undefined ? config.customTitle : bar.name}
+                                                onChange={(e) => onUpdateProps({ config: { ...config, customTitle: e.target.value } })}
+                                                placeholder={bar.name}
+                                                className="w-full p-2 rounded-xl border border-slate-300 text-xs font-semibold outline-none focus:border-lumino-teal bg-white"
+                                            />
                                         </div>
                                         <div className="grid grid-cols-2 gap-2">
                                             <div>
-                                                <label className="text-[10px] text-slate-500 block mb-0.5">Color de Marca</label>
+                                                <label className="text-[10px] text-slate-500 block mb-1">Sabor / Subtexto</label>
+                                                <input
+                                                    type="text"
+                                                    value={config.customFlavor !== undefined ? config.customFlavor : bar.flavor}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, customFlavor: e.target.value } })}
+                                                    placeholder={bar.flavor}
+                                                    className="w-full p-2 rounded-xl border border-slate-300 text-xs outline-none focus:border-lumino-teal bg-white"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-1">Peso / Porción</label>
+                                                <input
+                                                    type="text"
+                                                    value={config.customWeight !== undefined ? config.customWeight : `${bar.servingGrams}g`}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, customWeight: e.target.value } })}
+                                                    placeholder={`${bar.servingGrams}g`}
+                                                    className="w-full p-2 rounded-xl border border-slate-300 text-xs outline-none focus:border-lumino-teal bg-white"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-1">Familia Tipográfica</label>
+                                                <select
+                                                    value={config.headerFont || 'montserrat'}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, headerFont: e.target.value } })}
+                                                    className="w-full p-2 rounded-xl border border-slate-300 text-xs outline-none focus:border-lumino-teal bg-white"
+                                                >
+                                                    <option value="montserrat">Montserrat (Moderna)</option>
+                                                    <option value="sans">Inter / Sans (Clean)</option>
+                                                    <option value="serif">Playfair / Serif (Editorial)</option>
+                                                    <option value="mono">JetBrains / Mono (Técnica)</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-1">Tamaño del Título</label>
+                                                <select
+                                                    value={config.titleSize || 'base'}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, titleSize: e.target.value } })}
+                                                    className="w-full p-2 rounded-xl border border-slate-300 text-xs outline-none focus:border-lumino-teal bg-white"
+                                                >
+                                                    <option value="sm">Compacto (SM)</option>
+                                                    <option value="base">Estándar (MD)</option>
+                                                    <option value="lg">Grande (LG)</option>
+                                                    <option value="xl">Titular (XL)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* 3. LOGOS, EMBLEMAS Y SELLOS */}
+                                    <div className="border-t border-slate-200/80 pt-3 space-y-2.5">
+                                        <div className="font-montserrat font-bold text-[11px] text-lumino-dark uppercase tracking-wider flex items-center gap-1">
+                                            <span>🏷️</span> Logo y Emblema de la Barra
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-1">Estilo de Emblema</label>
+                                                <select
+                                                    value={config.customLogo || 'brand'}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, customLogo: e.target.value } })}
+                                                    className="w-full p-2 rounded-xl border border-slate-300 text-xs outline-none focus:border-lumino-teal bg-white"
+                                                >
+                                                    <option value="brand">Por defecto (Foil)</option>
+                                                    <option value="badge">Insignia Estrella (★)</option>
+                                                    <option value="shield">Escudo Certificado (🛡️)</option>
+                                                    <option value="leaf">Sello Orgánico (🌿)</option>
+                                                    <option value="protein">Potencia Pro (⚡)</option>
+                                                    <option value="custom_text">Sello de Texto Propio</option>
+                                                    <option value="none">Sin Emblema</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-1">Texto del Sello (Opcional)</label>
+                                                <input
+                                                    type="text"
+                                                    value={config.logoText || ''}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, logoText: e.target.value } })}
+                                                    placeholder="Ej: KETO / PRO"
+                                                    disabled={config.customLogo !== 'custom_text'}
+                                                    className="w-full p-2 rounded-xl border border-slate-300 text-xs outline-none focus:border-lumino-teal bg-white disabled:bg-slate-100 disabled:opacity-50"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* 4. PALETA DE COLORES Y DEGRADADOS PROFESIONALES */}
+                                    <div className="border-t border-slate-200/80 pt-3 space-y-2.5">
+                                        <div className="font-montserrat font-bold text-[11px] text-lumino-dark uppercase tracking-wider flex items-center gap-1">
+                                            <span>🎨</span> Colores, Degradados y Fades
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-1">Color Marca</label>
                                                 <input
                                                     type="color"
                                                     value={config.brandColor || bar.brandColor}
                                                     onChange={(e) => onUpdateProps({ config: { ...config, brandColor: e.target.value } })}
-                                                    className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
+                                                    className="w-full h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5"
+                                                />
                                             </div>
                                             <div>
-                                                <label className="text-[10px] text-slate-500 block mb-0.5">Color de Acento</label>
+                                                <label className="text-[10px] text-slate-500 block mb-1">Color Acento</label>
                                                 <input
                                                     type="color"
                                                     value={config.accentColor || bar.accentColor}
                                                     onChange={(e) => onUpdateProps({ config: { ...config, accentColor: e.target.value } })}
-                                                    className="w-8 h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5" />
+                                                    className="w-full h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-1">Fondo Tarjeta</label>
+                                                <input
+                                                    type="color"
+                                                    value={config.cardBg || '#FFFFFF'}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, cardBg: e.target.value } })}
+                                                    className="w-full h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-1">Tipo de Degradado</label>
+                                                <select
+                                                    value={config.gradientType || 'linear'}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, gradientType: e.target.value } })}
+                                                    className="w-full p-2 rounded-xl border border-slate-300 text-xs outline-none focus:border-lumino-teal bg-white"
+                                                >
+                                                    <option value="linear">Lineal Horizontal (90°)</option>
+                                                    <option value="radial">Radial Central</option>
+                                                    <option value="conic">Cónico / Angular</option>
+                                                    <option value="none">Color Sólido Puro</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-1">Color del Texto</label>
+                                                <input
+                                                    type="color"
+                                                    value={config.textColor || '#0D1B2A'}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, textColor: e.target.value } })}
+                                                    className="w-full h-8 rounded-lg cursor-pointer border border-slate-300 p-0.5"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Control de Fade / Transparencia */}
+                                        <div>
+                                            <div className="flex justify-between text-[10px] text-slate-500 mb-1">
+                                                <span>Fade / Transparencia de la Tarjeta</span>
+                                                <span className="font-mono font-bold text-slate-700">{Math.round((config.fade !== undefined ? config.fade : 1) * 100)}%</span>
+                                            </div>
+                                            <input
+                                                type="range"
+                                                min="0.2"
+                                                max="1"
+                                                step="0.05"
+                                                value={config.fade !== undefined ? config.fade : 1}
+                                                onChange={(e) => onUpdateProps({ config: { ...config, fade: parseFloat(e.target.value) } })}
+                                                className="w-full accent-lumino-teal"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* 5. FORMA, TEXTURA Y ACABADO INDUSTRIAL */}
+                                    <div className="border-t border-slate-200/80 pt-3 space-y-2.5">
+                                        <div className="font-montserrat font-bold text-[11px] text-lumino-dark uppercase tracking-wider flex items-center gap-1">
+                                            <span>📐</span> Forma, Textura y Biseles
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-1">Geometría de la Ficha</label>
+                                                <select
+                                                    value={config.shape || 'rounded'}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, shape: e.target.value } })}
+                                                    className="w-full p-2 rounded-xl border border-slate-300 text-xs outline-none focus:border-lumino-teal bg-white"
+                                                >
+                                                    <option value="rounded">Bordes Suaves (R16)</option>
+                                                    <option value="pill">Cápsula Curva (R24)</option>
+                                                    <option value="cut">Bisel Diagonal (Cyber)</option>
+                                                    <option value="sharp">Recto / Escuadra (R0)</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-1">Textura de Acabado</label>
+                                                <select
+                                                    value={config.texture || 'none'}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, texture: e.target.value } })}
+                                                    className="w-full p-2 rounded-xl border border-slate-300 text-xs outline-none focus:border-lumino-teal bg-white"
+                                                >
+                                                    <option value="none">Sin Textura (Limpio)</option>
+                                                    <option value="metallic">Metálico / Glossy Foil</option>
+                                                    <option value="stripes">Rayado Industrial (45°)</option>
+                                                    <option value="grid">Micro-Cuadrícula Tech</option>
+                                                    <option value="dots">Punteado Micronutricional</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-1">Sombra / Elevación</label>
+                                                <select
+                                                    value={config.cardShadow || 'soft'}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, cardShadow: e.target.value } })}
+                                                    className="w-full p-2 rounded-xl border border-slate-300 text-xs outline-none focus:border-lumino-teal bg-white"
+                                                >
+                                                    <option value="soft">Sombra Suave (BI)</option>
+                                                    <option value="glow">Resplandor Neón (Glow)</option>
+                                                    <option value="none">Plana / Flat Design</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-slate-500 block mb-1">Grosor de Borde</label>
+                                                <select
+                                                    value={config.borderWidth !== undefined ? config.borderWidth : 1}
+                                                    onChange={(e) => onUpdateProps({ config: { ...config, borderWidth: parseInt(e.target.value) } })}
+                                                    className="w-full p-2 rounded-xl border border-slate-300 text-xs outline-none focus:border-lumino-teal bg-white"
+                                                >
+                                                    <option value={0}>Sin Borde (0px)</option>
+                                                    <option value={1}>Fino (1px)</option>
+                                                    <option value={2}>Medio (2px)</option>
+                                                    <option value={3}>Destacado (3px)</option>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -2844,7 +3155,7 @@ className="overflow-x-auto">
                             );
                         })()}
 
-                        {/* 4. EDICIÓN PARA NOTAS / CALLOUTS */}
+                        {/* 4. EDICION PARA NOTAS / CALLOUTS */}
                         {selectedItem.type === 'callout_badge' && (
                             <div className="space-y-3">
                                 <div>
@@ -3038,7 +3349,7 @@ className="flex justify-center gap-3 text-[9px] font-bold">
             const [activeStickerTag, setActiveStickerTag] = useState(null);
             const [highlightedBarId, setHighlightedBarId] = useState(null);
             const [selectedBarId, setSelectedBarId] = useState(null);
-            const [showInspector, setShowInspector] = useState(true);
+            const [showInspector, setShowInspector] = useState(false);
 
             const updateSelectedItemProps = (newProps) => {
                 if (!selectedUid) return;
@@ -3477,28 +3788,23 @@ className={`w-screen h-screen flex flex-col select-none ${isExporting ? 'exporti
                     {/* ==================================================================== */}
                     {/* BARRA SUPERIOR DE ESTUDIO (LUMINOBITE STUDIO HEADER)                 */}
                     {/* ==================================================================== */}
-                    <header className="h-16 bg-lumino-dark text-white px-5 flex items-center justify-between border-b border-slate-800 shrink-0 z-50">
+                    <header className="min-h-16 bg-lumino-dark text-white px-4 py-2 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 shrink-0 z-50">
                         {/* Identidad de Marca */}
-                        <div 
-className="flex items-center gap-4">
-                            <div 
-className="font-montserrat font-black text-xl tracking-tighter flex items-center gap-2.5">
-                                <div 
-className="w-7 h-7 bg-lumino-pink rounded-full relative overflow-hidden flex items-center justify-center shadow-md">
-                                    <div 
-className="w-3 h-3 bg-white rounded-full" />
+                        <div className="flex items-center gap-3 shrink-0">
+                            <div className="font-montserrat font-black text-lg tracking-tighter flex items-center gap-2">
+                                <div className="w-7 h-7 bg-lumino-pink rounded-full relative overflow-hidden flex items-center justify-center shadow-md shrink-0">
+                                    <div className="w-3 h-3 bg-white rounded-full" />
                                 </div>
-                                <span>LUMINOBITE</span>
+                                <span className="tracking-tight">LUMINOBITE</span>
                                 <span className="text-lumino-teal font-extrabold">CANVAS</span>
-                                <span className="text-[10px] font-montserrat uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-slate-800 text-lumino-beige border border-slate-700">
+                                <span className="hidden xl:inline-block text-[10px] font-montserrat uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-slate-800 text-lumino-beige border border-slate-700">
                                     Food Science BI Studio
                                 </span>
                             </div>
 
                             {/* Selector Rápido de Plantillas de Lienzo */}
                             {!presentationMode && (
-                                <div 
-className="hidden lg:flex items-center gap-1.5 ml-4 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+                                <div className="hidden lg:flex items-center gap-1.5 ml-2 bg-slate-900/90 p-1 rounded-xl border border-slate-800 shrink-0">
                                     <button
                                         onClick={() => applyLayoutPreset('random')}
                                         title="Genera un tema de lienzo aleatorio con combinaciones profesionales"
@@ -3508,20 +3814,20 @@ className="hidden lg:flex items-center gap-1.5 ml-4 bg-slate-900/90 p-1 rounded-
                                     </button>
                                     <button
                                         onClick={() => applyLayoutPreset('default')}
-                                        className="px-2.5 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-slate-300 hover:bg-lumino-teal hover:text-white transition"
+                                        className="px-2 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-slate-300 hover:bg-lumino-teal hover:text-white transition"
                                     >
                                         Vista General BI
                                     </button>
                                     <button
                                         onClick={() => applyLayoutPreset('allergen_focus')}
-                                        className="px-2.5 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-slate-300 hover:bg-lumino-pink hover:text-white transition"
+                                        className="px-2 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-slate-300 hover:bg-lumino-pink hover:text-white transition"
                                     >
                                         Alérgenos & Trazas
                                     </button>
                                     <button
                                         onClick={() => applyLayoutPreset('empty')}
                                         title="Vaciar completamente el lienzo para empezar de cero"
-                                        className="px-2.5 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-rose-300 hover:bg-rose-900/60 transition"
+                                        className="px-2 py-1.5 rounded-lg text-[11px] font-montserrat font-bold text-rose-300 hover:bg-rose-900/60 transition"
                                     >
                                         🗑️ Vaciar
                                     </button>
@@ -3530,16 +3836,16 @@ className="hidden lg:flex items-center gap-1.5 ml-4 bg-slate-900/90 p-1 rounded-
                         </div>
 
                         {/* Controles Centrales del Lienzo (Zoom, Cuadrícula, Filtro Activo) */}
-                        <div 
-className="flex items-center gap-2">
+                        <div className="flex items-center flex-wrap gap-2 shrink-0">
                             {currentSelectedBar && (
-                                <div className="flex items-center gap-2 bg-lumino-teal/20 border border-lumino-teal px-3 py-1 rounded-full">
-                                    <span className="text-xs font-montserrat font-bold text-teal-300">
-                                        🔍 Barra Seleccionada: <strong className="text-white uppercase">{currentSelectedBar.name}</strong>
+                                <div className="flex items-center gap-1.5 bg-lumino-teal/20 border border-lumino-teal px-2.5 py-1 rounded-full text-xs shrink-0">
+                                    <span className="font-montserrat font-bold text-teal-300">
+                                        🔍 <strong className="text-white uppercase">{currentSelectedBar.name}</strong>
                                     </span>
                                     <button 
                                         onClick={() => { setSelectedBarId(null); setHighlightedBarId(null); }}
-                                        className="text-xs bg-lumino-teal text-white rounded-full w-4 h-4 flex items-center justify-center font-bold hover:bg-teal-700"
+                                        className="text-xs bg-lumino-teal text-white rounded-full w-4 h-4 flex items-center justify-center font-bold hover:bg-teal-700 ml-0.5"
+                                        title="Quitar foco de la barra"
                                     >
                                         ×
                                     </button>
@@ -3547,7 +3853,7 @@ className="flex items-center gap-2">
                             )}
                             <button
                                 onClick={() => setFilters(prev => ({ ...prev, hideUnmatched: !prev.hideUnmatched }))}
-                                className={`px-3 py-1.5 rounded-xl font-montserrat font-bold text-xs uppercase tracking-wider border transition flex items-center gap-1.5 ${
+                                className={`px-2.5 py-1.5 rounded-xl font-montserrat font-bold text-xs uppercase tracking-wider border transition flex items-center gap-1.5 shrink-0 ${
                                     filters.hideUnmatched
                                         ? 'bg-lumino-teal text-white border-teal-400 shadow-md'
                                         : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
@@ -3555,37 +3861,36 @@ className="flex items-center gap-2">
                                 title="Reacomoda automáticamente el lienzo para mostrar solo barras e iconos aplicables según los filtros"
                             >
                                 <span className={`w-2 h-2 rounded-full ${filters.hideUnmatched ? 'bg-white' : 'bg-slate-500'}`} />
-                                <span>{filters.hideUnmatched ? 'Reacomodo Auto (ON)' : 'Solo Filtradas (Reacomodar)'}</span>
+                                <span className="hidden md:inline">{filters.hideUnmatched ? 'Reacomodo Auto (ON)' : 'Solo Filtradas'}</span>
+                                <span className="md:hidden">Auto</span>
                             </button>
                             {activeStickerTag && (
-                                <div 
-className="flex items-center gap-2 bg-lumino-pink/20 border border-lumino-pink px-3 py-1 rounded-full">
-                                    <span className="text-xs font-montserrat font-bold text-pink-300">
-                                        ✨ Resaltando Ingrediente: <strong className="text-white uppercase">{activeStickerTag}</strong>
+                                <div className="flex items-center gap-1.5 bg-lumino-pink/20 border border-lumino-pink px-2.5 py-1 rounded-full text-xs shrink-0">
+                                    <span className="font-montserrat font-bold text-pink-300">
+                                        ✨ <strong className="text-white uppercase">{activeStickerTag}</strong>
                                     </span>
                                     <button 
                                         onClick={() => setActiveStickerTag(null)}
-                                        className="text-xs bg-lumino-pink text-white rounded-full w-4 h-4 flex items-center justify-center font-bold"
+                                        className="text-xs bg-lumino-pink text-white rounded-full w-4 h-4 flex items-center justify-center font-bold ml-0.5"
                                     >
                                         ×
                                     </button>
                                 </div>
                             )}
 
-                            <div 
-className="hidden md:flex items-center bg-slate-900 rounded-xl p-1 border border-slate-800 text-xs">
+                            <div className="hidden md:flex items-center bg-slate-900 rounded-xl p-1 border border-slate-800 text-xs shrink-0">
                                 <button
                                     onClick={() => setZoom(z => Math.max(0.55, +(z - 0.08).toFixed(2)))}
-                                    className="px-2.5 py-1 hover:bg-slate-800 rounded-lg font-bold"
+                                    className="px-2 py-0.5 hover:bg-slate-800 rounded-lg font-bold"
                                 >
                                     −
                                 </button>
-                                <span className="px-2.5 font-roboto font-bold text-slate-300">
+                                <span className="px-2 font-roboto font-bold text-slate-300">
                                     {Math.round(zoom * 100)}%
                                 </span>
                                 <button
                                     onClick={() => setZoom(z => Math.min(1.35, +(z + 0.08).toFixed(2)))}
-                                    className="px-2.5 py-1 hover:bg-slate-800 rounded-lg font-bold"
+                                    className="px-2 py-0.5 hover:bg-slate-800 rounded-lg font-bold"
                                 >
                                     +
                                 </button>
@@ -3593,13 +3898,13 @@ className="hidden md:flex items-center bg-slate-900 rounded-xl p-1 border border
 
                             <button
                                 onClick={() => setGridStyle(g => g === 'dots' ? 'lines' : g === 'lines' ? 'clean' : 'dots')}
-                                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-montserrat font-bold text-slate-200 transition"
+                                className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-montserrat font-bold text-slate-200 transition shrink-0"
                             >
-                                Cuadrícula: {gridStyle === 'dots' ? 'Puntos' : gridStyle === 'lines' ? 'Milimétrica' : 'Limpia'}
+                                {gridStyle === 'dots' ? 'Puntos' : gridStyle === 'lines' ? 'Líneas' : 'Limpio'}
                             </button>
 
                             {/* Selector de Tamaño de Cuadrícula */}
-                            <div className="hidden sm:flex items-center bg-slate-900 rounded-xl px-2 py-1 border border-slate-800 text-xs gap-1">
+                            <div className="hidden xl:flex items-center bg-slate-900 rounded-xl px-2 py-1 border border-slate-800 text-xs gap-1 shrink-0">
                                <span className="text-[10px] font-montserrat font-bold text-slate-400 uppercase">Paso:</span>
                                 {[16, 20, 24, 32, 48].map(size => (
                                     <button
@@ -3614,16 +3919,15 @@ className="hidden md:flex items-center bg-slate-900 rounded-xl p-1 border border
                         </div>
 
                         {/* Acciones de Exportación y Modo Presentación */}
-                        <div 
-className="flex items-center gap-2.5">
+                        <div className="flex items-center gap-2 shrink-0">
                             <button
                                 onClick={() => setShowInspector(!showInspector)}
-                                className={`px-3.5 py-2 rounded-xl font-montserrat font-bold text-xs uppercase tracking-wider border transition flex items-center gap-1.5 ${
+                                className={`px-3 py-1.5 rounded-xl font-montserrat font-bold text-xs uppercase tracking-wider border transition flex items-center gap-1.5 shrink-0 ${
                                     showInspector
                                         ? 'bg-lumino-teal text-white border-teal-400 shadow-md'
                                         : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
                                 }`}
-                                title="Abrir/Cerrar el Inspector de Propiedades y Colores"
+                                title="Abrir o Cerrar el Inspector de Propiedades y Colores"
                             >
                                 <span>⚙️ Inspector</span>
                                 {selectedUid && <span className="w-2 h-2 rounded-full bg-lumino-pink animate-ping" />}
@@ -3631,29 +3935,29 @@ className="flex items-center gap-2.5">
 
                             <button
                                 onClick={() => setPresentationMode(!presentationMode)}
-                                className={`px-3.5 py-2 rounded-xl font-montserrat font-bold text-xs uppercase tracking-wider border transition ${
+                                className={`hidden sm:inline-flex px-3 py-1.5 rounded-xl font-montserrat font-bold text-xs uppercase tracking-wider border transition shrink-0 ${
                                     presentationMode
                                         ? 'bg-amber-400 text-lumino-dark border-amber-300'
                                         : 'bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700'
                                 }`}
                             >
-                                {presentationMode ? 'Salir de Presentación' : 'Modo Presentación'}
+                                {presentationMode ? 'Salir Presentación' : 'Presentación'}
                             </button>
 
                             <button
                                 onClick={handleExportJSON}
-                                className="hidden sm:inline-flex px-3.5 py-2 rounded-xl bg-lumino-teal hover:bg-teal-600 text-white font-montserrat font-bold text-xs uppercase tracking-wider transition shadow"
+                                className="hidden lg:inline-flex px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-montserrat font-bold text-xs uppercase tracking-wider transition shadow shrink-0"
                                 title="Guardar diseño en formato JSON"
                             >
-                                Guardar JSON
+                                JSON
                             </button>
 
                             <button
                                 onClick={handleExportPNG}
                                 disabled={isExporting}
-                                className="px-4 py-2 rounded-xl bg-lumino-pink hover:bg-pink-600 text-white font-montserrat font-extrabold text-xs uppercase tracking-wider transition shadow-lg flex items-center gap-2"
+                                className="px-3.5 py-1.5 rounded-xl bg-lumino-pink hover:bg-pink-600 text-white font-montserrat font-extrabold text-xs uppercase tracking-wider transition shadow-lg flex items-center gap-1.5 shrink-0"
                             >
-                                <span>📸 Exportar Visualización (PNG)</span>
+                                <span>📷 Exportar PNG</span>
                             </button>
                         </div>
                     </header>
